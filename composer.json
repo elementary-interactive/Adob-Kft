@@ -12,6 +12,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "neon/site": "^2.0",
+        "neon/menu": "2.0.0-alpha",
         "neon/ui": "0.1.0-alpha-1"
     },
     "require-dev": {
@@ -24,9 +25,7 @@
         "phpunit/phpunit": "^10.0",
         "spatie/laravel-ignition": "^2.0",
         "neon/model-uuid": "^1.0",
-        "neon/attributable": "^1.0",
-
-        "neon/model-menu": "^1.0"
+        "neon/attributable": "^1.0"
     },
     "autoload": {
         "psr-4": {
