@@ -1,0 +1,131 @@
+.search-box {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    display: flex;
+
+
+    input {
+        width: 100%;
+        min-height: 3.4rem;
+        border: 1px solid $grey;
+        background: #fff;
+        outline: none;
+        padding: 0 1.5rem;
+        font-size: 1.4rem;
+        flex: 1;
+    }
+
+    .search-icon,
+    .cancel-icon {
+        display: none;
+    }
+}
+
+@media (min-width: 1200px) {
+    .search-box {
+        position: absolute;
+        right: 0;
+        height: 3.6rem;
+        width: 3.6rem;
+        border-radius: 50%;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        margin: 0;
+        display: block;
+    }
+
+    .search-box.active {
+        width: 300px;
+    }
+
+    .search-box input {
+        width: 100%;
+        height: 100%;
+        border: 2px solid $blue;
+        border-radius: 5rem;
+        background: #fff;
+        outline: none;
+        padding: 0 7.5rem 0 2rem;
+        font-size: 1.4rem;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        flex: unset;
+    }
+
+    .search-box button {
+        display: none;
+    }
+
+    .search-box input.active {
+        opacity: 1;
+    }
+
+    .search-box input::placeholder {
+        color: #a6a6a6;
+    }
+
+    .search-box {
+        .search-icon,
+        .cancel-icon {
+            display: block;
+        }
+    }
+
+    .search-box .search-icon {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 3.6rem;
+        width: 3.6rem;
+        background: #fff;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 3.6rem;
+        font-size: 1.6rem;
+        color: $blue;
+        cursor: pointer;
+        z-index: 1;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .search-box .search-icon.active {
+        right: 0px;
+        height: 3.6rem;
+        line-height: 3.6rem;
+        width: 3.6rem;
+        font-size: 1.4rem;
+        background: $blue;
+        color: #fff;
+        transform: translateY(-50%) rotate(360deg);
+    }
+
+    .search-box .cancel-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.4rem;
+        color: $blue;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.5s 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .search-box .cancel-icon.active {
+        right: 4.8rem;
+        transform: translateY(-50%) rotate(360deg);
+        opacity: 1;
+    }
+
+    .search-box .search-data {
+        text-align: center;
+        padding-top: .7rem;
+        color: #fff;
+        font-size: 1.8rem;
+        word-wrap: break-word;
+    }
+
+    .search-box .search-data.active {
+        display: none;
+    }
+}

@@ -1,0 +1,16 @@
+.breadcrumb {
+    position: relative;
+    padding: .8rem 1.5rem;
+    background-color: #f5f5f5;
+    margin: 0;
+
+    & li:first-child {
+        font-weight: 700;
+    }
+
+    &>li+li:before {
+        padding: 0 .5rem 0 1rem;
+        color: #ccc;
+        content: "/\A0";
+    }
+}

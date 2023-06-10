@@ -1,0 +1,185 @@
+form, .inputs {
+
+    .form-group {
+        margin-bottom: 2.5rem;
+    }
+
+    .form-control {
+        font-size: 1.4rem;
+        color: $black;
+        padding: .6rem 1rem;
+        background-color: $white;
+        border: 1px solid $grey2;
+        border-radius: 4px;
+        height: auto;
+
+        &::placeholder {
+            color: $grey;
+        }
+
+        &:focus {
+            color: $black;
+            border: 1px solid $grey;
+            box-shadow: none;
+            outline: 0 none;
+        }
+
+        &.is-invalid {
+            border-color: $red !important;
+            padding-right: calc(1.5em + .75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ED1C2E'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(.375em + .1875rem) top 1.6rem;
+            background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+        }
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+        border: 1px solid $black;
+        -webkit-text-fill-color: $black;
+        -webkit-box-shadow: 0 0 0px 1000px inherit inset;
+        transition: background-color 5000s ease-in-out 0s;
+        font-size: 1.6rem;
+    }
+
+    label {
+        font-size: 1.4rem;
+        margin-bottom: .6rem;
+        font-weight: 500;
+        color: $black;
+    }
+
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background: transparent;
+        background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 140 140' width='14' height='14' xmlns='http://www.w3.org/2000/svg'><g><path d='m121.3,34.6c-1.6-1.6-4.2-1.6-5.8,0l-51,51.1-51.1-51.1c-1.6-1.6-4.2-1.6-5.8,0-1.6,1.6-1.6,4.2 0,5.8l53.9,53.9c0.8,0.8 1.8,1.2 2.9,1.2 1,0 2.1-0.4 2.9-1.2l53.9-53.9c1.7-1.6 1.7-4.2 0.1-5.8z' fill='black'/></g></svg>");
+        background-repeat: no-repeat;
+        background-position-x: calc(100% - 10px);
+        background-position-y: 50%;
+        padding-right: 2rem;
+
+        &.form-control {
+            padding-right: 4.5rem;
+        }
+
+        & option:disabled {
+            color: $lightgrey;
+        }
+    }
+
+    // custom checkbox
+
+    .form-check {
+        display: flex !important;
+        align-items: center;
+        min-height: 3rem;
+        padding-left: 0;
+        margin-bottom: 1.4rem;
+
+        &.lil {
+            min-height: 3rem;
+
+            .form-check-input {
+                flex: 0 0 3rem;
+                width: 3rem;
+                height: 3rem;
+                border: 1px solid $black;
+            }
+
+            .form-check-label {
+                font-size: 1.4rem;
+                color: $black;
+                font-weight: 400;
+            }
+        }
+
+        &.b-none {
+            .form-check-input {
+                border: none;
+            }
+        }
+    }
+
+    .form-check .form-check-input {
+        float: left;
+        margin-left: -2em;
+      }
+
+    .form-check-input {
+        flex: 0 0 3rem;
+        width: 3rem;
+        height: 3rem;
+        margin: 0 !important;
+        vertical-align: middle;
+        background-color: #fff;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 70%;
+        border: 1px solid $black;
+        border-radius: 50%;
+        appearance: none;
+        color-adjust: exact;
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        font-size: 1.4rem;
+        line-height: 1.4em;
+        font-weight: 400;
+        margin: 0 0 0 1rem;
+        color: $black;
+        cursor: pointer;
+
+        a {
+            text-decoration: underline;
+        }
+    }
+
+    .form-check-input[type=checkbox] {
+        border-radius: 50%;
+    }
+
+    .form-check-input:active {
+        filter: none;
+    }
+
+    .form-check-input:focus {
+        border: 1px solid $black;
+        outline: 0;
+        box-shadow: none;
+    }
+
+    .form-check-input:checked {
+        background-color: $white;
+        border: 1px solid $black;
+    }
+
+    .form-check-input:checked[type=checkbox] {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+    }
+
+    .text-danger {
+        display: block;
+        background-color: $red;
+        font-size: 1.4rem;
+        font-weight: 400;
+        color: $white !important;
+        padding: .3em 1em;
+        border-radius: 0;
+        margin-bottom: 0;
+    }
+}
+
+
+@media (min-width: $row-width) {
+    form, .inputs {}
+}

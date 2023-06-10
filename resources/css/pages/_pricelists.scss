@@ -1,0 +1,16 @@
+.pricelists-container {
+    ul {
+        margin-left: 2rem;
+        margin-bottom: 3em;
+    }
+
+    ul li {
+        margin-bottom: 0;
+    }
+
+    ul li > * {
+        margin: 0 1rem 0 0;
+        font-size: 1.4rem;
+        line-height: 1.3em;
+    }
+}

@@ -4,7 +4,7 @@
         <title>@yield('title')</title>
         @include('web.layouts.head.head')
     </head>
-    <body id="page-top">
+    <body id="page-top" class="preload">
         {{--
         @if (config('app.env') == 'production' && config('google.gtm-code'))
         <!-- Google Tag Manager (noscript) -->
@@ -16,8 +16,10 @@
 
         @include('web.layouts.header.header')
 
-        @section('body')
-        @show
+        <div class="main-container">
+            @section('body')
+            @show
+        </div>
 
         @include('web.layouts.footer.footer')
         @include('web.layouts.footer.scripts')

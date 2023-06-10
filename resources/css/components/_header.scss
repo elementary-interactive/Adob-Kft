@@ -1,0 +1,142 @@
+// header
+
+header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    border-bottom: 1px solid #e7e7e7;
+    z-index: 1000;
+}
+
+// nav
+
+.navbar.navbar-expand-xl {
+    position: relative;
+    padding: 0 1.5rem;
+    margin: 0;
+    min-height: 50px;
+
+    .navbar-collapse {
+        box-shadow: 0 .7rem 2rem -.6rem rgba(0, 0, 0, 0.75);
+        padding: 0 1.5rem;
+        margin: 0 -1.5rem;
+    }
+
+    .navbar-brand {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 50px;
+        padding: 15px;
+        font-size: 18px;
+        line-height: 20px;
+
+        img {
+            width: 88px;
+        }
+    }
+
+    .navbar-toggler {
+        border: none;
+        padding: .5rem 1rem;
+        margin: .8rem 0;
+        font-size: 1.2rem;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        background-color: white;
+        transition: background-color .2s;
+
+        &:hover {
+            background-color: #ddd;
+        }
+    }
+
+    .navbar-toggler:focus,
+    .navbar-toggler:active {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .icon-bar {
+        width: 2.2rem;
+        height: .2rem;
+        margin: .4rem auto;
+        background-color: #888;
+        display: block;
+    }
+
+    .navbar-nav {
+        text-align: left;
+        margin: 1rem 0;
+    }
+
+    .nav-item {
+        position: relative;
+    }
+
+    .nav-link {
+        font-size: 1.4rem;
+        font-weight: 400;
+        line-height: 1.3em;
+        padding: 0;
+        color: $grey;
+        padding: 1rem 0;
+    }
+
+    .nav-link:hover {
+        color: $black;
+        text-decoration: none;
+    }
+
+    .mobile-menu {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar.navbar-expand-xl {
+        padding: 0 1.5rem;
+        justify-content: center;
+
+        .nav-item:last-child {
+            padding-right: 0;
+        }
+
+        .navbar-nav {
+            text-align: right;
+            margin: 0;
+        }
+
+        .navbar-collapse {
+            position: relative;
+            justify-content: center;
+            box-shadow: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            padding: 0;
+        }
+
+        .nav-link {
+            padding: 1.5rem 2.8rem;
+            min-height: 4.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item.active:before {
+            content: "";
+            position: absolute;
+            background-color: #2098D1;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+    }
+}

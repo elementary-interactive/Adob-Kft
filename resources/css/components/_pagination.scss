@@ -1,0 +1,42 @@
+.pagination {
+    margin-top: 3rem;
+    font-size: 1.4rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    a {
+        color: $blue;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        border: 1px solid $blue;
+        margin: 0 .6rem;
+        padding: 0 .4rem;
+        background-color: white;
+        transition: background-color .3s, color .3s;
+
+        &:hover {
+            color: white;
+            background-color: $blue;
+            text-decoration: none;
+        }
+
+        &.active {
+            color: $blue;
+            background-color: rgba($color: $blue, $alpha: .2);
+            pointer-events: none;
+            cursor: default;
+        }
+    }
+
+    i {
+        font-size: 1rem;
+        vertical-align: text-bottom;
+    }
+
+    .prev,
+    .next {}
+}

@@ -1,0 +1,83 @@
+button:focus {
+    outline: none;
+}
+
+.defbtn {
+    display: inline-block;
+    position: relative;
+    font-weight: 400;
+    font-size: 1.3rem;
+    line-height: 1.3rem;
+    color: $white;
+    outline: none;
+    padding: 1.2rem 2rem;
+    border: none;
+    text-align: center;
+    background-color: $blue;
+    border-radius: 0;
+    transition: background-color .3s, color .3s;
+    cursor: pointer;
+
+    &:hover, &:focus {
+        color: $white;
+        background-color: $darkblue;
+    }
+}
+
+#topBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $blue;
+    color: $white;
+    font-size: 1.2rem;
+    visibility: hidden;
+    position: fixed;
+    width: 5rem;
+    height: 5rem;
+    bottom: 2rem;
+    right: 2rem;
+    border-radius: 50%;
+    z-index: 800;
+    cursor: pointer;
+    opacity: 0;
+    filter: brightness(1);
+    transition: visibility .3s, opacity .3s, background-color .3s, filter .3s;
+
+    &:hover {
+        filter: brightness(1.2);
+    }
+
+    span {
+        position: absolute;
+        border: solid #fff;
+        border-width: 0 .3rem .3rem 0;
+        display: inline-block;
+        top: 2rem;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        width: 1.5rem;
+        height: 1.5rem;
+        transition: border .3s;
+
+        &.arrow-up {
+            transform: rotate(-135deg);
+        }
+    }
+}
+
+.btn-on {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+@media (min-width: $row-width) {
+    .defbtn {
+        font-size: 1.5rem;
+        line-height: 1.5rem;
+        padding: 1.5rem 2.5rem;
+        max-height: 5.6rem;
+    }
+}
