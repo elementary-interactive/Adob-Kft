@@ -7,7 +7,7 @@
   <!-- nav -->
 
   <nav class="navbar navbar-expand-xl white-bg">
-    <a class="navbar-brand" href="index.html"><img src="/images/adob_medium.png" alt=""></a>
+    <a class="navbar-brand" href="/"><img src="{{ Vite::asset('/resources/images/adob_medium.png') }}" alt=""></a>
 
     <div class="mobile-menu">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-menu"
@@ -20,16 +20,16 @@
     <div class="collapse navbar-collapse" id="main-menu">
       <ul class="navbar-nav">
         <li class="nav-item active">
-          <a class="nav-link" href="">Termékek</a>
+          <a class="nav-link" href="/">Termékek</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">Márkák</a>
+          <a class="nav-link" href="/brands">Márkák</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">Letölthető árlisták</a>
+          <a class="nav-link" href="/pricelists">Letölthető árlisták</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">Rólunk</a>
+          <a class="nav-link" href="/about">Rólunk</a>
         </li>
       </ul>
 

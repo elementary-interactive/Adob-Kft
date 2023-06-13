@@ -20,21 +20,21 @@
     <div class="row">
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <div class="adob-brand_item" role="button">
-          <img src="/images/brand/tungsram.png" alt="">
+          <img src="{{ Vite::asset('/resources/images/brand/tungsram.png') }}" alt="">
           <h3>TUNGSRAM</h3>
         </div>
       </div>
 
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <div class="adob-brand_item" role="button">
-          <img src="/images/brand/eta.png" alt="">
+          <img src="{{ Vite::asset('/resources/images/brand/eta.png') }}" alt="">
           <h3>ETA</h3>
         </div>
       </div>
 
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <div class="adob-brand_item" role="button">
-          <img src="/images/brand/gogen.webp" alt="">
+          <img src="{{ Vite::asset('/resources/images/brand/gogen.webp') }}" alt="">
           <h3>GOGEN</h3>
         </div>
       </div>
@@ -220,26 +220,26 @@
           <div class="splide__track">
             <ul class="splide__list">
               <li class="splide__slide">
-                <img src="/images/products/01.jpg" alt="">
+                <img src="{{ Vite::asset('/resources/images/products/01.jpg') }}" alt="">
               </li>
               <li class="splide__slide">
-                <img src="/images/products/02.jpg" alt="">
+                <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
               </li>
               <li class="splide__slide">
-                <img src="/images/products/02.jpg" alt="">
+                <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
               </li>
             </ul>
           </div>
         </section>
         <ul id="thumbnails" class="thumbnails">
           <li class="thumbnail">
-            <img src="/images/products/01.jpg" alt="">
+            <img src="{{ Vite::asset('/resources/images/products/01.jpg') }}" alt="">
           </li>
           <li class="thumbnail">
-            <img src="/images/products/02.jpg" alt="">
+            <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
           </li>
           <li class="thumbnail">
-            <img src="/images/products/02.jpg" alt="">
+            <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
           </li>
         </ul>
       </div>
