@@ -24,8 +24,8 @@ rel="stylesheet">
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/@mdi/light-font@0.2.63/css/materialdesignicons-light.min.css">
 
-{{-- <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-<link rel="stylesheet" href="{{ mix('css/style.css') }}"> --}}
+@vite(['resources/scss/app.scss', 'resources/js/app.js', 'resources/js/splide.min.js', 'resources/js/site.js'])
+
 {{--
 @if (config('app.env') == 'production' && config('google.gtm-code'))
     <!-- Google Tag Manager -->

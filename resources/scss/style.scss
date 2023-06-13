@@ -5,6 +5,9 @@
 @import "fonts/_fonts";
 @import "fonts/_fontello";
 
+// external
+@import "ext/splide.min";
+
 // common
 @import "color";
 @import "common";
@@ -29,5 +32,3 @@
 @import "pages/_productlist";
 @import "pages/_search";
 
-// external
-@import "ext/_flickity";
