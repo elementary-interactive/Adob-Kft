@@ -1,0 +1,91 @@
+p,
+.main-container ul,
+.main-container ol  {
+    font-weight: 400;
+    font-size: 1.4rem;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 3rem;
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 2.2rem;
+}
+
+h3 {
+    font-weight: 700;
+    font-size: 1.6rem;
+}
+
+h1, h2, h3 {
+    line-height: 1.3em;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+p {
+    line-height: 1.3em;
+    margin-bottom: 1em;
+}
+
+blockquote {
+    margin: 2em 2em 2em 0;
+    border-left: 2px solid gray;
+    padding: 0 0 0 1em;
+    font-style: italic;
+    color: $grey;
+}
+
+.main-container li {
+    line-height: 1.4em;
+    margin-bottom: .4em;
+}
+
+.regular {
+    font-weight: 400;
+}
+
+.medium {
+    font-weight: 500;
+}
+
+.bold {
+    font-weight: 700;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+@media (min-width: $row-width) {
+    p,
+    .main-container ul,
+    .main-container ol  {
+        font-size: 1.6rem;
+    }
+    
+    h1 {
+        font-size: 3.6rem;
+    }
+    
+    h2 {
+        font-size: 2.6rem;
+    }
+    
+    h3 {
+        font-size: 1.8rem;
+    }
+
+    blockquote {
+        margin: 2em 2em 2em 1.5em;
+        padding: 0 0 0 1.5em;
+        border-left: 3px solid gray;
+    }
+}
