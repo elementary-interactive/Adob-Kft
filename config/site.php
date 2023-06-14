@@ -20,7 +20,7 @@ return [
    * 
    * Supported: "file", "database"
    */
-  'driver' => env('SITE_DRIVER', 'file'),
+  'driver' => env('NEON_SITE_DRIVER', 'file'),
 
   'cache' => true,
 
@@ -43,9 +43,9 @@ return [
    * ```
    */
   'hosts' => [
-    env('SITE_ID') => [
-      'domains' => ['localhost', 'example.com'],
-      'locale'  => 'en',
+    env('NEON_SITE_ID') => [
+      'domains' => ['localhost'],
+      'locale'  => 'hu',
       'slug'    => 'default',
       'title'   => 'Default',
       'default' => true

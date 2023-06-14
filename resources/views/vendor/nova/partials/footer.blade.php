@@ -1,0 +1,1 @@
+&copy; Elementary Interactive, 2023 | N23
