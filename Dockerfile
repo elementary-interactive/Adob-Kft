@@ -23,7 +23,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    libmemcached-dev
+    libmemcached-dev \
+    libicu-dev
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -35,8 +36,13 @@ RUN docker-php-ext-install gd
 RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends && rm -rf /var/lib/apt/lists/*
 RUN printf "\n" | pecl install imagick
 RUN docker-php-ext-enable imagick
-RUN printf "\n" | pecl install memcached
-RUN docker-php-ext-enable memcached
+RUN docker-php-ext-install intl
+RUN docker-php-ext-enable intl
+#
+# don't need memcached...
+#
+# RUN printf "\n" | pecl install memcached
+# RUN docker-php-ext-enable memcached
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -46,9 +52,12 @@ RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
 
 # Install npm and yarn
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get install -y nodejs \
-    && npm i -g yarn
+RUN apt-get install gcc g++ make
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y build-essential \
+    nodejs \
+    npm 
+RUN npm i -g yarn
 
 # Copy existing application directory contents
 COPY . /var/www
