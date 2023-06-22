@@ -1,0 +1,20 @@
+{
+  "Brand": "Márka",
+  "Brands": "Márkák",
+  "Brand name": "Márka megnevezése",
+  "Brand URI": "Márka elérése",
+
+  "Category": "Kategória",
+  "category": "kategória",
+  "Categories": "Kategóriák",
+  "categories": "kategóriák",
+  "Category name": "Kategória megnevezése",
+  "Category URI": "Kategória elérése",
+  "Subcategory": "Alkategória",
+  "Subcategories": "Alkategóriák",
+
+  "Product": "Termék",
+  "Products": "Termékek",
+  "product": "termék",
+  "products": "termékek"
+}
