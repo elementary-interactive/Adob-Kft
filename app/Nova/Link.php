@@ -105,7 +105,7 @@ class Link extends Resource
                             ->hideFromIndex(),
                     ];
                 }),
-            BelongsToMany::make(__('Menu'), 'menus', \App\Nova\MenuItem::class)
+            HasMany::make(__('Menu'), 'menus', \App\Nova\MenuItem::class)
                 ->nullable(),
             Text::make(__('Title'), 'title')
                 // ->slug('slug')
@@ -114,12 +114,12 @@ class Link extends Resource
                 // ->slugifyOptions([
                 //     'lang'  => 'hu'
                 // ])
-                ->from(__('Title'))
+                ->from('title')
                 ->hideFromIndex()
                 ->hideFromDetail(),
             Text::make('', function() use ($model) {
                 return "<a style=\"color: inherit;\" href=\"".url($model->href)."\" target=\"_blank\" title=\"{$model->href}\">".view('nova::icon.svg-link', [
-                    'color'     => 'rgb(var(--colors-gray-400), 0.5)'
+                    'color'     => 'rgb(var(--colors-gray-400), 0.75)'
                 ])->render()."</a>";
             })
                 ->asHtml()

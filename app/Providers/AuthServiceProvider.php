@@ -17,6 +17,9 @@ class AuthServiceProvider extends ServiceProvider
         \Neon\Site\Models\Site::class       => \App\Policies\SitePolicy::class,
         \Neon\Models\Menu::class            => \App\Policies\MenuPolicy::class,
         \Neon\Models\Link::class            => \App\Policies\LinkPolicy::class,
+        \App\Models\Brand::class            => \App\Policies\BrandPolicy::class,
+        \App\Models\Product::class          => \App\Policies\ProductPolicy::class,
+        \App\Models\Category::class         => \App\Policies\CategoryPolicy::class,
     ];
 
     /**

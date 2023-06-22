@@ -15,8 +15,11 @@ use Laravel\Nova\Menu\MenuItem as NovaMenuItem;
 use Laravel\Nova\Menu\MenuSection as NovaMenuSection;
 
 use App\Nova\Admin;
+use App\Nova\Brand;
+use App\Nova\Category;
 use App\Nova\Link;
 use App\Nova\Menu;
+use App\Nova\Product;
 use App\Nova\Site;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
@@ -61,6 +64,22 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         ])
           ->icon('globe')
           ->collapsable(),
+        
+        NovaMenuSection::make(__('Products'), [
+            NovaMenuItem::resource(Brand::class)
+                ->canSee(function (NovaRequest $request) {
+                  return $request->user()->can('viewAny', \App\Models\Brand::class);
+                }),
+            NovaMenuItem::resource(Category::class)
+                ->canSee(function (NovaRequest $request) {
+                  return $request->user()->can('viewAny', \App\Models\Category::class);
+                }),
+            NovaMenuItem::resource(Product::class)
+                ->canSee(function (NovaRequest $request) {
+                  return $request->user()->can('viewAny', \App\Models\Product::class);
+                }),
+        ])
+          ->icon('shopping-bag'),
 
         NovaMenuSection::make(__('Resources'), [
 

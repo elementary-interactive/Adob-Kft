@@ -22,7 +22,7 @@ return [
    */
   'driver' => env('NEON_SITE_DRIVER', 'file'),
 
-  'cache' => true,
+  'cache' => false,
 
   /**
    * The model what will represent a site.
