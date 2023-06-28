@@ -8,6 +8,8 @@ use Illuminate\Validation\Rules;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\KeyValue;
+use Laravel\Nova\Fields\MorphMany;
+use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
@@ -38,6 +40,16 @@ class Site extends Resource
     public static $search = [
         'locale', 'title', 'domain',
     ];
+
+    public static function label()
+    {
+        return __('Sites');
+    }
+
+    public static function singularLabel()
+    {
+        return __('Site');
+    }
 
     /**
      * Get the fields displayed by the resource.
@@ -72,6 +84,7 @@ class Site extends Resource
                 ->rows(5),
             Boolean::make(__("Default site"), 'default')
                 ->help(__('The domain which marked as default will be loaded if no domains were matched by domain or prefix.')),
+            MorphMany::make(__('Variables'), 'attributeValues', AttributeValue::class)
 
         ];
     }

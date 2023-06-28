@@ -13,13 +13,14 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        \Neon\Admin\Models\Admin::class     => \App\Policies\AdminPolicy::class,
-        \Neon\Site\Models\Site::class       => \App\Policies\SitePolicy::class,
-        \Neon\Models\Menu::class            => \App\Policies\MenuPolicy::class,
-        \Neon\Models\Link::class            => \App\Policies\LinkPolicy::class,
-        \App\Models\Brand::class            => \App\Policies\BrandPolicy::class,
-        \App\Models\Product::class          => \App\Policies\ProductPolicy::class,
-        \App\Models\Category::class         => \App\Policies\CategoryPolicy::class,
+        \Neon\Admin\Models\Admin::class             => \App\Policies\AdminPolicy::class,
+        \Neon\Attributable\Models\Attribute::class  => \App\Policies\AttributePolicy::class,
+        \Neon\Site\Models\Site::class               => \App\Policies\SitePolicy::class,
+        \Neon\Models\Menu::class                    => \App\Policies\MenuPolicy::class,
+        \Neon\Models\Link::class                    => \App\Policies\LinkPolicy::class,
+        \App\Models\Brand::class                    => \App\Policies\BrandPolicy::class,
+        \App\Models\Product::class                  => \App\Policies\ProductPolicy::class,
+        \App\Models\Category::class                 => \App\Policies\CategoryPolicy::class,
     ];
 
     /**

@@ -1,4 +1,16 @@
 {
+  "name": "név",
+  "Name": "Név",
+  "slug": "slug",
+  "Slug": "Slug",
+
+  "Variable": "Változó",
+  "Variables": "Változók",
+  "Validation rules": "Validálási szabályok",
+
+  "Site": "Oldal",
+  "Sites": "Oldalak",
+
   "Brand": "Márka",
   "Brands": "Márkák",
   "Brand name": "Márka megnevezése",

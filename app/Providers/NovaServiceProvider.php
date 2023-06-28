@@ -15,6 +15,7 @@ use Laravel\Nova\Menu\MenuItem as NovaMenuItem;
 use Laravel\Nova\Menu\MenuSection as NovaMenuSection;
 
 use App\Nova\Admin;
+use App\Nova\Attribute;
 use App\Nova\Brand;
 use App\Nova\Category;
 use App\Nova\Link;
@@ -40,44 +41,48 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         NovaMenuSection::dashboard(Main::class)->icon('chart-bar'),
 
         NovaMenuSection::make(__('Administer'), [
-            NovaMenuItem::resource(Admin::class)
-                ->canSee(function (NovaRequest $request) {
-                  return $request->user()->can('viewAny', \Neon\Admin\Models\Admin::class);
-                }),
+          NovaMenuItem::resource(Admin::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \Neon\Admin\Models\Admin::class);
+            }),
+          NovaMenuItem::resource(Attribute::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \Neon\Attributable\Models\Attribute::class);
+            }),
         ])
           ->icon('adjustments')
           ->collapsable(),
 
         NovaMenuSection::make(__('Website'), [
-            NovaMenuItem::resource(Site::class)
-                ->canSee(function (NovaRequest $request) {
-                  return config('site.driver', 'file') == 'database' && $request->user()->can('viewAny', \Neon\Site\Models\Site::class);
-                }),
-            NovaMenuItem::resource(Menu::class)
-                ->canSee(function (NovaRequest $request) {
-                  return $request->user()->can('viewAny', \Neon\Models\Menu::class);
-                }),
-            NovaMenuItem::resource(Link::class)
-                ->canSee(function (NovaRequest $request) {
-                  return $request->user()->can('viewAny', \Neon\Models\Link::class);
-                }),
+          NovaMenuItem::resource(Site::class)
+            ->canSee(function (NovaRequest $request) {
+              return config('site.driver', 'file') == 'database' && $request->user()->can('viewAny', \Neon\Site\Models\Site::class);
+            }),
+          NovaMenuItem::resource(Menu::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \Neon\Models\Menu::class);
+            }),
+          NovaMenuItem::resource(Link::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \Neon\Models\Link::class);
+            }),
         ])
           ->icon('globe')
           ->collapsable(),
-        
+
         NovaMenuSection::make(__('Products'), [
-            NovaMenuItem::resource(Brand::class)
-                ->canSee(function (NovaRequest $request) {
-                  return $request->user()->can('viewAny', \App\Models\Brand::class);
-                }),
-            NovaMenuItem::resource(Category::class)
-                ->canSee(function (NovaRequest $request) {
-                  return $request->user()->can('viewAny', \App\Models\Category::class);
-                }),
-            NovaMenuItem::resource(Product::class)
-                ->canSee(function (NovaRequest $request) {
-                  return $request->user()->can('viewAny', \App\Models\Product::class);
-                }),
+          NovaMenuItem::resource(Brand::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \App\Models\Brand::class);
+            }),
+          NovaMenuItem::resource(Category::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \App\Models\Category::class);
+            }),
+          NovaMenuItem::resource(Product::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \App\Models\Product::class);
+            }),
         ])
           ->icon('shopping-bag'),
 
@@ -96,7 +101,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
 
     Nova::footer(function ($request) {
       return view('nova::partials.footer')->render();
-  });
+    });
   }
 
   /**

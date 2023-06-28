@@ -1,5 +1,9 @@
 <?php
 
+use Neon\Models\Link;
+use Neon\Models\Menu;
+use Neon\Site\Models\Site;
+
 return [
 
   /** IMPORTANT!!!
@@ -14,4 +18,19 @@ return [
    * ```
    */
   'cache' => env('NEON_ATTRIBUTABLE_CACHE', false),
+
+  'scopes' => [
+    Site::class => 'Site',
+    Link::class => 'Page',
+    Menu::class => 'Menü'
+  ],
+  'fields' => [
+      'Text'  => 'Szöveges beviteli mező'
+  ],
+  'casts' => [
+    'string'  => 'casts.string',
+    'int'     => 'casts.int',
+    'boolean' => 'casts.boolean'
+  ]
+
 ];
