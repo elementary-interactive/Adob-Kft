@@ -3,16 +3,19 @@
 --}}
 <footer>
   <div class="footer-wrapper">
-    <h4>Adob Kft.</h4>
+    <h4>{{ app('site')->current()->lablec_cegnev }}</h4>
     <ul class="general">
-      <li class="copy me-2">© 2005-2023 Adob Kft.</li>
-      <li>Asz: 13576420-2-41, Cg: 01-09-862445</li>
+      <li class="copy me-2">{!! app('site')->current()->lablec_copyright !!}</li>
+      <li>{!! app('site')->current()->lablec_tax !!}</li>
     </ul>
     <ul class="contact-info">
-      <li>email: <a href="mailto:kapcsolat@adob.hu">kapcsolat@adob.hu</a></li>
-      <li>mobil: <a href="tel:+36301106126">+36 30 110 6126</a></li>
+      @if (app('site')->current()->lablec_email)
+      <li>email: <a href="mailto:{{ app('site')->current()->lablec_email }}">{{ app('site')->current()->lablec_email }}</a></li>
+      @endif
+      @if (app('site')->current()->lablec_phone)
+      <li>mobil: <a href="tel:{{ app('site')->current()->lablec_phone }}">{{ app('site')->current()->lablec_phone }}</a></li>
+      @endif
     </ul>
-    <div class="info">A képek és termékinformációk csak tájékoztató jellegűek. Az esetleges eltérésekért és hibákért
-      az Adob Kft. nem vállal felelősséget.</div>
+    <div class="info">{!! app('site')->current()->lablec_disclaimer !!}</div>
   </div>
 </footer>

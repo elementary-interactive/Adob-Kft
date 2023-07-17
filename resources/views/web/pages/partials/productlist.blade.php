@@ -21,43 +21,38 @@
         </tr>
       </thead>
       <tbody>
-        <tr role="button" tabindex="0">
+        @foreach ($products as $product)
+        
+        <tr role="button" data-href="{{ route('product.show', [
+          'slug'  => $product->slug
+        ])}}" tabindex="0">
           <td>
-            <img alt="" src="https://adob-prod-assets.fra1.digitaloceanspaces.com/74716/conversions/thumb.png">
+            <a href="{{ route('product.show', [
+          'slug'  => $product->slug
+        ])}}"><img alt="" src="https://adob-prod-assets.fra1.digitaloceanspaces.com/74716/conversions/thumb.png"></a>
           </td>
-          <td>Grundig</td>
-          <td>XEH25215074</td>
-          <td>Halloween dekoráció pókok 3 db</td>
+          <td><a href="{{ route('product.show', [
+            'slug'  => $product->slug
+          ])}}">{{ $product->brand->name }}</a></td>
+          <td><a href="{{ route('product.show', [
+            'slug'  => $product->slug
+          ])}}">{{ $product->product_id }}</a></td>
+          <td><a href="{{ route('product.show', [
+            'slug'  => $product->slug
+          ])}}">{!! $product->description !!}</a></td>
         </tr>
-        <tr role="button" tabindex="0">
-          <td>
-            <img alt="" src="https://adob-prod-assets.fra1.digitaloceanspaces.com/74716/conversions/thumb.png">
-          </td>
-          <td>Grundig</td>
-          <td>XEH25215074</td>
-          <td>Halloween dekoráció pókok 3 db</td>
-        </tr>
-        <tr role="button" tabindex="0">
-          <td>
-            <img alt="" src="https://adob-prod-assets.fra1.digitaloceanspaces.com/74716/conversions/thumb.png">
-          </td>
-          <td>Grundig</td>
-          <td>XEH25215074</td>
-          <td>Halloween dekoráció pókok 3 db</td>
-        </tr>
-        <tr role="button" tabindex="0">
-          <td>
-            <img alt="" src="https://adob-prod-assets.fra1.digitaloceanspaces.com/66012/conversions/thumb.png">
-          </td>
-          <td>Grundig</td>
-          <td>XEH25215074</td>
-          <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-            nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
-            esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.</td>
-        </tr>
+        @endforeach
       </tbody>
     </table>
   </div>
 </div>
+{{-- <script type="text/javascript">
+  jQuery(document).ready(function($) {
+      $(".clickable").click(function() {
+          window.location = $(this).data("href");
+      });
+      $(".clickable").contextmenu(function() {
+        window.location = $(this).data("href");
+    });
+  });
+</script> --}}

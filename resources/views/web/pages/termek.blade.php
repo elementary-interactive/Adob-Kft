@@ -1,19 +1,27 @@
 @extends('web.layouts.default')
 
-@section('title', __('meta.impressum.title'))
-
+@section('title', $product->name . ' | ADOB')
 @push('og')
   @include('web.layouts.head.og', ['og' => [
-      'title'             => __('meta.impressum.title'),
-      'description'       =>  __('meta.impressum.description'),
-      'type'              => 'info-page',
+      'title'             => $product->name,
+      'description'       => $product->description,
+      'image'             => '',
+      'type'              => 'website',
       'url'               => \Request::url()
   ]])
 @endpush
 
+@push('meta')
+  @include('web.layouts.head.meta', ['meta' => [
+      'title'             => $product->name,
+      'description'       => $product->description,
+      // 'image'             => '',
+      // 'type'              => 'website',
+      // 'url'               => \Request::url()
+  ]])
+@endpush
 
-@section('body')
-
+@section('body')}
   <!-- product -->
 
   <div class="container-fluid product-container">
@@ -24,53 +32,60 @@
           <div class="splide__track">
             <ul class="splide__list">
               <li class="splide__slide">
-                <img src="{{ Vite::asset('/resources/images/products/01.jpg') }}" alt="">
+                <img src="resources/images/products/01.jpg" alt="">
               </li>
               <li class="splide__slide">
-                <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
+                <img src="resources/images/products/02.jpg" alt="">
               </li>
               <li class="splide__slide">
-                <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
+                <img src="/resources/images/products/02.jpg" alt="">
               </li>
             </ul>
           </div>
         </section>
         <ul id="thumbnails" class="thumbnails">
           <li class="thumbnail">
-            <img src="{{ Vite::asset('/resources/images/products/01.jpg') }}" alt="">
+            <img src="resources/images/products/01.jpg" alt="">
           </li>
           <li class="thumbnail">
-            <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
+            <img src="rresources/images/products/02.jpg" alt="">
           </li>
           <li class="thumbnail">
-            <img src="{{ Vite::asset('/resources/images/products/02.jpg') }}" alt="">
+            <img src="resources/images/products/02.jpg" alt="">
           </li>
         </ul>
       </div>
       <div class="col-12 col-xl-6 product-infos">
-        <h2 class="blue">Füldugó TWS szabadkezes HEADSET BlueTooth hordozóval, fekete GRUNDIG</h2>
+        <h2 class="blue">{{ $product->name }}</h2>
         <div class="row">
           <div class="col-md-12">
             <dl>
               <dt>Márka</dt>
-              <dd>ALLRIDE</dd>
+              <dd>{{ $product->brand->name }}</dd>
             </dl>
             <dl>
               <dt>Cikkszám</dt>
-              <dd>XEH25222733</dd>
+              <dd>{{ $product->product_id }}</dd>
             </dl>
             <dl>
               <dt>EAN</dt>
-              <dd>871125222733</dd>
+              <dd>{{ $product->ean }}</dd>
             </dl>
+            @if ($product->price)
             <dl>
               <dt>Ár</dt>
-              <dd>3487</dd>
+              <dd>{{ $product->price }},- Ft
+              @if ($product->on_sale)
+                &mdash; Jelenleg akciós!
+              @endif
+              </dd>
             </dl>
+            @endif
+
           </div>
         </div>
         <div class="caption">
-          <p class="text-justify">Súly: 0,875Kg. 280x280x90mm. 12db/karton. EAN13: 8711252227337</p>
+          <p class="text-justify">{!! $product->description !!}<br/>{!! $product->packaging !!}</p>
         </div>
       </div>
     </div>

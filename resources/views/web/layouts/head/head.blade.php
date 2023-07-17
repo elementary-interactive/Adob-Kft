@@ -14,7 +14,7 @@
 {{--
     Favicon by Neon Site. (If Neon Site is set, please uncomment.)
 --}}
-{{-- <x-neon-favicon/> --}}
+<x-neon-favicon/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

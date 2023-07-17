@@ -1,6 +1,6 @@
 @extends('web.layouts.default')
 
-@section('title', __('meta.impressum.title'))
+@section('title', $page->title)
 
 @push('og')
   @include('web.layouts.head.og', ['og' => [

@@ -20,10 +20,5 @@
     </x-slot>
   </x-neon-menu>
 
-  <ol class="breadcrumb">
-    <li><a href="">Start</a></li>
-    <li><a href="">Audio</a></li>
-    <li>Gyerekeknek</li>
-  </ol>
-
+  @stack('breadcrumb')
 </header>

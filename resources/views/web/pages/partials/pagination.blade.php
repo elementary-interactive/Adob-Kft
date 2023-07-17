@@ -1,7 +1,15 @@
 <div class="pagination">
-  <a href="#" class="prev"><i class="icon-left-open"></i></a>
-  <a href="#">1</a>
-  <a href="#" class="active">2</a>
-  <a href="#">3</a>
-  <a href="#" class="next"><i class="icon-right-open"></i></a>
-</div>
+  @if ($pager->total() > $pager->perPage())
+  <a href="{{ $pager->previousPageUrl() }}" class="prev"><i class="icon-left-open"></i></a>
+  @endif
+  @for ($p = 1; $p <= $pager->lastPage(); $p++ )
+  <a href="{{ $pager->url($p) }}"
+    @if ($p == $pager->currentPage())
+    class="active"
+    @endif
+  >{{ $p }}</a>
+  @endfor
+  @if ($pager->total() > $pager->perPage())
+  <a href="{{ $pager->nextPageUrl() }}" class="next"><i class="icon-right-open"></i></a>
+  @endif
+  </div>
