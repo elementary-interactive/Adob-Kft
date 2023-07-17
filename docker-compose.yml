@@ -7,6 +7,10 @@ services:
       context: .
       dockerfile: Dockerfile
     image: php
+    deploy:
+      resources:
+        reservations:
+          memory: 256M
     container_name: adobkft_app
     restart: unless-stopped
     tty: true
