@@ -43,7 +43,7 @@
   "Are you sure you want to run this action?": "Biztos el akarja végezni ezt a műveletet?",
   "Attach": "Csatolás",
   "Attach & Attach Another": "Csatolás és új csatolása",
-  "Cancel": "Törlés",
+  "Cancel": "Mégsem",
   "Choose": "Kiválaszt",
   "Choose File": "Válasszon ki egy fájlt",
   "Choose Type": "Válasszon ki egy típust",
@@ -400,5 +400,6 @@
   "There was a problem executing the action.": "Hiba történt a művelet végrehajtása közben",
   "The file was deleted!": "Fájl sikeresen törölve!",
   "This file field is read-only.": "Ez a fájl csak olvasható.",
-  "No additional information...": "Nincs további elérhető információ..."
+  "No additional information...": "Nincs további elérhető információ...",
+  ":resource Details: :title": ":resource részletek: :title"
 }

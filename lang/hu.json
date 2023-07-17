@@ -7,9 +7,24 @@
   "Variable": "Változó",
   "Variables": "Változók",
   "Validation rules": "Validálási szabályok",
+  "Attribute": "Attribútum",
+  "attribute": "Változó",
+  "Form field": "Űrlap mező",
+  "Cast as": "Változó kezelése, mint",
+  "Attribute value edit will shown with this form field.": "A változó szerkesztésekor ez a típúsú mező biztosítja az érték szerkesztését.",
+  "Scope": "Változó értelmezési terület",
+  "Only on this resource will this attribute value available.": "Csak ezen erőforráshoz kapcsolódóan lehet ilyen változót rögzíteni.",
 
-  "Site": "Oldal",
-  "Sites": "Oldalak",
+  "Site": "Weboldal",
+  "Sites": "Weboldalak",
+  
+  "Menu": "Menü",
+  "Menus": "Menük",
+  "Menu Item": "Menü elem",
+  "Menu Items": "Menü elemek",
+
+  "Link": "Oldal",
+  "Links": "Oldalak",
 
   "Brand": "Márka",
   "Brands": "Márkák",
@@ -28,5 +43,26 @@
   "Product": "Termék",
   "Products": "Termékek",
   "product": "termék",
-  "products": "termékek"
+  "products": "termékek",
+  "Available": "Elérhető",
+  "Product ID": "Cikkszám",
+  "Product URI": "Termék elérése",
+  "EAN code": "EAN kód",
+  "Product Number": "Termék szám",
+  "Description": "Leírás",
+  "Package": "Csomagolás",
+  "Price information": "Ár információk",
+  "Price": "Ár",
+  "Product Available": "Termék elérhetőség",
+  "Is on sale": "Akciós termék",
+  "SEO and social sharing information": "SEO és Social Network megosztási adatok",
+
+
+  "Administer": "Adminisztráció",
+
+  "Administrator": "Szerkesztő",
+  "Administrators": "Szerkesztők",
+
+  "Published at": "Publikálás dátuma",
+  "Expired at": "Lejárat dátuma"
 }
