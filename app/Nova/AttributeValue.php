@@ -101,6 +101,7 @@ class AttributeValue extends Resource
             $fields[] = Date::make(__('Published at'), 'published_at');
             $fields[] = Date::make(__('Expired at'), 'expired_at');
         } else {
+            $fields[] = BelongsTo::make('attribute');
             $fields[] = Text::make(__('Value'), 'value');
         }
 
@@ -153,11 +154,11 @@ class AttributeValue extends Resource
      * @param  \Laravel\Nova\Resource  $resource
      * @return \Laravel\Nova\URL|string
      */
-    public static function redirectAfterUpdate(NovaRequest $request, $resource)
-    {
-        dd($resource, $request);
-        // return '/resources/'..'/'.$resource->attributable_id;
-    }
+    // public static function redirectAfterUpdate(NovaRequest $request, $resource)
+    // {
+    //     dd($resource, $request);
+    //     // return '/resources/'..'/'.$resource->attributable_id;
+    // }
 
     /**
      * Get the cards available for the request.

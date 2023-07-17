@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use App\Models\Product as ModelsProduct;
+use App\Nova\Filters\ProductAvailable;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\BelongsToMany;
@@ -43,6 +44,16 @@ class Product extends Resource
         'name', 'product_id', 'description'
     ];
 
+    public static function label()
+    {
+        return __('Products');
+    }
+
+    public static function singularLabel()
+    {
+        return __('Product');
+    }
+
     /**
      * Return a replicated resource.
      *
@@ -78,7 +89,7 @@ class Product extends Resource
             Text::make(__('Name'), 'name')
                 ->sortable()
                 ->rules(['required', 'max:255']),
-            Slug::make(__('Brand URI'), 'slug')
+            Slug::make(__('Product URI'), 'slug')
                 ->rules(['required', Rule::unique('products', 'slug')->ignore($model->id, 'id')])
                 ->from('name'),
             Text::make(__('Product ID'), 'product_id')
@@ -131,7 +142,9 @@ class Product extends Resource
      */
     public function filters(NovaRequest $request)
     {
-        return [];
+        return [
+            (new ProductAvailable),
+        ];
     }
 
     /**

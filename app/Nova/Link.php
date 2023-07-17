@@ -25,6 +25,7 @@ use Laravel\Nova\Fields\{
     Heading,
     Image,
     KeyValue,
+    MorphMany,
     Select,
     Slug,
     Text,
@@ -71,6 +72,16 @@ class Link extends Resource
      * @var integer
      */
     public static $perPageViaRelationship = 15;
+
+    public static function label()
+    {
+        return __('Links');
+    }
+
+    public static function singularLabel()
+    {
+        return __('Link');
+    }
 
     // public static function icon() 
     // {
@@ -180,6 +191,7 @@ class Link extends Resource
                 ->help('Külső hivatkozás, például: https://brightly.hu')
                 ->hideFromIndex()
                 ->hideFromDetail(),
+            MorphMany::make(__('Variables'), 'attributeValues', AttributeValue::class)
         ];
 
         // $advanced_fields = \Neon\Attributable\Models\Attribute::where('class', get_class($model->resource))->get();

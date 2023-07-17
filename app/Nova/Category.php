@@ -37,6 +37,16 @@ class Category extends Resource
         'name',
     ];
 
+    public static function label()
+    {
+        return __('Categories');
+    }
+
+    public static function singularLabel()
+    {
+        return __('Category');
+    }
+    
     /**
      * Get the fields displayed by the resource.
      *

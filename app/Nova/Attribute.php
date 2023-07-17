@@ -70,16 +70,17 @@ class Attribute extends Resource
                 ->rules('required', 'max:255'),
             Slug::make('', 'slug')
                 ->from('name')
-                ->hideFromIndex()
-                ->hideFromDetail(),
+                ->separator('_'),
             Text::make(__('Validation rules'), 'rules')
-                ->help('A szabályokat a keretrendszer <a href="https://laravel.com/docs/6.x/validation#available-validation-rules" target="_blank">beviteli szabályai</a> szerint kell megadni.'),
+                ->help('A szabályokat a keretrendszer <a href="https://laravel.com/docs/10.x/validation#available-validation-rules" target="_blank">beviteli szabályai</a> szerint kell megadni.'),
             Select::make(__('Form field'), 'field')
-                ->options(config('attributable.fields')),
+                ->options(config('attributable.fields'))
+                ->help(__('Attribute value edit will shown with this form field.')),
             Select::make(__('Cast as'), 'cast_as')
                 ->options(config('attributable.casts')),
             Select::make(__('Scope'), 'class')
-                ->options(config('attributable.scopes')),
+                ->options(config('attributable.scopes'))
+                ->help(__('Only on this resource will this attribute value available.')),
             KeyValue::make('parameters')
                 ->rules('json'),
         ];
