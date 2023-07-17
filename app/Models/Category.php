@@ -30,6 +30,24 @@ class Category extends Node
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class)
+            ->withTimestamps();
+    }
+
+    public function getUrlAttribute(): string
+    {
+        return route('product.browse', [
+            'slug'  => $this->getAncestorsAndSelf()->implode('slug', '/')
+        ]);
+    }
+
+    /** Getting "counts" attriute. This way we try to count products of the
+     * subcategories, or the products related to the category itself.
+     * 
+     * @return int;
+     */
+    public function getCountsAttribute(): int
+    {
+        return $this->descendants()->withCount('products')->get()->count() ?: $this->products()->count();
     }
 }
