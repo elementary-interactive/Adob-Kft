@@ -23,6 +23,7 @@ return new class extends Migration
             $table->index('deleted_at');
             $table->foreign('category_id')->references('id')->on('categories');
             $table->foreign('product_id')->references('id')->on('products');
+            $table->unique(['category_id', 'product_id']);
         });
     }
 

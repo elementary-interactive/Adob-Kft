@@ -62,8 +62,8 @@ return new class extends Migration
                 'ean',
                 'packaging'
             ], 'adob_fulltext');
-            $table->unique('product_id');
-            $table->unique('slug');
+            $table->unique(['product_id', 'deleted_at']);
+            $table->unique(['slug', 'deleted_at']);
             $table->index('status');
             $table->index('deleted_at');
         });
