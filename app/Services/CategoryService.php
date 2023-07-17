@@ -46,6 +46,10 @@ class CategoryService
       $this->category = Category::where('slug', Arr::last(explode('/', $slug)))
         ->first();
 
+      if ($this->category) {
+        request()->session()->put('category_id', $this->category->id);
+      }
+
       /** Getting list of categories. */
       $this->categories = Category::where('slug', Arr::last(explode('/', $slug)))
         ->first()
@@ -58,5 +62,11 @@ class CategoryService
       /** If no 'slug' given, getting the root categries. */
       $this->categories = Category::roots()->get();
     }
+  }
+
+  public function find($id)
+  {
+    return Category::find($id)
+      ->first();
   }
 }

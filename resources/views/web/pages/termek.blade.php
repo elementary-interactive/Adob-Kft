@@ -21,6 +21,12 @@
   ]])
 @endpush
 
+@if (isset($category))
+    @push('breadcrumb')
+        <x-breadcrumb slug="{{ $category?->slug }}" product="true" />
+    @endpush
+@endif
+
 @section('body')}
   <!-- product -->
 

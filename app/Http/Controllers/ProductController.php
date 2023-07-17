@@ -14,11 +14,14 @@ use Neon\Models\Link;
 
 class ProductController extends Controller
 {
-    protected $product_service;
+    protected ProductService $product_service;
 
-    public function __construct(ProductService $service)
+    protected CategoryService $category_service;
+
+    public function __construct(ProductService $product_service, CategoryService $category_service)
     {
-        $this->product_service = $service;
+        $this->product_service = $product_service;
+        $this->category_service = $category_service;
     }
 
     public function show(LinkService $page_service, Request $request, string $slug)
@@ -38,7 +41,7 @@ class ProductController extends Controller
             [
                 'page'       => $page,
                 'product'    => $this->product_service->get($slug),
-                // 'category'   => $this->category_service->category,
+                'category'   => $this->category_service->find($request->session()->get('category_id')),
                 // 'categories' => $this->category_service->categories,
                 // 'products'   => $this->category_service->products
             ]

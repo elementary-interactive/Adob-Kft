@@ -11,16 +11,20 @@ use Illuminate\View\Component;
 class Breadcrumb extends Component
 {
     protected $service;
+
+    protected $is_product = false;
    
     /**
      * Create a new component instance.
      */
     public function __construct(
         CategoryService $service,
-        protected string $slug
+        protected string $slug,
+        protected bool $product = false
     )
     {
-        $this->service = $service;
+        $this->is_product   = $product;
+        $this->service      = $service;
         $this->service->init($slug);
         //...
     }
@@ -31,9 +35,10 @@ class Breadcrumb extends Component
     public function render(): View|Closure|string
     {
         return view('components.breadcrumb', [
-            'path'      => $this->service->category->getAncestors(),
-            'current'   => $this->service->category,
-            'slug'      => route('product.browse', [
+            'path'          => $this->service->category->getAncestors(),
+            'current'       => $this->service->category,
+            'is_product'    => $this->is_product,
+            'slug'          => route('product.browse', [
                 'slug'  => null
             ])
         ]);
