@@ -20,8 +20,8 @@ return [
   'cache' => env('NEON_ATTRIBUTABLE_CACHE', false),
 
   'scopes' => [
-    Site::class => 'Site',
-    Link::class => 'Page',
+    Site::class => 'Weboldal',
+    Link::class => 'Oldal',
     Menu::class => 'Menü'
   ],
   'fields' => [
