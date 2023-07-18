@@ -14,8 +14,8 @@
         "laravel/sanctum": "^3.2",
         "laravel/telescope": "^4.14",
         "laravel/tinker": "^2.8",
-        "neon/admin-ui": "2.0.0-alpha-3",
-        "neon/attributable": "^1.0",
+        "neon/admin-ui": "2.0.0-alpha-4",
+        "neon/attributable": "2.0.0-alpha-2",
         "neon/menu": "2.0.0-alpha-2",
         "neon/model-uuid": "^1.0",
         "neon/site": "^2.0",
@@ -39,7 +39,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/Helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
