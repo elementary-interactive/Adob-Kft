@@ -88,7 +88,7 @@ class AttributeValue extends Resource
                 ]);
             }
             if (!$this->resource->exists) {
-                $fields[] = BelongsTo::make('attribute');
+                $fields[] = BelongsTo::make('Attribute');
             }
         }
         else if ($request->editMode == 'update')
@@ -101,7 +101,7 @@ class AttributeValue extends Resource
             $fields[] = Date::make(__('Published at'), 'published_at');
             $fields[] = Date::make(__('Expired at'), 'expired_at');
         } else {
-            $fields[] = BelongsTo::make('attribute');
+            $fields[] = BelongsTo::make('Attribute');
             $fields[] = Text::make(__('Value'), 'value');
         }
 
