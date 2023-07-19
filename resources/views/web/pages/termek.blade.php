@@ -27,7 +27,7 @@
     @endpush
 @endif
 
-@section('body')}
+@section('body')
   <!-- product -->
 
   <div class="container-fluid product-container">
