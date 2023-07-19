@@ -28,3 +28,11 @@ if (!function_exists('block_template'))
         return $result;
     }
 }
+
+if (!function_exists('site'))
+{
+    function site()
+    {
+        return app('site')->current();
+    }
+}
