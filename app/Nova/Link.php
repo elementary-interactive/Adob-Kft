@@ -12,8 +12,6 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 use Whitecube\NovaFlexibleContent\Flexible;
 
 use Eminiarts\Tabs\Traits\HasTabs;
-use Eminiarts\Tabs\Tabs;
-use Eminiarts\Tabs\Tab;
 /** Nova fields.
  * 
  */
@@ -215,13 +213,13 @@ class Link extends Resource
         // $fields[] = $flexible;
 
 
-        $tabs = Tabs::make(__('Link'), [
-            Tab::make(__('Page'), $fields),
-            Tab::make(__('Content'), [$flexible]),
-            Tab::make(__('Advanced Settings'), $advanced_fields),
-        ]);
+        // $tabs = Tabs::make(__('Link'), [
+        //     Tab::make(__('Page'), $fields),
+        //     Tab::make(__('Content'), [$flexible]),
+        //     Tab::make(__('Advanced Settings'), $advanced_fields),
+        // ]);
 
-        return [$tabs];
+        return array_merge($fields, [$flexible], $advanced_fields);
     }
 
     /**
