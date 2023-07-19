@@ -34,10 +34,10 @@ class CategoryController extends Controller
         /** Initalize category service.
          * 
          */
-        $this->category_service->init($slug, 5); //- $page->product_paginate);
+        $this->category_service->init($slug, site()->product_paginate);
 
         return View::first(
-            $page_service->getViews(Arr::first(app('site')->current()->domains)),
+            $page_service->getViews(Arr::first(site()->domains)),
             [
                 'page'       => $page,
                 'category'   => $this->category_service->category,
