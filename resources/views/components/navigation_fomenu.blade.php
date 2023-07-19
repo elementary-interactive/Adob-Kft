@@ -16,7 +16,7 @@
       <ul class="navbar-nav">
         @foreach ($links as $link)
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{{ $link->href }}">{{ $link->title }}</a>
+          <a class="nav-link" aria-current="page" href="{{ $link->url }}">{{ $link->title }}</a>
         </li>
         @endforeach
       </ul>
