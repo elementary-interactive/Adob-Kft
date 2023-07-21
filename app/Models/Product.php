@@ -81,12 +81,12 @@ class Product extends Model
         });
     }
 
-    // public function __construct()
-    // {
-    //     parent::__construct();
-
-    //     $this->
-    // }
+    public function scopeOnlyBrand($query, Brand $brand)
+    {
+        return $query->whereHas('brand', function($query) use ($brand) {
+            $query->where('id', $brand->id);
+        });
+    }
 
     public function brand(): BelongsTo
     {

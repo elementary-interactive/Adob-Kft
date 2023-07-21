@@ -41,7 +41,8 @@ class ProductController extends Controller
             [
                 'page'       => $page,
                 'product'    => $this->product_service->get($slug),
-                'category'   => $this->category_service->find($request->session()->get('category_id')),
+                'category'   => $this->category_service->find($request->session()->get('category')->id),
+                'path'       => $this->category_service->path(null),
                 // 'categories' => $this->category_service->categories,
                 // 'products'   => $this->category_service->products
             ]

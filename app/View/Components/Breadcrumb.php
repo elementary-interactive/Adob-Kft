@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Services\CategoryService;
 use Closure;
@@ -10,7 +11,8 @@ use Illuminate\View\Component;
 
 class Breadcrumb extends Component
 {
-    protected $service;
+    protected $category;
+    protected $brand;
 
     protected $is_product = false;
    
@@ -20,12 +22,13 @@ class Breadcrumb extends Component
     public function __construct(
         CategoryService $service,
         protected string $slug,
-        protected bool $product = false
+        bool $product = false
     )
     {
         $this->is_product   = $product;
-        $this->service      = $service;
-        $this->service->init($slug);
+
+        $this->category = request()->session()->get('category'); //- Category::find($category_id)->first();
+        $this->brand = request()->session()->get('brand'); //- Brand::find($brand_id)->first();
         //...
     }
 
@@ -35,8 +38,9 @@ class Breadcrumb extends Component
     public function render(): View|Closure|string
     {
         return view('components.breadcrumb', [
-            'path'          => $this->service->category->getAncestors(),
-            'current'       => $this->service->category,
+            'path'          => $this->category->getAncestors(),
+            'current'       => $this->category,
+            'brand'         => $this->brand,
             'is_product'    => $this->is_product,
             'slug'          => route('product.browse', [
                 'slug'  => null
