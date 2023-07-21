@@ -24,40 +24,19 @@
 @endpush
 
 @if (isset($category))
-    @push('breadcrumb')
-        <x-breadcrumb slug="{{ $category?->slug }}" />
-    @endpush
+    @include('components.breadcrumb', [
+        'brand' => (isset($brand)) ? $brand : null,
+        'path'  => $path,
+    ])
 @endif
 
 @section('body')
-    @if (isset($categories) && $categories->count())
-        <div class="container-fluid">
-            <div class="row">
-                @foreach ($categories as $category_item)
-                    @if ($category_item->counts)
-                        @include ('partials.browser.item', [
-                            'item' => $category_item,
-                        ])
-                    @endif
-                @endforeach
-            </div>
-        </div>
-    @endif
-    @if (isset($products) && $products->count())
-        <div class="container-fluid fix-width">
-            <div class="row">
-                <div class="col-12">
-
-                    @include('web.pages.partials.productlist', [
-                        'products' => $products,
-                    ])
-
-                    @include('web.pages.partials.pagination', [
-                        'pager' => $products,
-                    ])
-
-                </div>
-            </div>
-        </div>
-    @endif
+    @include('web.pages.partials.categories', [
+        'route'         => (isset($brand)) ? 'brands.browse' : 'product.browse',
+        'brand'         => (isset($brand)) ? $brand : null,
+        'categories'    => $categories
+    ])
+    @include('web.pages.partials.products', [
+        'products'      => $products
+    ])
 @endsection

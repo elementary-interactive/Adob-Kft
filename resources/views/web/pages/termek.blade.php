@@ -21,11 +21,10 @@
   ]])
 @endpush
 
-@if (isset($category))
-    @push('breadcrumb')
-        <x-breadcrumb slug="{{ $category?->slug }}" product="true" />
-    @endpush
-@endif
+@include('components.breadcrumb', [
+  'path'        => $path,
+  'is_product'  => true,
+])
 
 @section('body')
   <!-- product -->
