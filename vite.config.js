@@ -3,8 +3,10 @@ import laravel from 'laravel-vite-plugin';
 import path from 'path';
 
 export default defineConfig({
-    server: {
-        https: true,
+    build: {
+        server: {
+            https: true,
+        },
     },
     plugins: [
         laravel({
