@@ -20,6 +20,14 @@ Route::get('/termekek/{slug?}',[\App\Http\Controllers\CategoryController::class,
     ->where('slug', '[a-z0-9-_\/]+$')
     ->name('product.browse');
 
+Route::get('/markak',[\App\Http\Controllers\BrandController::class, 'brands'])
+    ->name('brands.index');
+
+Route::get('/markak/{brand}/{slug?}',[\App\Http\Controllers\BrandController::class, 'browse'])
+    ->where('brand', '[a-z0-9-_]+$')
+    ->where('slug', '[a-z0-9-_\/]+$')
+    ->name('brands.browse');
+
 // Route::get('/', function () {
 //     return view('web.pages.categories');
 // });
