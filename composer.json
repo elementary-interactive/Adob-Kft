@@ -12,7 +12,6 @@
         "laravel/framework": "^10.0",
         "laravel/nova": "4.23.0",
         "laravel/sanctum": "^3.2",
-        "laravel/telescope": "^4.14",
         "laravel/tinker": "^2.8",
         "neon/admin-ui": "2.0.0-alpha-4",
         "neon/attributable": "2.0.0-alpha-2",
