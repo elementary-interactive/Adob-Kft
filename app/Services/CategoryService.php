@@ -91,7 +91,7 @@ class CategoryService
   {
     if ($slug)
     {
-      request()->session()->put('path', $slug);
+      request()->session()->flash('path', $slug);
     }
 
     $slugs  = Str::of(request()->session()->get('path'))->explode('/')->toArray();
