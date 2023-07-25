@@ -1,3 +1,5 @@
+import Splide from '@splidejs/splide';
+
 window.onload = function () {
     const bodyElemment = document.querySelector("body")
 
