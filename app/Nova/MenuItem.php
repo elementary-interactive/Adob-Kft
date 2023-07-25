@@ -54,7 +54,7 @@ class MenuItem extends Resource
      * @var array
      */
     public static $search = [
-        'title',
+        'title', 'url'
     ];
 
     public static function label()

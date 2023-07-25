@@ -47,7 +47,7 @@ class Menu extends Resource
      * @var array
      */
     public static $search = [
-        'title',
+        'title', 'slug'
     ];
 
     public static function label()

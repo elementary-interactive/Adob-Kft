@@ -24,15 +24,6 @@ class CategoryProduct extends Resource
      */
     public static $model = \App\Models\CategoryProduct::class;
 
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
-    public static $search = [
-        'name',
-    ];
-
     public function title()
     {
         return $this->resource->name;

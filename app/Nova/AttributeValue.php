@@ -40,7 +40,7 @@ class AttributeValue extends Resource
      * @var array
      */
     public static $search = [
-        'name',
+        'value',
     ];
 
     public static function label()

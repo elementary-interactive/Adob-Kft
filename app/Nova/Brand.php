@@ -30,7 +30,7 @@ class Brand extends Resource
      * @var array
      */
     public static $search = [
-        'name',
+        'name', 'slug'
     ];
 
     /**

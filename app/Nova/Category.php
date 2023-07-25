@@ -34,7 +34,7 @@ class Category extends Resource
      * @var array
      */
     public static $search = [
-        'name',
+        'name', 'slug', 'description', 'description_manual'
     ];
 
     public static function label()
