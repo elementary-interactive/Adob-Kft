@@ -11,9 +11,13 @@ export default defineConfig({
     plugins: [
         laravel({
             input: ['resources/scss/app.scss', 'resources/js/app.js', 'resources/js/splide.min.js', 'resources/js/site.js'],
-            refresh: true,
+            refresh: false,
         }),
+        
     ],
+    server: {
+        port: 8000
+      },
     resolve: {
         alias: {
             '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap')
