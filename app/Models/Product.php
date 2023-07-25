@@ -12,15 +12,22 @@ use Neon\Models\Traits\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Neon\Models\Statuses\BasicStatus;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Image\Manipulations;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
     use HasFactory;
     use Statusable;
     use SoftDeletes;
     use Uuid;
+    use InteractsWithMedia;
 
-    const COPY_TAG = '[MÁSOLAT] ';
+    const COPY_TAG          = '[MÁSOLAT] ';
+    const MEDIA_COLLECTION  = 'product_images';
+    const MEDIA_MAIN        = 'product_main';
 
     /**
      * The attributes that are mass assignable.
@@ -79,6 +86,33 @@ class Product extends Model
                 return false;
             } 
         });
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::MEDIA_MAIN)->singleFile();
+        $this->addMediaCollection(self::MEDIA_COLLECTION);
+    }
+
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
+            ->performOnCollections(self::MEDIA_COLLECTION)
+            ->nonQueued();
+
+        $this->addMediaConversion('medium')
+            ->setManipulations(['h' => 600, 'fit' => 'max'])
+            ->performOnCollections(self::MEDIA_COLLECTION);
+
+        $this->addMediaConversion('thumb')
+            ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
+            ->performOnCollections(self::MEDIA_MAIN)
+            ->nonQueued();
+
+        $this->addMediaConversion('medium')
+            ->setManipulations(['h' => 600, 'fit' => 'max'])
+            ->performOnCollections(self::MEDIA_MAIN);
     }
 
     public function scopeOnlyBrand($query, Brand $brand)

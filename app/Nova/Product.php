@@ -18,7 +18,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 use Neon\Models\Statuses\BasicStatus;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
-
+use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 class Product extends Resource
 {
     /**
@@ -100,6 +100,14 @@ class Product extends Resource
                 ->required(),
             Text::make(__('Product Number'), 'product_number')
                 ->rules(['nullable']),
+            Images::make(__('Images'), ModelsProduct::MEDIA_COLLECTION) // second parameter is the media collection name
+                ->conversionOnPreview('thumb') // conversion used to display the "original" image
+                ->conversionOnDetailView('thumb') // conversion used on the model's view
+                ->conversionOnIndexView('thumb') // conversion used to display the image on the model's index page
+                ->conversionOnForm('thumb') // conversion used to display the image on the model's form
+                // validation rules for the collection of images
+                ->singleImageRules('dimensions:min_width=100')
+                ->withResponsiveImages(),
             Trix::make(__('Description'), 'description'),
             Trix::make(__('Package'), 'packaging'),
             Boolean::make(__('Available'), 'status')

@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\View;
 use Neon\Services\LinkService;
 use App\Services\CategoryService;
 use App\Services\ProductService;
+use App\Models\Category;
+use App\Models\Product;
 use Neon\Models\Link;
+
 
 class ProductController extends Controller
 {
@@ -31,6 +34,23 @@ class ProductController extends Controller
          * @var  Link $page
          */
         $page       = $page_service->static('termek');
+        $product    = $this->product_service->get($slug);
+        $brand      = null;
+        $category   = null;
+        $path       = [];
+        
+        if (request()->session()->has('path'))
+        {
+            /** 
+             * @var Str:
+            */
+            $slugs      = Str::of(request()->session()->get('path'))->explode('/')->toArray();
+
+            $category   = $this->category_service->findBySlug(Arr::last($slugs));
+            $path       = $this->category_service->path(Arr::last($slugs));
+        } else {
+            $brand      = $product->brand;
+        }
 
         // /** Initalize category service.
         //  * 
@@ -40,11 +60,42 @@ class ProductController extends Controller
             $page_service->getViews(Arr::first(app('site')->current()->domains)),
             [
                 'page'       => $page,
-                'product'    => $this->product_service->get($slug),
-                'category'   => $this->category_service->find($request->session()->get('category')->id),
-                'path'       => $this->category_service->path(null),
-                // 'categories' => $this->category_service->categories,
-                // 'products'   => $this->category_service->products
+                'product'    => $product,
+                'brand'      => $brand,
+                'category'   => $category,
+                'path'       => $path,
+            ]
+        );
+    }
+
+
+    public function media(LinkService $page_service, Request $request, string $slug)
+    {
+        \DB::enableQueryLog();
+        /** Creating a static pseudo page.
+         * 
+         * @var  Link $page
+         */
+        $page       = $page_service->static('termek');
+
+        $product    = $this->product_service->get($slug);
+
+        $x = $product->addMedia(storage_path('242937646_10161267560773012_507480216691950664_n.jpg'))->toMediaCollection(Product::MEDIA_MAIN);
+        $m = $product->getMedia(Product::MEDIA_COLLECTION);
+        $m[0]->getUrl('thumb');
+        $l = \DB::getQueryLog();
+
+        dd($m, $l, $m[0]->getUrl('thumb'));
+        
+        // /** Initalize category service.
+        //  * 
+        //  */
+        // $this->category_service->init($slug, 5); //- $page->product_paginate);
+        return View::first(
+            $page_service->getViews(Arr::first(app('site')->current()->domains)),
+            [
+                'page'       => $page,
+                'product'    => $product
             ]
         );
     }

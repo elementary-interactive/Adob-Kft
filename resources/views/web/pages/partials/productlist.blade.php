@@ -29,7 +29,7 @@
           <td>
             <a href="{{ route('product.show', [
           'slug'  => $product->slug
-        ])}}"><img alt="" src="https://adob-prod-assets.fra1.digitaloceanspaces.com/74716/conversions/thumb.png"></a>
+        ])}}"><img alt="" src="{{ $product->getFirstMediaUrl(\App\Models\Product::MEDIA_MAIN, 'thumb') }}"></a>
           </td>
           <td><a href="{{ route('product.show', [
             'slug'  => $product->slug
@@ -39,7 +39,7 @@
           ])}}">{{ $product->product_id }}</a></td>
           <td><a href="{{ route('product.show', [
             'slug'  => $product->slug
-          ])}}">{!! $product->description !!}</a></td>
+          ])}}">{!! $product->name !!}</a></td>
         </tr>
         @endforeach
       </tbody>
