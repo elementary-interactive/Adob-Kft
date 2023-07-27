@@ -174,7 +174,11 @@ class Product extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [
+            (new \App\Nova\Actions\ImportCategoryProduct())
+                ->onlyOnIndex()
+                ->standalone()
+        ];
     }
 
     /**
