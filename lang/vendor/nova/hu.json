@@ -402,5 +402,6 @@
   "This file field is read-only.": "Ez a fájl csak olvasható.",
   "No additional information...": "Nincs további elérhető információ...",
   ":resource Details: :title": ":resource részletek: :title",
-  "Add New Media": "Új kép hozzáadása"
+  "Add New Media": "Új kép hozzáadása",
+  "Stadalone Actions": "Általános műveletek"
 }
