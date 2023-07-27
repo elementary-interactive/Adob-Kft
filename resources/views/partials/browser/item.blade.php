@@ -2,10 +2,8 @@
     <a href="{{ route($route, [
         'brand' => $brand?->slug,
         'slug'  => $item->fullSlug
-    ]) }}">
-        <div class="adob-cat_item" role="button">
-            <h3>{{ $item->name }}</h3>
-            <span>{{ $item->counts }} termék</span>
-        </div>
+    ]) }}" class="adob-cat_item">
+        <h3>{{ $item->name }}</h3>
+        <span>{{ $item->counts }} termék</span>
     </a>
 </div>

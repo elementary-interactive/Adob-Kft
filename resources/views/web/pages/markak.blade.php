@@ -31,11 +31,9 @@
   <div class="row">
     @foreach ($featured as $featured_item)
     <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-      <a href="{{ route('brands.browse', ['brand' => $featured_item->slug]) }}">
-      <div class="adob-brand_item" role="button">
+      <a href="{{ route('brands.browse', ['brand' => $featured_item->slug]) }}" class="adob-brand_item">
         <img src="" alt="">
         <h3>{{ $featured_item->name }}</h3>
-      </div>
       </a>
     </div>
     @endforeach
@@ -48,11 +46,9 @@
   <div class="row">
     @foreach ($brands as $brand_item)
     <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-      <a href="{{ route('brands.browse', ['brand' => $brand_item->slug]) }}">
-      <div class="adob-cat_item" role="button">
+      <a href="{{ route('brands.browse', ['brand' => $brand_item->slug]) }}" class="adob-cat_item">
         <h3>{{ $brand_item->name }}</h3>
         {{-- <span>3 termék</span> --}}
-      </div>
       </a>
     </div>
     @endforeach
