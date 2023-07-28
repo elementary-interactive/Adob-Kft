@@ -1,9 +1,4 @@
-{{-- Top bar. --}}
-
-{{--  --}}
-
 <header>
-
   <!-- nav -->
   <x-neon-menu id="fomenu">
     <x-slot:searchbox>
@@ -19,6 +14,5 @@
       </div>
     </x-slot>
   </x-neon-menu>
-
   @stack('breadcrumb')
 </header>

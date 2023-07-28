@@ -8,7 +8,7 @@
         @if ($loop->last)
             @if (isset($is_product) && $is_product == true)
                 <li><a href="{{ $basic_route .= '/' . $category->slug }}">{{ $category->name }}</a></li>
-            @else
+            @elseif (isset($category))
                 <li>{{ $category->name }}</li>
             @endif
         @else

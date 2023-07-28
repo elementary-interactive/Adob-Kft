@@ -7,8 +7,9 @@
           <th>
             <select class="form-control" st-search="brand">
               <option value="">összes</option>
-              <option value="Grundig">Grundig</option>
-              <option value="Nobrand">Nobrand</option>
+              @foreach ($products->unique('brand') as $product)
+              <option value="{{ $product->brand->slug }}">{{ $product->brand->name }}</option>
+              @endforeach
             </select>
           </th>
           <th>cikkszám</th>
@@ -23,7 +24,7 @@
       <tbody>
         @foreach ($products as $product)
         
-        <tr role="button" data-href="{{ route('product.show', [
+        <tr role="button" data-brand="{{ $product->brand->slug }}" data-href="{{ route('product.show', [
           'slug'  => $product->slug
         ])}}" tabindex="0">
           <td>

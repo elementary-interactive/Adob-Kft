@@ -15,7 +15,13 @@
     <div class="collapse navbar-collapse" id="main-menu">
       <ul class="navbar-nav">
         @foreach ($links as $link)
-        <li class="nav-item">
+        <li class="nav-item
+        @if (request()->segment(1) == Arr::first(Str::of($link->url)->explode('/'), function($value) {
+          return Str::of($value)->length > 0;
+        }))
+        active
+        @endif
+        ">
           <a class="nav-link" aria-current="page" href="{{ $link->url }}">{{ $link->title }}</a>
         </li>
         @endforeach

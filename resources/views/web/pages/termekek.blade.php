@@ -23,20 +23,20 @@
     ])
 @endpush
 
-@if (isset($category))
+@push('breadcrumb')
     @include('components.breadcrumb', [
-        'brand' => (isset($brand)) ? $brand : null,
-        'path'  => $path,
+        'brand' => isset($brand) ? $brand : null,
+        'path' => $path,
     ])
-@endif
+@endpush
 
 @section('body')
     @include('web.pages.partials.categories', [
-        'route'         => (isset($brand)) ? 'brands.browse' : 'product.browse',
-        'brand'         => (isset($brand)) ? $brand : null,
-        'categories'    => $categories
+        'route' => isset($brand) ? 'brands.browse' : 'product.browse',
+        'brand' => isset($brand) ? $brand : null,
+        'categories' => $categories,
     ])
     @include('web.pages.partials.products', [
-        'products'      => $products
+        'products' => $products,
     ])
 @endsection
