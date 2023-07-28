@@ -28,7 +28,8 @@ Route::get('/markak/{brand}/{slug?}',[\App\Http\Controllers\BrandController::cla
     ->where('slug', '[a-z0-9-_\/]+$')
     ->name('brands.browse');
 
-Route::get('/', [\App\Http\Controllers\CategoryController::class, 'browse']);
+Route::get('/', [\App\Http\Controllers\CategoryController::class, 'browse'])
+    ->name('index');
 
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');

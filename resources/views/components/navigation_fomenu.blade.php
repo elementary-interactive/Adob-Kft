@@ -2,7 +2,7 @@
   'searchbox'
 ])
 <nav class="navbar navbar-expand-xl white-bg">
-    <a class="navbar-brand" href="/"><img src="{{ Vite::asset('resources/images/adob_medium.png') }}" alt=""></a>
+    <a class="navbar-brand" href="{{ route('index') }}"><img src="{{ Vite::asset('resources/images/adob_medium.png') }}" alt=""></a>
 
     <div class="mobile-menu">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-menu"
