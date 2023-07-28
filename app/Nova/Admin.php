@@ -77,17 +77,17 @@ class Admin extends Resource
     public function fields(Request $request)
     {
         return [
-            Text::make(__('Name'))
+            Text::make(__('Name'), 'name')
                 ->sortable()
                 ->rules('required', 'max:255'),
 
-            Text::make(__('Email'))
+            Text::make(__('Email'), 'email')
                 ->sortable()
                 ->rules('required', 'email', 'max:254')
                 ->creationRules('unique:admins,email')
                 ->updateRules('unique:admins,email,{{resourceId}}'),
 
-            Password::make(__('Password'))
+            Password::make(__('Password'), 'password')
                 ->onlyOnForms()
                 ->creationRules('required', 'string', 'min:6')
                 ->updateRules('nullable', 'string', 'min:6'),
