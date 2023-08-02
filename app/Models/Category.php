@@ -10,11 +10,37 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Neon\Models\Statuses\BasicStatus;
+use Illuminate\Support\Str;
 
 class Category extends Node
 {
     use SoftDeletes;
     use Uuid;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'slug'
+    ];
+
+    protected static function boot()
+    {
+        /** We MUST call the parent boot method  in this case the:
+         *      \Illuminate\Database\Eloquent\Model
+         */
+        parent::boot();
+
+        static::saving(function ($model) {
+            /** Handling URL field: slug is only for the given link, the URL will
+             * contain all the generated slugs.
+             *
+             */
+            $model->slug = Str::slug($model->name);
+        });
+    }
 
     public function parent(): BelongsTo
     {

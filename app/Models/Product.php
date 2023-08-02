@@ -34,7 +34,10 @@ class Product extends Model implements HasMedia
      *
      * @var array
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'product_id', 'product_number', 'name', 'slug', 'packaging', 'description',
+        'ean', 'price', 'on_sale'
+    ];
 
     /** The attributes that should be handled as date or datetime.
      *
@@ -57,15 +60,15 @@ class Product extends Model implements HasMedia
      * @var array
      */
     protected $attributes = [
-        'og_data'    => "{
-            'type'          : '',
-            'title'         : ''
-        }",
-        'meta_data'  => "{
-            'title': '',
-            'keywords': '',
-            'description': ''
-        }"
+        'og_data'    => '{
+            "type"          : "",
+            "title"         : ""
+        }',
+        'meta_data'  => '{
+            "title"         : "",
+            "keywords"      : "",
+            "description"   : ""
+        }'
     ];
 
     protected static function boot()
@@ -130,6 +133,9 @@ class Product extends Model implements HasMedia
 
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class)
+            ->withTimestamps()
+            ->withPivot(['order'])
+            ->orderBy('order');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Nova\Actions;
 
+use App\Imports\ProductsImport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,6 +13,7 @@ use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Notifications\NovaNotification;
 
 use Log;
 use Validator;
@@ -27,7 +29,6 @@ class ImportCategoryProduct extends Action
   use InteractsWithQueue, Queueable;
 
   const MAX_NUMBER_OF_ALTERNATIVE_IMG = 10;
-  const HEADER_ROW_INDEX = 1;
 
   protected $logger;
   private $headerErrors = [];
@@ -57,75 +58,49 @@ class ImportCategoryProduct extends Action
    * Perform the action on the given models.
    *
    * @param  \Laravel\Nova\Fields\ActionFields  $fields
-   * @param  \Illuminate\Support\Collection  $models
    * @return mixed
    */
-  public function handle(ActionFields $fields, Collection $models)
+  public function handle(ActionFields $fields)
   {
     $rules = array(
       'file' => 'required|mimes:xls,xlsx'
     );
 
-    $validator = Validator::make($fields, $rules);
+    $validator = Validator::make($fields->toArray(), $rules);
 
     if ($validator->fails()) {
       return Action::danger($validator->errors);
     } else {
 
       config([
-        'excel.import.startRow'   => self::HEADER_ROW_INDEX,
+        'excel.import.startRow'   => ProductsImport::HEADING_ROW,
         'excel.import.heading'    => 'original',
         'excel.import.calculate'  => false,
       ]);
+      try {
+        Excel::import(new ProductsImport(request()->user()), $fields->file->getRealPath(), null, \Maatwebsite\Excel\Excel::XLSX);
+      } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        $failures = $e->failures();
 
-      Excel::load($fields->file, function ($reader) {
+        // dd($failures);
 
-        $headerValidations = $this->checkHeaderOkayOld($reader);
-
-        if (count($headerValidations->errors) > 0) {
-          $this->headerErrors = array_merge($this->headerErrors, $headerValidations->errors);
-          $this->headerWarnings = array_merge($this->headerWarnings, $headerValidations->warnings);
-
-          return 0; // stop processing the file
-        } else {
-
-          $sheetIndex = 0;
-
-          foreach ($reader->toArray() as $sheet) {
-
-            $rowIndex = 0;
-
-            foreach ($sheet as $row) {
-              $this->saveProduct($row);
-              $rowIndex += 1;
-            }
-
-            $sheetIndex += 1;
-          }
+        foreach ($failures as $failure) {
+          request()->user()->notify(
+            NovaNotification::make()
+              ->message($failure->row().'.sor "'.$failure->attribute().'" - '.implode("\n", $failure->errors($failure->errors())))
+              // ->action('Download', URL::remote('https://example.com/report.pdf'))
+              ->icon('exclamation-circle')
+              ->type('error')
+          ) ;
+          // $failure->row(); // row that went wrong
+          // $failure->attribute(); // either heading key (if using heading row concern) or column index
+          // $failure->errors(); // Actual error messages from Laravel validator
+          // $failure->values(); // The values of the row that has failed.
         }
-      }, 'UTF-8');
-
-
-      if (count($this->headerErrors) > 0) {
-        return response()->json(
-          [
-            'errors' => ['header' => $this->headerErrors],
-            'warnings' => ['header' => $this->headerWarnings]
-          ],
-          422,
-          ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
-          JSON_UNESCAPED_UNICODE
-        );
+        return Action::danger('Hiba történt importálás közben!');
       }
 
-      return response()->json(
-        [
-          'success' => 'Sikeres feltöltés!'
-        ],
-        200,
-        ['Content-Type' => 'application/json;charset=UTF-8', 'Charset' => 'utf-8'],
-        JSON_UNESCAPED_UNICODE
-      );
+      return Action::message('Importálás elkezdve...');
     }
   }
 
@@ -144,7 +119,7 @@ class ImportCategoryProduct extends Action
         ->min(0)
         ->step(1)
         ->withMeta([
-          "defaultValue" => 0,
+          "value" => 1,
         ]),
     ];
   }

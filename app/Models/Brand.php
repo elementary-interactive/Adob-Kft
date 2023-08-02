@@ -18,7 +18,7 @@ class Brand extends Model
      * @var array
      */
     protected $fillable = [
-        
+        'name', 'slug'
     ];
 
     /** The attributes that should be handled as date or datetime.
