@@ -5,12 +5,16 @@
         <tr>
           <th>kép</th>
           <th>
+            @if ($products->unique('brand')->count() > 1)
             <select class="form-control" st-search="brand">
               <option value="">összes</option>
               @foreach ($products->unique('brand') as $product)
               <option value="{{ $product->brand->slug }}">{{ $product->brand->name }}</option>
               @endforeach
             </select>
+            @else
+            márka
+            @endif
           </th>
           <th>cikkszám</th>
           <th>
