@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
+        Schema::table('category_product', function (Blueprint $table) {
             $table->uuid('order')
                 ->nullable()
                 ->default(null)
@@ -28,8 +28,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->uuid('brand_id')
+        Schema::table('category_product', function (Blueprint $table) {
+            $table->uuid('order')
                 ->nullable(false)
                 ->change();
         });
