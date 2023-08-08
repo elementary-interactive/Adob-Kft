@@ -25,11 +25,13 @@
     ])
 @endpush
 
-@include('components.breadcrumb', [
-    'path'          => $path,
-    'brand'         => (isset($brand)) ? $brand : null,
-    'is_product'    => true,
-])
+@push('breadcrumb')
+    @include('components.breadcrumb', [
+        'path' => $path,
+        'brand' => isset($brand) ? $brand : null,
+        'is_product' => true,
+    ])
+@endpush
 
 @section('body')
     <!-- product -->
