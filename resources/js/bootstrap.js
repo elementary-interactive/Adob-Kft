@@ -1,11 +1,14 @@
 import loadash from 'lodash'
 window._ = loadash
 
+import $ from 'jquery';
+window.$ = $;
 
 import * as Popper from '@popperjs/core'
 window.Popper = Popper
 
 import 'bootstrap'
+
 
 
 /**
