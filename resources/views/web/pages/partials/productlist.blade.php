@@ -6,8 +6,8 @@
           <th>kép</th>
           <th>
             @if ($products->unique('brand')->count() > 1)
-            <select class="form-control" st-search="brand">
-              <option value="">összes</option>
+            <select class="form-control" id="search-brand">
+              <option value="______">összes</option>
               @foreach ($products->unique('brand') as $product)
               <option value="{{ $product->brand->slug }}">{{ $product->brand->name }}</option>
               @endforeach
@@ -20,12 +20,12 @@
           <th>
             <span st-sort="name" role="columnheader" aria-sort="none">megnevezés</span>
             <span class="product-list_common-search-bar">
-              <input class="form-control" st-search="" placeholder="keresés..." type="text">
+              <input class="form-control" id="search-name" placeholder="keresés..." type="text">
             </span>
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="search-data">
         @foreach ($products as $product)
         
         <tr role="button" data-brand="{{ $product->brand->slug }}" data-href="{{ route('product.show', [
@@ -51,13 +51,45 @@
     </table>
   </div>
 </div>
-{{-- <script type="text/javascript">
-  jQuery(document).ready(function($) {
-      $(".clickable").click(function() {
-          window.location = $(this).data("href");
+<script type="module">
+  $(document).ready(function($) {
+      $("#search-brand").change(function() {
+        var b = $("#search-brand").val();
+        
+        $("#search-data").children('tr').each(function() {
+          if (b == '______' || $(this).data('brand') == b) {
+            $(this).show();
+          }
+          else if ($(this).data('brand') != b)
+          {
+            $(this).hide();
+          }
+        });
       });
-      $(".clickable").contextmenu(function() {
-        window.location = $(this).data("href");
+      $("#search-name").keypress(function() {
+        var q = $("#search-name").val().toLowerCase();
+
+        $("#search-data").children('tr').each(function() {
+          if (q == '') {
+            $(this).show();
+          }
+          else
+          {
+            var f = false;
+            $(this).children('td').each(function() {
+              var x = $(this).children('a:first').html().toLowerCase().indexOf(q);
+              
+              if (x > -1) {
+                f = true;
+              }
+            })
+            if (f) {
+              $(this).show();
+            } else {
+              $(this).hide();
+            }
+          }
+        });
     });
   });
-</script> --}}
+</script>
