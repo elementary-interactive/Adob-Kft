@@ -14,6 +14,8 @@
 
         th {
             vertical-align: bottom;
+            min-height: 3em;
+            height: 3em;
             border-bottom: 2px solid $darkgrey;
 
             &:nth-child(1) {
