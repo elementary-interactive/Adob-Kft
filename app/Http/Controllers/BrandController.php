@@ -46,6 +46,7 @@ class BrandController extends Controller
 
     public function browse(LinkService $page_service, Request $request, string $brand, string $slug = null)
     {
+        \DB::enableQueryLog();
         /** We need these:
          * 
          */
@@ -74,19 +75,20 @@ class BrandController extends Controller
         if ($slug)
         {
             $category   = $this->category_service->findBySlug($slug);
-            
+
             if ($category)
             {
                 $products   = $this->category_service->getProducts($brand);
                 $categories = $this->category_service->getChildren($brand);
             }
         }
-        
+
         if (!$categories)
         {
             $categories = $this->category_service->root($brand);
         }
-
+        // dump(\DB::getQueryLog());
+        // dd($categories);
         return View::first(
             $page_service->getViews(Arr::first(site()->domains)),
             [

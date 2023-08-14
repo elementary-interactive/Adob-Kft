@@ -37,13 +37,28 @@ class CategoryService
     /** Getting roots...
      * 
      */
-    $roots = Category::roots();
+    $roots = Category::roots()
+      ->get();
 
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
-      $roots->onlyBrand($brand);
+      $roots = [];
+      $categories = Category::onlyBrand($brand)->get();
+      foreach ($categories as $category)
+      {
+        $ancestors = $category->getAncestors();
+
+        foreach ($ancestors as $ancestor)
+        {
+          if ($ancestor->isRoot() && !in_array($ancestor, $roots))
+          {
+            $roots[] = $ancestor;
+          }
+        }
+      }
+      $roots = collect($roots);
     }
 
-    return $roots->get();
+    return $roots;
   }
 
   public function findBySlug($slug): Category
@@ -86,14 +101,28 @@ class CategoryService
 
   public function getChildren(Brand $brand = null)
   {
-    $children = $this->category->descendants()->withCount('products');
+    $children = $this->category->immediateDescendants()->get();
 
     if ($brand)
     {
-      $children->onlyBrand($brand);
+        $children = [];
+        $categories = Category::onlyBrand($brand)->get();
+        foreach ($categories as $category)
+        {
+          $ancestors = $category->getAncestorsAndSelf();
+  
+          foreach ($ancestors as $ancestor)
+          {
+            if ($ancestor->parent_id == $this->category->id && !in_array($ancestor, $children))
+            {
+              $children[] = $ancestor;
+            }
+          }
+        }
+        $children = collect($children);
     }
 
-    return $children->get();
+    return $children;
   }
 
   public function getProducts(Brand $brand = null)

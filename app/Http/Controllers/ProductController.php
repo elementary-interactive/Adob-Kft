@@ -23,7 +23,7 @@ class ProductController extends Controller
 
     public function __construct(ProductService $product_service, CategoryService $category_service)
     {
-        $this->product_service = $product_service;
+        $this->product_service  = $product_service;
         $this->category_service = $category_service;
     }
 
@@ -42,12 +42,12 @@ class ProductController extends Controller
         if (request()->session()->has('path'))
         {
             /** 
-             * @var Str:
+             * @var string
             */
-            $slugs      = Str::of(request()->session()->get('path'))->explode('/')->toArray();
+            $slugs      = request()->session()->get('path');
 
-            $category   = $this->category_service->findBySlug(Arr::last($slugs));
-            $path       = $this->category_service->path(Arr::last($slugs));
+            $category   = $this->category_service->findBySlug($slugs);
+            $path       = $this->category_service->path($slugs);
         } else {
             $brand      = $product->brand;
         }

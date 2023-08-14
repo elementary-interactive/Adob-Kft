@@ -49,6 +49,8 @@ class BrandService
     $this->brand = Brand::where('slug', $slug)
       ->firstOrFail();
 
+      request()->session()->flash('brand', $this->brand->id);
+
     return $this->brand;
   }
 }

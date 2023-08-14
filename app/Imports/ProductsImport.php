@@ -132,7 +132,7 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
    */
   private function saveProduct($row, $isAggregate = false, $is_active = null)
   {
-    $isNew = null;
+    $is_new = null;
 
     $pid = $isAggregate ? $this->generateAgrProductID($row[self::COLUMN_PRODUCT_ID], $this->agrIdPostfix) : $row[self::COLUMN_PRODUCT_ID];
 
@@ -163,9 +163,9 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
 
     if ($product->exists) {
       // $this->track->increaseModified();
-      $isNew = false;
+      $is_new = false;
     } else {
-      $isNew = true;
+      $is_new = true;
       // $this->track->increaseInserted();
     }
 
@@ -189,19 +189,11 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
 
     /** Upload categories...
      */
-    if ($isNew) {
-      $this->attach_product_to_categories(
-        $product,
-        $this->save_categories($categories, $saveDescToCategory, $category_description)
-      );
-    } else {
+    if (!$is_new)
+    {
       $product->categories()->detach();
-
-      $this->attach_product_to_categories(
-        $product,
-        $this->save_categories($categories, $saveDescToCategory, $category_description)
-      );
     }
+    $this->attach_product_to_categories($product, $categories, $saveDescToCategory, $category_description);
 
     return $product;
   }
@@ -345,11 +337,13 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
     return $lastCategoryNodes;
   }
 
-  private function attach_product_to_categories($product, $categories)
+  private function attach_product_to_categories($product, $categories, $saveDescToCategory, $category_description): bool
   {
-    if ($product->exists && count($categories) > 0) {
-      foreach ($categories as $cat) {
-        $product->categories()->attach($cat);
+    $_categories = $this->save_categories($categories, $saveDescToCategory, $category_description);
+
+    if ($product->exists && count($_categories) > 0) {
+      foreach ($_categories as $category) {
+        $product->categories()->attach($category);
       }
       return true;
     }

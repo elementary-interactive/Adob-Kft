@@ -54,7 +54,7 @@ class CategoryController extends Controller
                 $categories = $this->category_service->getChildren();
             }
         }
-        
+
         if (!$categories)
         {
             $categories = $this->category_service->root();
