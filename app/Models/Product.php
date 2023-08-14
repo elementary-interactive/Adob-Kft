@@ -52,7 +52,8 @@ class Product extends Model implements HasMedia
      */
     protected $casts = [
         'og_data'   => 'array',
-        'meta_data' => 'array'
+        'meta_data' => 'array',
+        'price'     => 'integer',
     ];
 
     /** The model's default values for attributes.
