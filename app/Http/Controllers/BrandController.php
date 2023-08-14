@@ -73,7 +73,8 @@ class BrandController extends Controller
 
         if ($slug)
         {
-            $category   = $this->category_service->findBySlug(Arr::last(explode('/', $slug)));
+            $category   = $this->category_service->findBySlug($slug);
+            
             if ($category)
             {
                 $products   = $this->category_service->getProducts($brand);

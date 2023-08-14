@@ -48,9 +48,30 @@ class CategoryService
 
   public function findBySlug($slug): Category
   {
+    $slugs = Str::of($slug)->explode('/');
+
+    if ($slugs->count() == 1)
+    {
+      $category = Category::roots()
+        ->where('slug', Arr::pull($slugs, 0))
+        ->first()
+        ->getDescendantsAndSelf();
+    } else {
+      $category = Category::roots()
+        ->where('slug', Arr::pull($slugs, 0))
+        ->first()
+        ->getDescendants();
+    }
+   
+    foreach ($slugs as $slug_item)
+    {
+      $category = $category->where('slug', $slug_item)
+        ->first()
+        ->getDescendantsAndSelf();
+    }
+
     /** Getting category... */
-    $this->category = Category::where('slug', Arr::last(explode('/', $slug)))
-      ->first();
+    $this->category = $category->first();
 
     return $this->category;
   }
@@ -89,16 +110,31 @@ class CategoryService
 
   public function path($slug = null)
   {
+    $path   = array();
+
     if ($slug)
     {
       request()->session()->flash('path', $slug);
+    
+      $slugs  = Str::of($slug)->explode('/');
+
+      $category = Category::roots()
+        ->where('slug', Arr::pull($slugs, 0))
+        ->first()
+        ->getDescendantsAndSelf();
+
+      $path[] = $category->first();
+     
+      foreach ($slugs as $slug_item)
+      {
+        $category = $category->where('slug', $slug_item)
+          ->first()
+          ->getDescendantsAndSelf();
+
+        $path[] = $category->first();
+      }
     }
 
-    $slugs  = Str::of(request()->session()->get('path'))->explode('/')->toArray();
-    $path   = Category::whereIn('slug', $slugs)->get();
-    
-    return $path->sortBy(function($model) use ($slugs) {
-      return array_search($model->slug, $slugs);
-    });
+    return $path;
   }
 }
