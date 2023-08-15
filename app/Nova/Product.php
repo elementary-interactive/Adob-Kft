@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\Currency;
 use Laravel\Nova\Fields\Heading;
 use Laravel\Nova\Fields\KeyValue;
 use Laravel\Nova\Fields\Slug;
+use Laravel\Nova\Fields\Stack;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -83,23 +84,31 @@ class Product extends Resource
         $model = $this;
 
         return [
+            Text::make(__('Product ID'), 'product_id')
+                ->rules(['required', Rule::unique('products', 'product_id')->ignore($model->id, 'id')])
+                ->readonly($this->id)
+                ->copyable()
+                ->sortable()
+                ->required(),
             BelongsTo::make(__('Brand'), 'brand', Brand::class)
                 ->sortable()
-                ->rules(['required', 'max:255']),
+                ->rules(['required', 'max:255'])
+                ->hideFromIndex(),
+            Text::make('')
+                ->resolveUsing(function () {
+                    return '<a style="color: inherit;" href="'.route('product.show', ['slug' => $this->resource->slug]).'" target="_blank" title="'.$this->resource->name.'">'.view('nova::icon.svg-link', [
+                        'color'     => 'rgb(var(--colors-gray-400), 0.75)'
+                    ])->render().'</a>';
+                })
+                ->asHtml()
+                ->onlyOnIndex(),
             Text::make(__('Name'), 'name')
                 ->sortable()
                 ->rules(['required', 'max:255']),
             Slug::make(__('Product URI'), 'slug')
                 ->rules(['required', Rule::unique('products', 'slug')->ignore($model->id, 'id')])
-                ->from('name'),
-            Text::make(__('Product ID'), 'product_id')
-                ->rules(['required', Rule::unique('products', 'product_id')->ignore($model->id, 'id')])
-                ->required(),
-            Text::make(__('EAN code'), 'ean')
-                ->rules(['required', Rule::unique('products', 'ean')->ignore($model->id, 'id'), 'max:13'])
-                ->required(),
-            Text::make(__('Product Number'), 'product_number')
-                ->rules(['nullable']),
+                ->from('name')
+                ->onlyOnForms(),
             Images::make(__('Images'), ModelsProduct::MEDIA_COLLECTION) // second parameter is the media collection name
                 ->conversionOnPreview('thumb') // conversion used to display the "original" image
                 ->conversionOnDetailView('thumb') // conversion used on the model's view
@@ -108,8 +117,10 @@ class Product extends Resource
                 // validation rules for the collection of images
                 ->singleImageRules('dimensions:min_width=100')
                 ->withResponsiveImages(),
-            Trix::make(__('Description'), 'description'),
-            Trix::make(__('Package'), 'packaging'),
+            Trix::make(__('Description'), 'description')
+                ->hideFromIndex(),
+            Trix::make(__('Package'), 'packaging')
+                ->hideFromIndex(),
             Boolean::make(__('Available'), 'status')
                 ->trueValue(\Neon\Models\Statuses\BasicStatus::Active->value)
                 ->falseValue(\Neon\Models\Statuses\BasicStatus::Inactive->value)
@@ -122,12 +133,22 @@ class Product extends Resource
                 ]),
             Heading::make(__('Price information')),
             Currency::make(__('Price'), 'price')
-                ->min(1)->max(10000000)->step(0.01)
+                ->min(1)->max(10000000)->step('any')
                 ->currency('HUF')
+                ->locale('hu')
                 ->help(__('Informative, recommended net consumer price.')),
             Boolean::make(__('Is on sale'), 'on_sale'),
             BelongsToMany::make(__('Categories'), 'categories', Category::class)
                 ->fields(new CategoryProductFields),
+            Text::make(__('EAN code'), 'ean')
+                ->rules(['required', Rule::unique('products', 'ean')->ignore($model->id, 'id'), 'max:13'])
+                ->readonly($this->id)
+                ->hideFromIndex()
+                ->required(),
+            Text::make(__('Product Number'), 'product_number')
+                ->readonly($this->id)
+                ->hideFromIndex()
+                ->rules(['nullable']),
         ];
     }
 

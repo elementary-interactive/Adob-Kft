@@ -1,6 +1,6 @@
 {
-  "name": "név",
-  "Name": "Név",
+  "name": "megnevezés",
+  "Name": "Megnevezés",
   "slug": "slug",
   "Slug": "Slug",
 
@@ -46,7 +46,7 @@
   "products": "termékek",
   "Available": "Aktív",
   "Product ID": "Cikkszám",
-  "Product URI": "Termék elérése",
+  "Product URI": "Termék URL",
   "EAN code": "EAN kód",
   "Product Number": "Termék szám",
   "Description": "Leírás",
