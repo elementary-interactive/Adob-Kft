@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Neon\Models\Traits\Uuid;
-use Illuminate\Support\Facades\Artisan;
+use App\Jobs\CountBrandCategoryProducts;
 
 class Brand extends Model
 {
@@ -29,7 +29,7 @@ class Brand extends Model
     protected $dates = [
         'created_at', 'updated_at', 'deleted_at',
     ];
-    
+
     public function products(): HasMany
     {
         return $this->hasMany(\App\Models\Product::class);
@@ -43,7 +43,7 @@ class Brand extends Model
       parent::boot();
   
       static::saved(function ($model) {
-        Artisan::call("app:calculate-product-counts");
+        CountBrandCategoryProducts::dispatch();
       });
     }
 }

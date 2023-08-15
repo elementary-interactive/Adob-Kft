@@ -16,6 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Jobs\CountBrandCategoryProducts;
 use Illuminate\Support\Facades\Artisan;
 
 class Product extends Model implements HasMedia
@@ -92,7 +93,7 @@ class Product extends Model implements HasMedia
     });
 
     static::saved(function ($model) {
-      Artisan::call("app:calculate-product-counts");
+      CountBrandCategoryProducts::dispatch();
     });
   }
 

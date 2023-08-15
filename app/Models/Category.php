@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Neon\Models\Statuses\BasicStatus;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
+use App\Jobs\CountBrandCategoryProducts;
 
 class Category extends Node
 {
@@ -45,7 +46,7 @@ class Category extends Node
     });
 
     static::saved(function ($model) {
-      Artisan::call("app:calculate-product-counts");
+      CountBrandCategoryProducts::dispatch();
     });
   }
 

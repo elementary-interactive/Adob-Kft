@@ -57,6 +57,7 @@ class Category extends Resource
     {
         return [
             BelongsTo::make(__('Parents'), 'parent', Category::class)
+                ->sortable()
                 ->nullable(),
             Text::make(__('Category name'), 'name')
                 ->sortable()
