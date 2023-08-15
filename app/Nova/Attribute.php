@@ -42,7 +42,7 @@ class Attribute extends Resource
      * @var array
      */
     public static $search = [
-        'name', 'slug', 'field', 'cast_as', 'required'
+        'name', 'slug', 'field', 'cast_as'
     ];
 
     public static function label()

@@ -23,6 +23,13 @@ class CategoryProduct extends Resource
      * @var class-string<\App\Models\Category>
      */
     public static $model = \App\Models\CategoryProduct::class;
+    
+    /**
+     * Indicates if the resource should be globally searchable.
+     *
+     * @var bool
+     */
+    public static $globallySearchable = false;
 
     public function title()
     {

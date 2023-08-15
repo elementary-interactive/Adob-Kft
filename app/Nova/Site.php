@@ -15,6 +15,7 @@ use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Query\Search\SearchableJson;
 
 class Site extends Resource
 {
@@ -33,13 +34,14 @@ class Site extends Resource
     public static $title = 'title';
 
     /**
-     * The columns that should be searched.
+     * Get the searchable columns for the resource.
      *
-     * @var array
+     * @return array
      */
-    public static $search = [
-        'locale', 'title', 'domain',
-    ];
+    public static function searchableColumns()
+    {
+        return ['locale', 'title', new SearchableJson('domains')];
+    }
 
     public static function label()
     {
