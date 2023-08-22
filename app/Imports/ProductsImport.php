@@ -192,10 +192,6 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
 
     $product->save();
 
-    /** Check is there category & adding to categories
-     */
-    $categories = $this->XXXXXXX_categories($row);
-
     // leírások feltöltése a kategóriákhoz
     $saveDescToCategory = null;
     $category_description = null;
@@ -208,7 +204,6 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
       }
     }
 
-    dd($product, $categories);
     /** Upload categories...
      */
     if (!$is_new)
@@ -216,11 +211,11 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
       $product->categories()->detach();
     }
 
-    foreach ($categories as $cc)
-    {
-      $product->categories()->attach($cc);
-    }
-    // $this->attach_product_to_categories($product, $categories, $saveDescToCategory, $category_description);
+    /** Check is there category & adding to categories.
+     * 
+     * This method will also insert or modify categories.
+     */
+    $this->attach_categories($product, $row);
 
     return $product;
   }
@@ -228,11 +223,12 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
   /** Parse and save categories. Returns with nodes where to product should be
    * attached.
    * 
+   * @param Product $product
    * @param array $row The row data.
    * 
    * @return array $categories
    */
-  private function XXXXXXX_categories(array $row): array
+  private function attach_categories(Product $product, array $row): array
   {
     $columns  = array_keys($row);
 
@@ -240,39 +236,66 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
-      $main_category = Category::firstOrCreate([
-        'slug'        => Str::slug($row[self::$columns::MAIN_CATEGORY->value]),
-        'parent_id'   => null
-      ], [
-        'name'        => $row[self::$columns::MAIN_CATEGORY->value],
-        'description' => $row[self::$columns::DESCRIPTION->value]
-      ]);
+      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/".self::$columns::MAIN_CATEGORY->value."[^\d]*{$categories_index}[^\w]*/" : "/".self::$columns::MAIN_CATEGORY->value."/", $columns));
 
-      $category = null;
-      
-      for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++)
+      if ($row[$main_category_column])
       {
-        if (is_null($category))
-        {
-          $category = $main_category;
-        }
-        $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/alkat{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/alkat{$sub_category_count}/", $columns));
+        $main_category = Category::firstOrCreate([
+          'slug'        => Str::slug($row[$main_category_column]),
+          'parent_id'   => null
+        ], [
+          'name'        => $row[$main_category_column],
+          'description' => $row[$main_category_column]
+        ]);
+
+        $category = null;
         
-        if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column]))
+        for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++)
         {
-          $sub_category = Category::firstOrCreate([
-            'slug'        => Str::slug($row[$sub_category_column]),
-            'parent_id'   => $category->id
-          ], [
-            'name'        => $row[$sub_category_column]
-          ]);
-          $sub_category->save();
-          $sub_category->makeChildOf($category);
+          if (is_null($category))
+          {
+            $category = $main_category;
+          }
+          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/".self::$columns::SUB_CATEGORY->value."{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/".self::$columns::SUB_CATEGORY->value."{$sub_category_count}/", $columns));
           
-          $category = $sub_category;
+          if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column]))
+          {
+            $sub_category = Category::firstOrNew([
+              'slug'        => Str::slug($row[$sub_category_column]),
+              'parent_id'   => $category->id
+            ], [
+              'name'        => $row[$sub_category_column]
+            ]);
+
+            if (!$sub_category->exists)
+            {
+              /**
+               * @todo increase category insert
+               */
+              $sub_category->save();
+              $sub_category->makeChildOf($category);
+            } else {
+
+              /**
+               * @todo increase category modify
+               */
+            }
+            
+            $category = $sub_category;
+          }
         }
+        $result[$categories_index] = $category;
       }
-      $result[$category->id] = $category;
+    }
+    
+    foreach ($result as $category_index => $category)
+    {
+      /** 
+       * @todo Sorrendezés!!!
+       */
+      $product->categories()->attach($category, [
+        'is_main' => ($category_index == 1)
+      ]);
     }
 
     return $result;
@@ -285,51 +308,6 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
     }
 
     return $col;
-  }
-
-  /**
-   * @param $row
-   * @return array
-   */
-  private function extract_categories($row)
-  {
-    $categories = [];
-
-     
-
-    if (array_key_exists(self::$columns::MAIN_CATEGORY, $row)) {
-      $base_category_group[] = $row[self::$columns::MAIN_CATEGORY->value];
-
-      for ($i = 1; $i <= self::MAX_SUB_CATEGORY_COUNT; $i++) {
-        if (array_key_exists(self::$columns::SUB_CATEGORY->value . $i, $row)) {
-          $base_category_group[] = $row[self::$columns::SUB_CATEGORY->value . $i];
-        } else {
-          break;
-        }
-      }
-      $categories[] = $base_category_group;
-    }
-
-    //Additional category Groups
-    for ($i = 2; $i <= $this->category_group_count; $i++) {
-      $categoryGroup = [];
-
-      //pushing main_kat
-      if (array_key_exists(self::$columns::MAIN_CATEGORY->value . "_" . $i, $row)) {
-        $categoryGroup[] = $row[self::$columns::MAIN_CATEGORY->value . "_" . $i];
-
-        for ($j = 1; $j <= self::MAX_SUB_CATEGORY_COUNT; $j++) {
-          if (array_key_exists(self::$columns::SUB_CATEGORY->value . $j . "_" . $i, $row)) {
-            $categoryGroup[] = $row[self::$columns::SUB_CATEGORY->value . $j . "_" . $i];
-          } else {
-            break;
-          }
-        }
-        $categories[] = $categoryGroup;
-      }
-    }
-
-    return $categories;
   }
 
   private function calculate_target_category_index($target_category)
@@ -345,92 +323,6 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
     }
 
     return $target_category_indexes;
-  }
-
-  /**
-   * $targetCategoryString: pl "3,2" -> 3 kat csop 2. alkategoriajaba kell menteni
-   *
-   * @param $categories
-   * @param null $targetCategoryIndexes
-   * @param null catDescription
-   * @return array
-   */
-  private function save_categories($categories, $targetCategoryIndexes = null, $catDescription = null)
-  {
-
-    $lastCategoryNodes = []; // levelek
-    $j = 0;
-
-    foreach ($categories as $group) {
-
-      $parent = null;
-      $node = null;
-
-      for ($i = 0; $i < count($group); $i++) {
-        $currentCategoryName = $group[$i];
-        $catDesc = null;
-
-        if ($targetCategoryIndexes !== null && $j == $targetCategoryIndexes[0] && $i == $targetCategoryIndexes[1]) {
-          $catDesc = $catDescription;
-        }
-
-        if ($i === 0 && $currentCategoryName === null) {
-          break;
-        } else {
-
-          if ($currentCategoryName !== null) {
-            $parentId = ($parent === null ? null : isset($parent->id)) ? $parent->id : null;
-
-            $node = Category::where('name', '=', $currentCategoryName)
-              ->where('parent_id', '=', $parentId)
-              ->first();
-
-            if ($node !== null) {
-
-              if ($catDesc !== null) {
-                $node->description = $catDesc;
-                $node->save();
-              }
-
-              $parent = $node;
-              continue;
-            } else {
-              $node = Category::create([
-                'name' => $currentCategoryName,
-                'description' => $catDesc
-              ]);
-
-              if ($parent !== null) {
-                $node->makeChildOf($parent);
-              }
-              $parent = $node;
-            }
-          } else {
-            break;
-          }
-        }
-      }
-
-      array_push($lastCategoryNodes, $node);
-      $j += 1;
-    }
-
-
-    return $lastCategoryNodes;
-  }
-
-  private function attach_product_to_categories($product, $categories, $saveDescToCategory, $category_description): bool
-  {
-    $_categories = $this->save_categories($categories, $saveDescToCategory, $category_description);
-
-    if ($product->exists && count($_categories) > 0) {
-      foreach ($_categories as $category) {
-        $product->categories()->attach($category);
-      }
-      return true;
-    }
-
-    return false;
   }
 
   public static function toSave(array $row): bool
