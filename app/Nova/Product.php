@@ -93,6 +93,7 @@ class Product extends Resource
             BelongsTo::make(__('Brand'), 'brand', Brand::class)
                 ->sortable()
                 ->rules(['required', 'max:255'])
+                ->filterable()
                 ->hideFromIndex(),
             Text::make('')
                 ->resolveUsing(function () {
@@ -116,7 +117,8 @@ class Product extends Resource
                 ->conversionOnForm('thumb') // conversion used to display the image on the model's form
                 // validation rules for the collection of images
                 ->singleImageRules('dimensions:min_width=100')
-                ->withResponsiveImages(),
+                ->withResponsiveImages()
+                ->enableExistingMedia(),
             Trix::make(__('Description'), 'description')
                 ->hideFromIndex(),
             Trix::make(__('Package'), 'packaging')
@@ -139,7 +141,8 @@ class Product extends Resource
                 ->help(__('Informative, recommended net consumer price.')),
             Boolean::make(__('Is on sale'), 'on_sale'),
             BelongsToMany::make(__('Categories'), 'categories', Category::class)
-                ->fields(new CategoryProductFields),
+                ->fields(new CategoryProductFields)
+                ->filterable(),
             Text::make(__('EAN code'), 'ean')
                 ->rules(['required', Rule::unique('products', 'ean')->ignore($model->id, 'id'), 'max:13'])
                 ->readonly($this->id)
