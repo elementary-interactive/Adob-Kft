@@ -87,7 +87,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
           ->icon('shopping-bag'),
 
         NovaMenuSection::make(__('Resources'), [
-
+          // \Eb\NovaMediaLibrary\Resources\Media::class,
           /** Here comes all the menu items...
          * 
          * ...
