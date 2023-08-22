@@ -25,7 +25,7 @@ use Laravel\Nova\URL;
 use Neon\Models\Statuses\BasicStatus;
 
 
-class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading// ShouldQueue
+class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading, ShouldQueue
 {
   use Importable;
 
