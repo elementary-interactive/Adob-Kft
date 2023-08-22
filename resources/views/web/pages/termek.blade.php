@@ -43,20 +43,26 @@
                     aria-label="The carousel with thumbnails. Selecting a thumbnail will change the Beautiful Gallery carousel.">
                     <div class="splide__track">
                         <ul class="splide__list">
-                            @foreach ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
+                            @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                                 <li class="splide__slide">
                                     <img src="{{ $media->getUrl('medium') }}" alt="">
                                 </li>
-                            @endforeach
+                            @empty
+                                <li class="splide__slide">
+                                </li>
+                            @endforelse
                         </ul>
                     </div>
                 </section>
                 <ul id="thumbnails" class="thumbnails">
-                    @foreach ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
+                    @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                         <li class="thumbnail">
                             <img src="{{ $media->getUrl('thumb') }}" alt="">
                         </li>
-                    @endforeach
+                    @empty
+                        <li class="thumbnail">
+                        </li>
+                    @endforelse
                 </ul>
             </div>
             <div class="col-12 col-xl-6 product-infos">
