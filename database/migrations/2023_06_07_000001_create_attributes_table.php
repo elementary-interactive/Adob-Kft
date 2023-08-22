@@ -30,6 +30,9 @@ class CreateAttributesTable extends Migration
         ->nullable()
         ->default(null);
 
+      $table->text('parameters')
+        ->nullable()
+        ->default(null);
 
       $table->timestamps();
       $table->softDeletes();
