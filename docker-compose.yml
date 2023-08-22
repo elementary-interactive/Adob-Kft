@@ -59,14 +59,26 @@ services:
       - ./mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - app-network
-
-  memcached:
-    image: memcached
+  
+  cache:
+    image: redis:6.2
     container_name: adobkft_cache
+    restart: always
     ports:
-      - "11211:11211"
+      - '6379:6379'
+    command: redis-server --loglevel warning
+    # volumes:
+      # - cache:/data
     networks:
       - app-network
+
+  # memcached:
+  #   image: memcached
+  #   container_name: adobkft_cache
+  #   ports:
+  #     - "11211:11211"
+  #   networks:
+  #     - app-network
       
 #Docker Networks
 networks:
