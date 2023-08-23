@@ -14,20 +14,29 @@ return new class extends Migration
         Schema::create('product_imports', function (Blueprint $table) {
             $table->uuid('id')
                 ->primary();
-            $table->uuid('imported_by');
+            $table->uuid('imported_by_id')
+                ->nullable()
+                ->default(null);
 
             $table->integer('products_inserted', false, true);
             $table->integer('products_modified', false, true);
             $table->integer('brands_inserted', false, true);
             $table->integer('brands_modified', false, true);
-            $table->integer('categories', false, true);
+            $table->integer('categories_inserted', false, true);
+            $table->integer('categories_modified', false, true);
 
-            $table->text('data');
+            $table->text('data')
+                ->nullable()
+                ->default(null);
+
+            $table->timestamp('finished_at')
+                ->nullable()
+                ->default(null);
 
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('imported_by')->references('id')->on('admins');
+            $table->foreign('imported_by_id')->references('id')->on('admins');
         });
     }
 
@@ -36,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('product_imports');
     }
 };

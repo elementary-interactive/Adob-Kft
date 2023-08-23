@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Neon\Models\Traits\Statusable;
 use Neon\Models\Traits\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Neon\Admin\Models\Admin;
 
 class ProductImport extends Model
 {
@@ -23,34 +25,79 @@ class ProductImport extends Model
    * @var array
    */
   protected $fillable = [
-    'imported_by'
-  ];
-
-  /** The attributes that should be handled as date or datetime.
-   *
-   * @var array
-   */
-  protected $dates = [
-    
+    'data',
+    'brands_inserted',
+    'brands_modified',
+    'categories_inserted',
+    'categories_modified',
+    'products_inserted',
+    'products_modified',
   ];
 
   /** Cast attribute to array...
    *
    */
   protected $casts = [
+    // 'data'          => 'array',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
     'deleted_at'    => 'datetime',
+    'finished_at'   => 'datetime',
   ];
 
-  /** The model's default values for attributes.
+  /**
+   * The model's default values for attributes.
    *
    * @var array
    */
   protected $attributes = [
+    'status'              => 'waiting',
+    'brands_inserted'     => 0,
+    'brands_modified'     => 0,
+    'categories_inserted' => 0,
+    'categories_modified' => 0,
+    'products_inserted'   => 0,
+    'products_modified'   => 0,
   ];
 
-  public function increaseProductInserted() {}
-  public function increaseProductModified() {}
+  public function addFail($message)
+  {
+    // $this->data['fails'][] = $message;
+  }
+
+  public function increaseBrandInserted()
+  {
+    $this->attributes['brands_inserted']++;
+  }
+
+  public function increaseBrandModified()
+  {
+    $this->attributes['brands_modified']++;
+  }
+
+  public function increaseCategoryInserted()
+  {
+    $this->attributes['categories_inserted']++;
+  }
+
+  public function increaseCategoryModified()
+  {
+    $this->attributes['categories_modified']++;
+  }
+
+  public function increaseProductInserted()
+  {
+    $this->attributes['products_inserted']++;
+  }
+
+  public function increaseProductModified()
+  {
+    $this->attributes['products_modified']++;
+  }
+
+  public function imported_by(): BelongsTo
+  {
+    return $this->belongsTo(Admin::class);
+  }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Nova\Dashboards;
 
-use App\Nova\Metrics\BrandsPerDay;
-use App\Nova\Metrics\ProductsPerDay;
+// use App\Nova\Metrics\BrandsPerDay;
+use App\Nova\Metrics\Products;
 use Laravel\Nova\Cards\Help;
 use Laravel\Nova\Dashboards\Main as Dashboard;
 
@@ -17,8 +17,8 @@ class Main extends Dashboard
     public function cards()
     {
         return [
-            new ProductsPerDay,
-            new BrandsPerDay
+            new Products,
+            // new BrandsPerDay
         ];
     }
 }

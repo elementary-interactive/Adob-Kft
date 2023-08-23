@@ -21,6 +21,7 @@ use App\Nova\Category;
 use App\Nova\Link;
 use App\Nova\Menu;
 use App\Nova\Product;
+use App\Nova\ProductImport;
 use App\Nova\Site;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
@@ -83,6 +84,11 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             ->canSee(function (NovaRequest $request) {
               return $request->user()->can('viewAny', \App\Models\Product::class);
             }),
+          NovaMenuItem::resource(ProductImport::class)
+            ->canSee(function (NovaRequest $request) {
+              return $request->user()->can('viewAny', \App\Models\ProductImport::class);
+            })
+            ->withBadgeIf('Új!', 'info', fn() => \App\Models\ProductImport::where('created_at', '>', now()->subMinutes(5))->count() > 0),
         ])
           ->icon('shopping-bag'),
 

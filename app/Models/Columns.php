@@ -8,8 +8,6 @@ enum Columns: string {
     case BRAND                      = 'marka';
     case PRICE                      = 'webar';
     case DESCRIPTION                = 'leiras';
-    case DESCRIPTION_UPDATE         = 'webleir';
-    case DESCRIPTION_TO_CATEGORY    = 'webkatleir';
     case PACKAGING                  = 'csomagolas';
     case EAN                        = 'ean';
     case PRODUCT_NUMBER             = 'termekszam';
@@ -19,3 +17,10 @@ enum Columns: string {
     case SUB_CATEGORY               = 'alkat';
     
 }
+
+/** 
+ * @deprecated
+ * case DESCRIPTION_UPDATE         = 'webleir';
+ * case DESCRIPTION_TO_CATEGORY    = 'webkatleir';
+*/
+    

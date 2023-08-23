@@ -3,6 +3,7 @@
 namespace App\Nova\Actions;
 
 use App\Imports\ProductsImport;
+use App\Jobs\CountBrandCategoryProducts;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -21,34 +22,16 @@ use Excel;
 use Config;
 use Input;
 use App\Models\Product;
+use App\Models\ProductImport;
 use stdClass;
 
 
 class ImportCategoryProduct extends Action
 {
   use InteractsWithQueue, Queueable;
-
-  const MAX_NUMBER_OF_ALTERNATIVE_IMG = 10;
-
-  protected $logger;
-  private $headerErrors = [];
-  private $requiredColLabels = [
-    'PRODUCT_ID' => 'PID',
-    'IMAGE_PRIMARY_LINK' => 'IMGURL',
-    'IMAGE_ENERGY_LABEL' => 'IMGURL_ENERGY_LABEL',
-    'IMGURL_PACK_01' => 'IMGURL_PACK_01',
-    'IMGURL_PACK_02' => 'IMGURL_PACK_02',
-    'IMGURL_ALTERNATIVE' => 'IMGURL_ALTERNATIVE_', // IMGURL_ALTERNATIVE_01 ... IMGURL_ALTERNATIVE_24
-  ];
-
-
-  private $optionalColLabels = [
-    'PRODUCT_ID2' => 'PRODUCTNO2',
-    'DATA_SHEET_HUN' => 'ATTACH_INFORMATION_SHEET_HUN',
-  ];
-
-  private $headerWarnings = [];
-
+ 
+  public $tracker = null;
+  
   /**
    *
    */
@@ -66,11 +49,16 @@ class ImportCategoryProduct extends Action
       'file' => 'required|mimes:xls,xlsx'
     );
 
-    $validator = Validator::make($fields->toArray(), $rules);
+    $validator = \Validator::make($fields->toArray(), $rules);
 
     if ($validator->fails()) {
       return Action::danger($validator->errors);
     } else {
+
+      $this->tracker = new ProductImport();
+      $this->tracker->imported_by()->associate(request()->user());
+      $this->tracker
+        ->save();
 
       config([
         'excel.import.startRow'   => ProductsImport::HEADING_ROW,
@@ -78,7 +66,14 @@ class ImportCategoryProduct extends Action
         'excel.import.calculate'  => false,
       ]);
       try {
-        Excel::import(new ProductsImport(request()->user()), $fields->file->getRealPath(), null, \Maatwebsite\Excel\Excel::XLSX);
+        // Excel::queueImport(
+        Excel::import(
+          new ProductsImport(request()->user(), $this->tracker),
+          $fields->file->getRealPath(),
+          null,
+          \Maatwebsite\Excel\Excel::XLSX
+        );
+          // ->chain(new CountBrandCategoryProducts);
       } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
 
@@ -99,6 +94,8 @@ class ImportCategoryProduct extends Action
         }
         return Action::danger('Hiba történt importálás közben!');
       }
+
+      CountBrandCategoryProducts::dispatch();
 
       return Action::message('Importálás elkezdve...');
     }
