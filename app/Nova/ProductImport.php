@@ -50,7 +50,7 @@ class ProductImport extends Resource
      *
      * @var int
      */
-    public static $pollingInterval = 5;
+    public static $pollingInterval = 10;
 
     /**
      * Indicates whether to show the polling toggle button inside Nova.

@@ -2,10 +2,10 @@
 
 namespace App\Imports;
 
-use App\Jobs\CountBrandCategoryProducts;
 use App\Models\Product;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\CategoryProduct;
 use App\Models\Columns;
 use App\Models\ProductImport;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -92,8 +92,6 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
         $me->tracker->finished_at = now();
         $me->tracker->save();
 
-        // CountBrandCategoryProducts::dispatch();
-
         $me->imported_by->notify(
           NovaNotification::make()
             ->message('Importálás vége!')
@@ -101,8 +99,6 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
             ->icon('check-circle')
             ->type('success')
         );
-
-        // CountBrandCategoryProducts::dispatch();
       }
     ];
   }
@@ -330,8 +326,10 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
     }
 
     foreach ($result as $category_index => $category) {
+      $counter = $category->products()->count();
       $product->categories()->attach($category, [
-        'is_main' => ($category_index == 1)
+        'is_main' => ($category_index == 1),
+        'order'   => $counter++,
       ]);
     }
 

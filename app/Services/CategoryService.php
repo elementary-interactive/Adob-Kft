@@ -127,7 +127,7 @@ class CategoryService
 
   public function getProducts(Brand $brand = null)
   {
-    $products = $this->category->products();
+    $products = $this->category->products()->orderByPivot("order");
 
     if ($brand)
     {
