@@ -99,6 +99,16 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="pagination">
+                @if ($product_slug_prev)
+                <a href="{{ route('product.show', ['slug' => $product_slug_prev]) }}" class="prev"><i class="icon-left-open"></i></a>
+                @endif
+                @if ($product_slug_next)
+                <a href="{{ route('product.show', ['slug' => $product_slug_next]) }}" class="next"><i class="icon-right-open"></i></a>
+                @endif
+            </div>
+        </div>
     </div>
 
 @endsection

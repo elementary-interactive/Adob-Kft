@@ -44,14 +44,15 @@ class ProductController extends Controller
             /** 
              * @var string
             */
-            $slugs      = request()->session()->get('path');
-
-            $category   = $this->category_service->findBySlug($slugs);
-            $path       = $this->category_service->path($slugs);
+            $slugs = request()->session()->get('path');
         } else {
-            $brand      = $product->brand;
+            $slugs = $this->category_service->getMainSlug($product);
         }
+        $category   = $this->category_service->findBySlug($slugs);
+        $path       = $this->category_service->path($slugs);
 
+        $siblings   = $this->product_service->siblings($path);
+        // $product_prev = $this->product_service->prev($path);
         // /** Initalize category service.
         //  * 
         //  */
@@ -59,11 +60,13 @@ class ProductController extends Controller
         return View::first(
             $page_service->getViews(Arr::first(app('site')->current()->domains)),
             [
-                'page'       => $page,
-                'product'    => $product,
-                'brand'      => $brand,
-                'category'   => $category,
-                'path'       => $path,
+                'page'              => $page,
+                'product'           => $product,
+                'brand'             => $brand,
+                'category'          => $category,
+                'path'              => $path,
+                'product_slug_prev' => $siblings['prev'],
+                'product_slug_next' => $siblings['next']
             ]
         );
     }

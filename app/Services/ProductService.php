@@ -27,4 +27,37 @@ class ProductService
 
     return $this->product;
   }
+
+  public function getMainCategory(): Category
+  {
+    return $this->product->categories()->where('is_main', true)->first();
+  }
+
+  public function siblings($path)
+  {
+    $current = last($path);
+    $products = $current->products()->withPivot('order')->orderBy('order')->get();
+    $prev = null;
+    $next = null;
+
+    foreach ($products as $product)
+    {
+      if ($this->product->id == $product->id)
+      {
+        $order = $product->pivot->order;
+      }
+    }
+    $prev = $products->filter(function($product) use ($order) {
+      return $product->pivot->order < $order;
+    })->last();
+   
+    $next = $products->filter(function($product) use ($order) {
+      return $product->pivot->order > $order;
+    })->first();
+    
+    return [
+      'prev'  => ($prev) ? $prev->slug : null,
+      'next'  => ($next) ? $next->slug : null
+    ];
+  }
 }

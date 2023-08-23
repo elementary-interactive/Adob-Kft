@@ -166,4 +166,16 @@ class CategoryService
 
     return $path;
   }
+
+  public function getMainSlug(Product $product): string
+  {
+    $slugs = [];
+    $categories = $product->categories()->where('is_main', true)->first()?->getAncestorsAndSelf();
+    foreach ($categories as $category)
+    {
+      $slugs[] = $category->slug;
+    }
+
+    return Arr::join($slugs, '/');
+  }
 }
