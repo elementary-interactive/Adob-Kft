@@ -46,7 +46,7 @@ class Category extends Node
     });
 
     static::saved(function ($model) {
-      CountBrandCategoryProducts::dispatch();
+      // CountBrandCategoryProducts::dispatch();
     });
   }
 

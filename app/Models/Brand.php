@@ -43,7 +43,7 @@ class Brand extends Model
       parent::boot();
   
       static::saved(function ($model) {
-        CountBrandCategoryProducts::dispatch();
+        // CountBrandCategoryProducts::dispatch();
       });
     }
 }
