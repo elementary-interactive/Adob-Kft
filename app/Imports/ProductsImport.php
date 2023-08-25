@@ -135,11 +135,11 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
 
     // try {
       if (self::to_save($row)) {
-        $result = $this->saveProduct($row, self::is_active($row));
+        $result = $this->save_product($row, self::is_active($row));
       }
 
       if (self::to_delete($row)) {
-        $result = $this->deleteProduct($row);
+        $result = $this->delete_product($row);
       }
     // } catch (\Exception $e) {
     //   $this->error($e->getMessage());
@@ -188,7 +188,7 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
    * @param null $is_active
    * @return Product
    */
-  private function saveProduct($row, $is_active = null): Product
+  private function save_product($row, $is_active = null): Product
   {
     $is_new = null;
 
@@ -233,6 +233,8 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
     // Connect brand to product.
     $product->brand()->associate($brand);
 
+    $this->save_images($product, $row);
+
     if ($product->exists) {
       $this->tracker->increaseProductModified();
       $is_new = false;
@@ -263,9 +265,52 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
    * 
    * @return Product
    */
-  private function deleteProduct($row)
+  private function delete_product($row)
   {
     return Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->delete();
+  }
+
+  private function save_images($product, $row)
+  {
+    if (array_key_exists(self::$columns::IMAGES->value, $row) && isset($row[self::$columns::IMAGES->value])) {
+      // if (strpos($row[self::$columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
+      //   \File::put(storage_path().'/'.Str::random(6).'.jpg', base64_decode(str_replace('data:image/jpeg;base64,', '', $row[self::$columns::IMAGES->value])));
+      // }
+
+      $__images = explode(';', $row[self::$columns::IMAGES->value]);
+      $images   = array();
+      $index    = 0;
+
+      foreach($__images as $string)
+      {
+        if (!array_key_exists($index, $images))
+        {
+          $images[$index] = '';
+        }
+        $images[$index] .= $string;
+        
+        if (!str_contains($string, 'data:image/'))
+        {
+          $index++;
+        }
+      }
+
+      foreach ($images as $string)
+      {
+        
+        if (str_contains($string, 'data:image/')) { //- base64 image
+          $product
+            ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
+            ->toMediaCollection('product_images');
+        }
+
+        if (str_contains($string, 'http')) { //- http image
+          $product
+            ->addMediaFromUrl($string)
+            ->toMediaCollection('product_images');
+        }
+      }
+    }
   }
 
   /** Parse and save categories. Returns with nodes where to product should be
