@@ -12,24 +12,28 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/termek/{slug}',[\App\Http\Controllers\ProductController::class, 'show'])
+
+Route::get('/termek/{slug}', [\App\Http\Controllers\ProductController::class, 'show'])
     ->where('slug', '[a-z0-9-_]+$')
     ->name('product.show');
 
-Route::get('/termekek/{slug?}',[\App\Http\Controllers\CategoryController::class, 'browse'])
+Route::get('/termekek/{slug?}', [\App\Http\Controllers\CategoryController::class, 'browse'])
     ->where('slug', '[a-z0-9-_\/]+$')
     ->name('product.browse');
 
-Route::get('/markak',[\App\Http\Controllers\BrandController::class, 'brands'])
+Route::get('/markak', [\App\Http\Controllers\BrandController::class, 'brands'])
     ->name('brands.index');
 
-Route::get('/markak/{brand}/{slug?}',[\App\Http\Controllers\BrandController::class, 'browse'])
+Route::get('/markak/{brand}/{slug?}', [\App\Http\Controllers\BrandController::class, 'browse'])
     ->where('brand', '[a-z0-9-_]+$')
     ->where('slug', '[a-z0-9-_\/]+$')
     ->name('brands.browse');
 
 Route::get('/', [\App\Http\Controllers\CategoryController::class, 'browse'])
     ->name('index');
+
+Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search'])
+    ->name('search');
 
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');
