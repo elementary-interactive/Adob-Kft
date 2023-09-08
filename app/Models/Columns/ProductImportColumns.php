@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-enum Columns: string {
+enum ProductImportColumns: string {
     case PRODUCT_ID                 = 'cikkszam';
     case PRODUCT_NAME               = 'megnevezes';
     case BRAND                      = 'marka';

@@ -29,7 +29,7 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 
 
-class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading, WithEvents//, ShouldQueue
+class ADOBProductsExport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading, WithEvents//, ShouldQueue
 {
   use Importable;
 
@@ -53,7 +53,7 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
   // const COLUMN_SUB_CATEGORY->value       = 'alkat';
   // const COLUMN_DESCRIPTION_TO_CATEGORY->value   = 'COMMAND->valuekatleir';
 
-  static $columns = \App\Models\Columns\ProductImportColumns::class;
+  static $columns = \App\Models\Columns::class;
 
   public $imported_by;
 
@@ -115,39 +115,50 @@ class ProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChu
   }
 
   /**
-   * @see https://docs.laravel-excel.com/3.1/imports/chunk-reading.html
-   * 
+   * @return \Illuminate\Support\Collection
    */
-  public function chunkSize(): int
+  public function collection()
   {
-    return 1000;
-  }
+    $result = [
+      'header' => [],
+    ];
+    $record = [];
+    $fileTypes = [];
+    /** Set up fields and header...
+     */
+    foreach ($this->fields as $index => $field) {
+      if (!array_key_exists('created_at', $result['header'])) {
+        $result['header']['created_at'] = 'Beküldve';
 
-  public function batchSize(): int
-  {
-    return 5000;
-  }
+        $record['created_at'] = null;
+      }
+      $record[$field->name] = null;
+      $result['header'][$field->name] = $field->title;
 
-  public function model(array $row)
-  {
-    $this->tracker->status = 'running';
-    $this->tracker->save();
-
-    // try {
-      if (self::to_save($row)) {
-        $result = $this->saveProduct($row, self::is_active($row));
+      if ($field->type == 'file') {
+        $fileTypes[$field->id] = $field->name;
       }
 
-      if (self::to_delete($row)) {
-        $result = $this->deleteProduct($row);
-      }
-    // } catch (\Exception $e) {
-    //   $this->error($e->getMessage());
-    // } catch (\Throwable $e) {
-    //   $this->error($e->getMessage());
-    // }
+    }
+    foreach ($this->answers as $answer) {
+      $record['created_at'] = (string)$answer->created_at;
+      if (is_array($answer->data)) {
+        $dataToMerge = $answer->data;
+        foreach ($fileTypes as $fileTypeIndex => $fieldName) {
+          if (isset($dataToMerge[$fieldName]) && $dataToMerge[$fieldName]) {
+            $dataToMerge[$fieldName] = route('forms.downloadFile', ['answer' => $answer->id, 'field' => $fileTypeIndex]);
+          } else {
+            $dataToMerge[$fieldName] = '';
+          }
 
-    return $result;
+        }
+        $result[] = array_merge($record, $dataToMerge);
+      }
+
+    }
+    return collect($result);
+
+
   }
 
   /**

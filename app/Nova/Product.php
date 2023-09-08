@@ -20,6 +20,7 @@ use Neon\Models\Statuses\BasicStatus;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
+
 class Product extends Resource
 {
     /**
@@ -201,7 +202,8 @@ class Product extends Resource
         return [
             (new \App\Nova\Actions\ImportCategoryProduct())
                 ->onlyOnIndex()
-                ->standalone()
+                ->standalone(),
+            (new \App\Nova\Actions\ADOBTermekExport())
         ];
     }
 

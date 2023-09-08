@@ -20,7 +20,7 @@ return [
    * 
    * Supported: "file", "database"
    */
-  'driver' => env('NEON_SITE_DRIVER', 'file'),
+  'driver' => env('SITE_DRIVER', 'database'),
 
   'cache' => false,
 
@@ -29,7 +29,7 @@ return [
    */
   'model' => \Neon\Site\Models\Site::class,
 
-  /**
+    /**
    * List of the sites.
    * - The site's ID will be used as primary key value for site related contents.
    * - Possible arguments:
@@ -44,10 +44,8 @@ return [
    */
   'hosts' => [
     env('NEON_SITE_ID') => [
-      'domains' => ['localhost'],
-      'locale'  => 'hu',
-      'slug'    => 'default',
-      'title'   => 'Default',
+      'domains' => ["/(.*)/"],
+      'locale'  => 'en',
       'default' => true
     ],
     'dev' => [
@@ -55,11 +53,8 @@ return [
     ]
   ],
 
-  /** Available locales for the contents and for the routing.
-   * 
-   */
   'available_locales' => [
     'hu'  => ['hu-HU', 'magyar', 'hungarian'],
-    // 'en'  => ['en-EN', 'english', 'english'],
+    'en'  => ['en-EN', 'english', 'english'],
   ],
 ];

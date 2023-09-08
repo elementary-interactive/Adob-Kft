@@ -86,7 +86,7 @@ class Site extends Resource
                 ->rows(5),
             Boolean::make(__("Default site"), 'default')
                 ->help(__('The domain which marked as default will be loaded if no domains were matched by domain or prefix.')),
-            MorphMany::make(__('Variables'), 'attributeValues', AttributeValue::class)
+            MorphMany::make(__('Variables'), 'attributeValues', AttributeValue::class),
 
         ];
     }
