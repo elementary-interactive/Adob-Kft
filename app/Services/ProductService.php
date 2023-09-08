@@ -39,6 +39,7 @@ class ProductService
     $products = $current->products()->withPivot('order')->orderBy('order')->get();
     $prev = null;
     $next = null;
+    $order = 0;
 
     foreach ($products as $product)
     {

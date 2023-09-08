@@ -4,7 +4,8 @@
             <div class="col-12">
 
                 @include('web.pages.partials.productlist', [
-                    'products' => $products,
+                    'products'    => $products,
+                    'search_term' => null
                 ])
 
                 @include('web.pages.partials.pagination', [

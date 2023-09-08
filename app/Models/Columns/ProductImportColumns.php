@@ -15,7 +15,7 @@ enum ProductImportColumns: string {
     case MAIN_CATEGORY              = 'main_kat';
     case COMMAND                    = 'web';
     case SUB_CATEGORY               = 'alkat';
-    
+    case IMAGES                     = 'kepek';
 }
 
 /** 

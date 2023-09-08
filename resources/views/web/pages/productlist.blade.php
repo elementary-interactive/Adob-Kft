@@ -20,7 +20,7 @@
     <div class="row">
       <div class="col-12">
         
-        @include('web.pages.partials.productlist')
+        @include('web.pages.partials.productlist', ['search_term' => null])
 
         @include('web.pages.partials.pagination')
 
