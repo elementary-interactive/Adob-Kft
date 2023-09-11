@@ -98,9 +98,9 @@ class Product extends Resource
                 ->hideFromIndex(),
             Text::make('')
                 ->resolveUsing(function () {
-                    return '<a style="color: inherit;" href="'.route('product.show', ['slug' => $this->resource->slug]).'" target="_blank" title="'.$this->resource->name.'">'.view('nova::icon.svg-link', [
+                    return '<a style="color: inherit;" href="' . route('product.show', ['slug' => $this->resource->slug]) . '" target="_blank" title="' . $this->resource->name . '">' . view('nova::icon.svg-link', [
                         'color'     => 'rgb(var(--colors-gray-400), 0.75)'
-                    ])->render().'</a>';
+                    ])->render() . '</a>';
                 })
                 ->asHtml()
                 ->onlyOnIndex(),
@@ -204,6 +204,8 @@ class Product extends Resource
                 ->onlyOnIndex()
                 ->standalone(),
             (new \App\Nova\Actions\ADOBTermekExport())
+                ->onlyOnIndex()
+                ->standalone(),
         ];
     }
 

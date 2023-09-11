@@ -2,6 +2,7 @@
 
 namespace App\Nova\Actions;
 
+use App\Imports\ADOBProductsExport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -35,7 +36,7 @@ class ADOBTermekExport extends Action
      */
     $file = 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
 
-    if (Excel::store(new FormAnswersExport($this->form, null, $models), "public/exports/{$file}")) {
+    if (Excel::store(new ADOBProductsExport(request()->user(), null), "public/exports/{$file}")) {
       /** Laravel Nova download action.
        */
       return Action::download(Storage::url("{$file}"), $file);

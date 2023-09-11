@@ -8,7 +8,7 @@ use App\Models\Category;
 use App\Models\CategoryProduct;
 use App\Models\Columns;
 use App\Models\ProductImport;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -29,7 +29,7 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 
 
-class ADOBProductsExport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading, WithEvents//, ShouldQueue
+class ADOBProductsExport implements FromCollection, WithValidation, WithHeadingRow, WithEvents//, ShouldQueue
 {
   use Importable;
 
@@ -53,7 +53,7 @@ class ADOBProductsExport implements ToModel, WithValidation, WithHeadingRow, Wit
   // const COLUMN_SUB_CATEGORY->value       = 'alkat';
   // const COLUMN_DESCRIPTION_TO_CATEGORY->value   = 'COMMAND->valuekatleir';
 
-  static $columns = \App\Models\Columns::class;
+  static $columns = \App\Models\ADOBProductsExportColumns::class;
 
   public $imported_by;
 
@@ -74,35 +74,6 @@ class ADOBProductsExport implements ToModel, WithValidation, WithHeadingRow, Wit
   //   $this->tracker->save();
   // }
 
-  public function registerEvents(): array
-  {
-    $me = $this;
-
-    return [
-      ImportFailed::class => function (ImportFailed $event) use ($me) {
-        $me->tracker->addFail($event->getException()->getMessage());
-        $me->tracker->status = 'failed';
-        $me->tracker->save();
-
-        $me->error($event->getException()->getMessage());
-      },
-      AfterImport::class => function(AfterImport $event) use ($me)
-      {
-        $me->tracker->status = 'finished';
-        $me->tracker->finished_at = now();
-        $me->tracker->save();
-
-        $me->imported_by->notify(
-          NovaNotification::make()
-            ->message('Importálás vége!')
-            // ->action('Download', URL::remote('https://example.com/report.pdf'))
-            ->icon('check-circle')
-            ->type('success')
-        );
-      }
-    ];
-  }
-
   /** Handle heading row.
    * 
    * @see https://docs.laravel-excel.com/3.1/imports/heading-row.html
@@ -120,66 +91,42 @@ class ADOBProductsExport implements ToModel, WithValidation, WithHeadingRow, Wit
   public function collection()
   {
     $result = [
-      'header' => [],
+      'header' => array_column(self::$columns::cases(), 'value'),
     ];
-    $record = [];
-    $fileTypes = [];
-    /** Set up fields and header...
-     */
-    foreach ($this->fields as $index => $field) {
-      if (!array_key_exists('created_at', $result['header'])) {
-        $result['header']['created_at'] = 'Beküldve';
 
-        $record['created_at'] = null;
-      }
-      $record[$field->name] = null;
-      $result['header'][$field->name] = $field->title;
 
-      if ($field->type == 'file') {
-        $fileTypes[$field->id] = $field->name;
+    $products = Product::with(['brand', 'categories']);
+
+    foreach ($products as $product)
+    {
+      $media = $product->getMedia(Product::MEDIA_COLLECTION);
+
+      $sizes = [];
+
+      foreach ($media as $img)
+      {
+        dd($img);
       }
 
+      $result[] = [
+        $product->product_id, // PRODUCT_ID
+        $product->name, // PRODUCT_NAME
+        $product->brand->name, // BRAND_NAME
+        $product->ean, // PRODUCT_EAN
+        $product->price, // PRODUCT_PRICE
+        // PRODUCT_CATEGORIES
+        route('product.show'. ['slug' => $product->slug]), // PRODUCT_URL
+        $media->count(), // IMAGE_COUNT
+        // IMAGE_SIZES
+        ($product->status == BasicStatus::Active->value),// PRODUCT_STATUS
+        // IMAGE_LINKS
+        $product->description, // PRODUCT_DESCRIPTION
+      ];
     }
-    foreach ($this->answers as $answer) {
-      $record['created_at'] = (string)$answer->created_at;
-      if (is_array($answer->data)) {
-        $dataToMerge = $answer->data;
-        foreach ($fileTypes as $fileTypeIndex => $fieldName) {
-          if (isset($dataToMerge[$fieldName]) && $dataToMerge[$fieldName]) {
-            $dataToMerge[$fieldName] = route('forms.downloadFile', ['answer' => $answer->id, 'field' => $fileTypeIndex]);
-          } else {
-            $dataToMerge[$fieldName] = '';
-          }
 
-        }
-        $result[] = array_merge($record, $dataToMerge);
-      }
-
-    }
     return collect($result);
 
 
-  }
-
-  /**
-   * @return array
-   */
-  public function rules(): array
-  {
-    return [
-      self::$columns::PRODUCT_ID->value               => 'required',
-      self::$columns::PRODUCT_NAME->value             => 'required',
-      self::$columns::BRAND->value                    => '',
-      self::$columns::PRICE->value                    => '',
-      self::$columns::DESCRIPTION->value              => '',
-      self::$columns::PACKAGING->value                => '',
-      self::$columns::EAN->value                      => 'numeric',
-      self::$columns::PRODUCT_NUMBER->value           => '',
-      self::$columns::ON_SALE->value                  => '',
-      self::$columns::MAIN_CATEGORY->value            => 'required',
-      self::$columns::COMMAND->value                  => '',
-      self::$columns::SUB_CATEGORY->value             => '',
-    ];
   }
 
   private function error(string $message, string $icon = 'exclamation-circle')
@@ -269,96 +216,32 @@ class ADOBProductsExport implements ToModel, WithValidation, WithHeadingRow, Wit
     return $product;
   }
 
-  /**
-   * @param $row
-   * 
-   * @return Product
-   */
-  private function deleteProduct($row)
+  public function registerEvents(): array
   {
-    return Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->delete();
-  }
+    $me = $this;
 
-  /** Parse and save categories. Returns with nodes where to product should be
-   * attached.
-   * 
-   * @param Product $product
-   * @param array $row The row data.
-   * 
-   * @return array $categories
-   */
-  private function attach_categories(Product $product, array $row): array
-  {
-    $columns  = array_keys($row);
+    return [
+      ImportFailed::class => function (ImportFailed $event) use ($me) {
+        $me->tracker->addFail($event->getException()->getMessage());
+        $me->tracker->status = 'failed';
+        $me->tracker->save();
 
-    $result   = [];
+        $me->error($event->getException()->getMessage());
+      },
+      AfterImport::class => function(AfterImport $event) use ($me)
+      {
+        $me->tracker->status = 'finished';
+        $me->tracker->finished_at = now();
+        $me->tracker->save();
 
-    for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
-      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
-
-      if ($row[$main_category_column]) {
-        $main_category = Category::firstOrCreate([
-          'slug'        => Str::slug($row[$main_category_column]),
-          'parent_id'   => null
-        ], [
-          'name'        => $row[$main_category_column],
-          'description' => $row[$main_category_column]
-        ]);
-
-        $category = null;
-
-        for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
-          if (is_null($category)) {
-            $category = $main_category;
-          }
-          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}/", $columns));
-
-          if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column])) {
-            $sub_category = Category::firstOrNew([
-              'slug'        => Str::slug($row[$sub_category_column]),
-              'parent_id'   => $category->id
-            ], [
-              'name'        => $row[$sub_category_column]
-            ]);
-
-            if (!$sub_category->exists) {
-              $this->tracker->increaseCategoryInserted();
-              $sub_category->save();
-              $sub_category->makeChildOf($category);
-            } else {
-              $this->tracker->increaseCategoryModified();
-            }
-
-            $category = $sub_category;
-          }
-        }
-        $result[$categories_index] = $category;
+        $me->imported_by->notify(
+          NovaNotification::make()
+            ->message('Importálás vége!')
+            // ->action('Download', URL::remote('https://example.com/report.pdf'))
+            ->icon('check-circle')
+            ->type('success')
+        );
       }
-    }
-
-    foreach ($result as $category_index => $category) {
-      $counter = $category->products()->count();
-      $product->categories()->attach($category, [
-        'is_main' => ($category_index == 1),
-        'order'   => $counter++,
-      ]);
-    }
-
-    return $result;
-  }
-
-  public static function to_save(array $row): bool
-  {
-    return (strtolower($row[self::$columns::COMMAND->value]) === 'y' || strtolower($row[self::$columns::COMMAND->value]) === 'i');
-  }
-
-  public static function is_active(array $row): bool
-  {
-    return (strtolower($row[self::$columns::COMMAND->value]) === 'y');
-  }
-
-  public static function to_delete(array $row): bool
-  {
-    return (strtolower($row[self::$columns::COMMAND->value]) === 'd');
+    ];
   }
 }

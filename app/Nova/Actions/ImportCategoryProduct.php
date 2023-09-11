@@ -2,7 +2,7 @@
 
 namespace App\Nova\Actions;
 
-use App\Imports\ProductsImport;
+use App\Imports\ADOBProductsImport;
 use App\Jobs\CountBrandCategoryProducts;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,14 +61,14 @@ class ImportCategoryProduct extends Action
         ->save();
 
       config([
-        'excel.import.startRow'   => ProductsImport::HEADING_ROW,
+        'excel.import.startRow'   => ADOBProductsImport::HEADING_ROW,
         'excel.import.heading'    => 'original',
         'excel.import.calculate'  => false,
       ]);
       try {
         // Excel::queueImport(
         Excel::import(
-          new ProductsImport(request()->user(), $this->tracker),
+          new ADOBProductsImport(request()->user(), $this->tracker),
           $fields->file->getRealPath(),
           null,
           \Maatwebsite\Excel\Excel::XLSX
