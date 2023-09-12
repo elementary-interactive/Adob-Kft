@@ -30,12 +30,12 @@ class DownloadController extends Controller
 
         $decryptedPath = decrypt($data['path']);
 
-        if (config('excel.temporary_files.remote_disk')) {
+        if (config('filesystem.default')) {
             app()->terminating(function () use ($decryptedPath) {
-                Storage::disk(config('excel.temporary_files.remote_disk'))->delete($decryptedPath);
+                Storage::disk(config('filesystem.default'))->delete($decryptedPath);
             });
 
-            return Storage::disk(config('excel.temporary_files.remote_disk'))
+            return Storage::disk(config('filesystem.default'))
                 ->download($decryptedPath, $data['filename']);
         } else {
             return $response->download(
