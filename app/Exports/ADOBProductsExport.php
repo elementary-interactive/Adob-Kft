@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports;
+namespace App\Exports;
 
 use App\Models\Product;
 use App\Models\Brand;
@@ -10,7 +10,6 @@ use App\Models\Columns;
 use App\Models\ProductImport;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -18,7 +17,7 @@ use Neon\Admin\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Laravel\Nova\Notifications\NovaNotification;
 use Laravel\Nova\Notifications\NovaChannel;
@@ -29,7 +28,7 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 
 
-class ADOBProductsExport implements FromCollection, WithValidation, WithHeadingRow, WithEvents//, ShouldQueue
+class ADOBProductsExport implements FromCollection, WithHeadingRow, WithEvents //, ShouldQueue
 {
   use Importable;
 
@@ -53,7 +52,7 @@ class ADOBProductsExport implements FromCollection, WithValidation, WithHeadingR
   // const COLUMN_SUB_CATEGORY->value       = 'alkat';
   // const COLUMN_DESCRIPTION_TO_CATEGORY->value   = 'COMMAND->valuekatleir';
 
-  static $columns = \App\Models\ADOBProductsExportColumns::class;
+  static $columns = \App\Models\Columns\ADOBProductsExportColumns::class;
 
   public $imported_by;
 
@@ -94,39 +93,52 @@ class ADOBProductsExport implements FromCollection, WithValidation, WithHeadingR
       'header' => array_column(self::$columns::cases(), 'value'),
     ];
 
+    $products = Product::withoutGlobalScopes([
+        \Neon\Models\Scopes\ActiveScope::class
+      ])
+      ->orderBy('name')
+      ->get();
 
-    $products = Product::with(['brand', 'categories']);
+    foreach ($products as $product) {
+      /** @var Collection Getting media collection.
+       */
+      $media      = $product->getMedia(Product::MEDIA_COLLECTION);
+      $categories = $product->categories()->get();
 
-    foreach ($products as $product)
-    {
-      $media = $product->getMedia(Product::MEDIA_COLLECTION);
+      $sizes  = []; //- Collecting sizes...
+      $urls   = []; //- Collecting URLs...
+      $paths  = []; //- Categories...
 
-      $sizes = [];
+      foreach ($categories as $category) {
+        $path = [];
+        foreach ($category->getAncestorsAndSelf() as $path_item) {
+          array_unshift($path, $path_item->name);
+        }
+        $paths[] = implode('\\', $path);
+      }
 
-      foreach ($media as $img)
-      {
-        dd($img);
+      foreach ($media as $img) {
+        $urls[]   = $img->getUrl();
+        $sizes[]  = $img->file_name . ' (' . size_format($img->size) . ')';
       }
 
       $result[] = [
         $product->product_id, // PRODUCT_ID
         $product->name, // PRODUCT_NAME
-        $product->brand->name, // BRAND_NAME
+        $product->brand()->first()?->name, // BRAND_NAME
         $product->ean, // PRODUCT_EAN
         $product->price, // PRODUCT_PRICE
-        // PRODUCT_CATEGORIES
-        route('product.show'. ['slug' => $product->slug]), // PRODUCT_URL
+        implode(', ', $paths), // PRODUCT_CATEGORIES
+        route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
         $media->count(), // IMAGE_COUNT
-        // IMAGE_SIZES
-        ($product->status == BasicStatus::Active->value),// PRODUCT_STATUS
-        // IMAGE_LINKS
+        implode('; ', $sizes), // IMAGE_SIZES
+        ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
+        implode('; ', $urls), // IMAGE_LINKS
         $product->description, // PRODUCT_DESCRIPTION
       ];
     }
 
     return collect($result);
-
-
   }
 
   private function error(string $message, string $icon = 'exclamation-circle')
@@ -228,8 +240,7 @@ class ADOBProductsExport implements FromCollection, WithValidation, WithHeadingR
 
         $me->error($event->getException()->getMessage());
       },
-      AfterImport::class => function(AfterImport $event) use ($me)
-      {
+      AfterImport::class => function (AfterImport $event) use ($me) {
         $me->tracker->status = 'finished';
         $me->tracker->finished_at = now();
         $me->tracker->save();

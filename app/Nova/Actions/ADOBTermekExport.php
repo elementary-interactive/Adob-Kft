@@ -2,7 +2,7 @@
 
 namespace App\Nova\Actions;
 
-use App\Imports\ADOBProductsExport;
+use App\Exports\ADOBProductsExport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Http\Requests\NovaRequest;
+
+use Log;
+use Validator;
+use Excel;
+use Config;
+use Input;
+use App\Models\Product;
+use App\Models\ProductImport;
+use stdClass;
+
 
 class ADOBTermekExport extends Action
 {

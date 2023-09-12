@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Columns;
 
 enum ProductImportColumns: string {
     case PRODUCT_ID                 = 'cikkszam';
