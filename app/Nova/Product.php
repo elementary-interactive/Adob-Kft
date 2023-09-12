@@ -203,7 +203,7 @@ class Product extends Resource
             (new \App\Nova\Actions\ImportCategoryProduct())
                 ->onlyOnIndex()
                 ->standalone(),
-            (new \App\Nova\Actions\ADOBTermekExport())
+            (new \App\Nova\Actions\ADOBProductsExportAction())
                 ->onlyOnIndex()
                 ->standalone(),
         ];

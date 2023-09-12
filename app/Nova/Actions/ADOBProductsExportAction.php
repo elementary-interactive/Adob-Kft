@@ -19,10 +19,11 @@ use Config;
 use Input;
 use App\Models\Product;
 use App\Models\ProductImport;
+use Illuminate\Support\Facades\URL;
 use stdClass;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-
-class ADOBTermekExport extends Action
+class ADOBProductsExportAction extends Action
 {
   use InteractsWithQueue, Queueable;
 
@@ -30,6 +31,13 @@ class ADOBTermekExport extends Action
    *
    */
   public $name = 'Termékek exportálása (ADOB)';
+
+  protected $filename;
+
+  public function __construct()
+  {
+    $this->filename = 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
+  }
 
 
   /**
@@ -44,13 +52,18 @@ class ADOBTermekExport extends Action
     /** The name of the file to export data into...
      * @var string
      */
-    $file = 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
+    $file = $this->getFilename(); // 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
 
-    if (Excel::store(new ADOBProductsExport(request()->user(), null), "public/exports/{$file}")) {
-      /** Laravel Nova download action.
-       */
-      return Action::download(Storage::url("{$file}"), $file);
+    $response = Excel::download((new ADOBProductsExport(request()->user(), null)), $file);
+
+    if (!$response instanceof BinaryFileResponse || $response->isInvalid()) {
+      return Action::danger(__('Resource could not be exported.'));
     }
+
+    return Action::download(
+      $this->getDownloadUrl($response->getFile()->getPathname()),
+      $file
+    );
   }
 
   /**
@@ -62,5 +75,21 @@ class ADOBTermekExport extends Action
   public function fields(NovaRequest $request)
   {
     return [];
+  }
+
+  public function getFilename()
+  {
+    return $this->filename;
+  }
+  /**
+   * @param  string  $filePath
+   * @return string
+   */
+  protected function getDownloadUrl(string $filePath): string
+  {
+    return URL::temporarySignedRoute('export.download', now()->addMinutes(1), [
+      'path'     => encrypt($filePath),
+      'filename' => $this->getFilename(),
+    ]);
   }
 }

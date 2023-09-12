@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,6 +35,10 @@ Route::get('/', [\App\Http\Controllers\CategoryController::class, 'browse'])
 
 Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search'])
     ->name('search');
+
+Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
+    ->name('export.download')
+    ->middleware(ValidateSignature::class);
 
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');
