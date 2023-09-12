@@ -87,7 +87,7 @@ class ADOBProductsExportAction extends Action
    */
   protected function getDownloadUrl(string $filePath): string
   {
-    return URL::temporarySignedRoute('export.download', now()->addMinutes(3), [
+    return URL::temporarySignedRoute('export.download', now()->addHours(3), [
       'path'     => encrypt($filePath),
       'filename' => $this->getFilename(),
     ]);
