@@ -23,9 +23,8 @@ class DownloadController extends Controller
      */
     public function download(Request $request, ResponseFactory $response): Response
     {
-        if (!$request->hasValidSignature()) {
-            dd(date('Y-m-d H_i_s', $request->get("expires")));
-           dd($request);
+        if (!$request->hasValidSignatureWhileIgnoring(['filename', 'path'])) {
+            dd(date('Y-m-d H_i_s', $request->get("expires")), $request);
         }
 
         $data = $this->validate($request, [
