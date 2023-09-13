@@ -23,6 +23,10 @@ class DownloadController extends Controller
      */
     public function download(Request $request, ResponseFactory $response): Response
     {
+        if (!$request->hasValidSignature()) {
+           dd($request);
+        }
+
         $data = $this->validate($request, [
             'path'     => 'required',
             'filename' => 'required',
