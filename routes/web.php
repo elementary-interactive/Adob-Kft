@@ -37,8 +37,8 @@ Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search']
     ->name('search');
 
 Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
-    ->name('export.download');
-    // ->middleware('signed');
+    ->name('export.download')
+    ->middleware('signed:relative');
 
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');
