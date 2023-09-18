@@ -29,29 +29,13 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 
 
-class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading, WithEvents//, ShouldQueue
+class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, WithChunkReading, WithEvents, ShouldQueue
 {
   use Importable;
 
   const HEADING_ROW = 1;
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
-
-  // const COLUMN_COMMAND->value                = 'COMMAND->value';
-  // const COLUMN_PRODUCT_ID->value         = 'cikkszam';
-  // const COLUMN_PRODUCT_NAME->value       = 'megnevezes';
-  // const COLUMN_BRAND->value              = 'marka';
-  // const COLUMN_PRICE              = 'COMMAND->valuear';
-  // const COLUMN_DESCRIPTION->value        = 'leiras';
-  // const COLUMN_DESCRIPTION_UPDATE->value = 'COMMAND->valueleir';
-  // const COLUMN_PACKAGING->value          = 'csomagolas';
-  // const COLUMN_EAN                = 'ean';
-  // const COLUMN_PRODUCT_NUMBER->value     = 'termekszam';
-  // const COLUMN_ON_SALE->value            = 'akcios';
-  // const COLUMN_MAIN_CATEGORY->value      = 'main_kat';
-  // const COLUMN_COMMAND            = 'COMMAND->value';
-  // const COLUMN_SUB_CATEGORY->value       = 'alkat';
-  // const COLUMN_DESCRIPTION_TO_CATEGORY->value   = 'COMMAND->valuekatleir';
 
   static $columns = \App\Models\Columns\ProductImportColumns::class;
 
@@ -63,9 +47,14 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
   public function __construct(Admin $imported_by, $tracker)
   {
-    /** The importer user. who need to set up for notifications... */
+    /** The importer user. who need to set up for notifications...
+     * @var Admin
+     */
     $this->imported_by  = $imported_by;
-    /** The tracker for counts. */
+    
+    /** The tracker for counts.
+     *
+     */
     $this->tracker      = $tracker;
   }
 
@@ -120,12 +109,12 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
    */
   public function chunkSize(): int
   {
-    return 1000;
+    return 10;
   }
 
   public function batchSize(): int
   {
-    return 5000;
+    return 10;
   }
 
   public function model(array $row)
@@ -133,7 +122,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     $this->tracker->status = 'running';
     $this->tracker->save();
 
-    // try {
+    try {
       if (self::to_save($row)) {
         $result = $this->save_product($row, self::is_active($row));
       }
@@ -141,11 +130,11 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       if (self::to_delete($row)) {
         $result = $this->delete_product($row);
       }
-    // } catch (\Exception $e) {
-    //   $this->error($e->getMessage());
-    // } catch (\Throwable $e) {
-    //   $this->error($e->getMessage());
-    // }
+    } catch (\Exception $e) {
+      $this->error($e->getMessage());
+    } catch (\Throwable $e) {
+      $this->error($e->getMessage());
+    }
 
     return $result;
   }
@@ -233,6 +222,8 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     // Connect brand to product.
     $product->brand()->associate($brand);
 
+    dump($product);
+
     $this->save_images($product, $row);
 
     if ($product->exists) {
@@ -278,6 +269,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       // }
 
       $__images = explode(';', $row[self::$columns::IMAGES->value]);
+      dump($__images);
       $images   = array();
       $index    = 0;
 
