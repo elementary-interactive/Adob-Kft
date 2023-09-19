@@ -37,7 +37,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
 
-  static $columns = \App\Models\Columns\ProductImportColumns::class;
+  static $columns = \App\Models\Columns\ADOBProductsImportColumns::class;
 
   public $imported_by;
 
