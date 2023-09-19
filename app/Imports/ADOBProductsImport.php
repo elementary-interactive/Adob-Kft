@@ -112,11 +112,6 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     return 10;
   }
 
-  public function batchSize(): int
-  {
-    return 10;
-  }
-
   public function model(array $row)
   {
     $this->tracker->status = 'running';
