@@ -222,7 +222,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     // Connect brand to product.
     $product->brand()->associate($brand);
 
-    dump($product);
+    // dump($product);
 
     $this->save_images($product, $row);
 
@@ -269,11 +269,11 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       // }
 
       $__images = explode(';', $row[self::$columns::IMAGES->value]);
-      dump($__images);
+      // dump($__images);
       $images   = array();
       $index    = 0;
 
-      foreach($__images as $string)
+      foreach ($__images as $string)
       {
         if (!array_key_exists($index, $images))
         {
@@ -286,20 +286,20 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
           $index++;
         }
       }
-
+      // dump($images);
       foreach ($images as $string)
       {
         
         if (str_contains($string, 'data:image/')) { //- base64 image
           $product
             ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
-            ->toMediaCollection('product_images');
+            ->toMediaCollection(Product::MEDIA_COLLECTION);
         }
 
         if (str_contains($string, 'http')) { //- http image
           $product
             ->addMediaFromUrl($string)
-            ->toMediaCollection('product_images');
+            ->toMediaCollection(Product::MEDIA_COLLECTION);
         }
       }
     }
