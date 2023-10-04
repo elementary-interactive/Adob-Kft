@@ -40,8 +40,6 @@ Route::get('download', [\App\Http\Controllers\DownloadController::class, 'downlo
     ->name('export.download');
     // ->middleware('signed:relative');
 
-Site::routes();
-
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');
 // });

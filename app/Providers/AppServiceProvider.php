@@ -21,7 +21,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::morphMap([
-            'site' => Neon\Site\Models\Site::class,
+            'attibute'          => \Neon\Attributable\Models\Attribute::class,
+            'attibute_value'    => \Neon\Attributable\Models\AttributeValue::class,
+            'link'              => \Neon\Models\Link::class,
+            'menu'              => \Neon\Models\Menu::class,
+            'menu_item'         => \Neon\Models\MenuItem::class,
+            'site'              => \Neon\Site\Models\Site::class,
+            'site_dependency'   => \Neon\Site\Models\SiteDependencies::class,
         ]);
     }
 }
