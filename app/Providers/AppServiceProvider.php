@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::morphMap([
-            'admin'                 => Neon\Admin\Models\Admin::class,
+            'admin'                 => \Neon\Admin\Models\Admin::class,
             // 'admin2'                => Neon\Admin\Models\Admin::class,
             'attibute'              => \Neon\Attributable\Models\Attribute::class,
             'attibute_value'        => \Neon\Attributable\Models\AttributeValue::class,
