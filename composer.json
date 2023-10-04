@@ -15,11 +15,12 @@
         "laravel/tinker": "^2.8",
         "maatwebsite/excel": "^3.1",
         "neon/admin-ui": "2.0.0-alpha-4",
-        "neon/attributable": "2.0.0-alpha-4",
+        "neon/attributable": "2.0.0-alpha-6",
         "neon/menu": "2.0.0-alpha-6",
         "neon/model-uuid": "^1.0",
         "neon/site": "^2.0",
         "neon/ui": "0.1.0-alpha-1",
+        "sentry/sentry-laravel": "^3.8",
         "spatie/laravel-medialibrary": "^10.0.0",
         "symfony/intl": "^6.3",
         "toponepercent/baum": "3.1.0"
