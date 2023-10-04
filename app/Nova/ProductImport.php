@@ -53,6 +53,20 @@ class ProductImport extends Resource
     public static $pollingInterval = 10;
 
     /**
+     * The default shorting field.
+     *
+     * @var string
+     */
+    public static $defaultSort = 'created_at';
+
+    /**
+     * The default shorting direction.
+     *
+     * @var string
+     */
+    public static $defaultDir = 'desc';
+
+    /**
      * Indicates whether to show the polling toggle button inside Nova.
      *
      * @var bool
@@ -140,5 +154,21 @@ class ProductImport extends Resource
     public function actions(NovaRequest $request)
     {
         return [];
+    }
+
+    /**
+     * Build an "index" query for the given resource.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        if (static::$defaultSort && empty($request->get('orderBy'))) {
+            $query->getQuery()->orders = [];
+            return $query->orderBy(static::$defaultSort, static::$defaultDir);
+        }
+        return $query;
     }
 }
