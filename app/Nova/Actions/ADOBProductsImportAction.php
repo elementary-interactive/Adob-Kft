@@ -72,8 +72,8 @@ class ADOBProductsImportAction extends Action
           $fields->file->getRealPath(),
           null,
           \Maatwebsite\Excel\Excel::XLSX
-        )//;
-          ->chain(new CountBrandCategoryProducts);
+        );
+          // ->chain(new CountBrandCategoryProducts);
       } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
 
