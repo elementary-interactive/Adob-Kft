@@ -114,8 +114,8 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
   public function model(array $row)
   {
-    $result = null;
-    
+    $result = false;
+
     $this->tracker->status = 'running';
     $this->tracker->save();
 
@@ -259,7 +259,10 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
    */
   private function delete_product($row)
   {
-    return Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->delete();
+    $product = Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->first();
+    $product->delete();
+
+    return $product;
   }
 
   private function save_images($product, $row)
