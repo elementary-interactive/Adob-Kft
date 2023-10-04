@@ -34,14 +34,23 @@ class GenerateSitemap extends Command
           </url>
         </urlset>';
 
-        $routeCollection = \Illuminate\Support\Facades\Route::getRoutes();
-
-foreach ($routeCollection as $value) {
-    dump($value->uri());
+        $routes = collect(config('site.maps'));
+        foreach ($routes as $name => $params) {
+            if (!empty($params)) {
+                $x = "under construction";
+            } else {
+                $x = route($name);
+            }
+            dump($x);
+    // if (!in_array('nova', $value->gatherMiddleware()) &&
+    //     !in_array('nova:api', $value->gatherMiddleware()))
+    // {
+    // dump($value);
+    // }
 }
         try {
-            dump(public_path('sitemap.xml'));
-            $x = Storage::put(public_path('sitemap.xml'), $content);
+            dump(public_path('/sitemap.xml'));
+            $x = Storage::put(public_path('/sitemap.xml'), $content);
             dd($x);
         } catch (\Exception $e) {
             dd($e);
