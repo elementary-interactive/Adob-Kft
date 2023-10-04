@@ -114,26 +114,22 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
   public function model(array $row)
   {
-    $result = null;
-
     $this->tracker->status = 'running';
     $this->tracker->save();
 
     try {
       if (self::to_save($row)) {
-        $result = $this->save_product($row, self::is_active($row));
+        return $this->save_product($row, self::is_active($row));
       }
 
       if (self::to_delete($row)) {
-        $result = $this->delete_product($row);
+        return $this->delete_product($row);
       }
     } catch (\Exception $e) {
       $this->error($e->getMessage());
     } catch (\Throwable $e) {
       $this->error($e->getMessage());
     }
-
-    return $result;
   }
 
   /**
