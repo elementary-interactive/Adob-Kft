@@ -18,7 +18,7 @@ use Neon\Admin\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Laravel\Nova\Notifications\NovaNotification;
 use Laravel\Nova\Notifications\NovaChannel;
@@ -212,7 +212,10 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     } else {
       $this->tracker->increaseBrandInserted();
     }
-    $brand->save();
+    DB::transaction(function () use ($brand) {
+      $brand->save();
+    }, 5);
+
 
     // Connect brand to product.
     $product->brand()->associate($brand);
@@ -228,8 +231,9 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       $is_new = true;
       $this->tracker->increaseProductInserted();
     }
-
-    $product->save();
+    DB::transaction(function () use ($product) {
+      $product->save();
+    }, 5);
 
     /** Upload categories...
      */
