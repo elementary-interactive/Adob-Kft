@@ -26,7 +26,7 @@ use App\Models\ProductImport;
 use stdClass;
 
 
-class ImportCategoryProduct extends Action
+class ADOBProductsImportAction extends Action
 {
   use InteractsWithQueue, Queueable;
  
@@ -35,7 +35,7 @@ class ImportCategoryProduct extends Action
   /**
    *
    */
-  public $name = 'Termékek importálása';
+  public $name = 'Termékek importálása (ADOB)';
 
   /**
    * Perform the action on the given models.
@@ -66,14 +66,14 @@ class ImportCategoryProduct extends Action
         'excel.import.calculate'  => false,
       ]);
       try {
-        Excel::queueImport(
+        Excel::import(
         // Excel::import(
           new ADOBProductsImport(request()->user(), $this->tracker),
           $fields->file->getRealPath(),
           null,
           \Maatwebsite\Excel\Excel::XLSX
-        )//;
-          ->chain(new CountBrandCategoryProducts);
+        );
+          // ->chain(new CountBrandCategoryProducts);
       } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
         $failures = $e->failures();
 

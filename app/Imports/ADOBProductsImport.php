@@ -18,7 +18,7 @@ use Neon\Admin\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Laravel\Nova\Notifications\NovaNotification;
 use Laravel\Nova\Notifications\NovaChannel;
@@ -37,7 +37,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
 
-  static $columns = \App\Models\Columns\ProductImportColumns::class;
+  static $columns = \App\Models\Columns\ADOBProductsImportColumns::class;
 
   public $imported_by;
 
@@ -112,11 +112,6 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     return 10;
   }
 
-  public function batchSize(): int
-  {
-    return 10;
-  }
-
   public function model(array $row)
   {
     $this->tracker->status = 'running';
@@ -124,19 +119,17 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
     try {
       if (self::to_save($row)) {
-        $result = $this->save_product($row, self::is_active($row));
+        return $this->save_product($row, self::is_active($row));
       }
 
       if (self::to_delete($row)) {
-        $result = $this->delete_product($row);
+        return $this->delete_product($row);
       }
     } catch (\Exception $e) {
       $this->error($e->getMessage());
     } catch (\Throwable $e) {
       $this->error($e->getMessage());
     }
-
-    return $result;
   }
 
   /**
@@ -217,7 +210,10 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
     } else {
       $this->tracker->increaseBrandInserted();
     }
-    $brand->save();
+    DB::transaction(function () use ($brand) {
+      $brand->save();
+    }, 5);
+
 
     // Connect brand to product.
     $product->brand()->associate($brand);
@@ -233,8 +229,9 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       $is_new = true;
       $this->tracker->increaseProductInserted();
     }
-
-    $product->save();
+    DB::transaction(function () use ($product) {
+      $product->save();
+    }, 5);
 
     /** Upload categories...
      */
@@ -258,7 +255,10 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
    */
   private function delete_product($row)
   {
-    return Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->delete();
+    $product = Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->first();
+    $product->delete();
+
+    return $product;
   }
 
   private function save_images($product, $row)
@@ -289,18 +289,18 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       // dump($images);
       foreach ($images as $string)
       {
-        
-        if (str_contains($string, 'data:image/')) { //- base64 image
-          $product
-            ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
-            ->toMediaCollection(Product::MEDIA_COLLECTION);
-        }
+        dump($string);
+        // if (str_contains($string, 'data:image/')) { //- base64 image
+        //   $product
+        //     ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
+        //     ->toMediaCollection(Product::MEDIA_COLLECTION);
+        // }
 
-        if (str_contains($string, 'http')) { //- http image
-          $product
-            ->addMediaFromUrl($string)
-            ->toMediaCollection(Product::MEDIA_COLLECTION);
-        }
+        // if (str_contains($string, 'http')) { //- http image
+        //   $product
+        //     ->addMediaFromUrl($string)
+        //     ->toMediaCollection(Product::MEDIA_COLLECTION);
+        // }
       }
     }
   }

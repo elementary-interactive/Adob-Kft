@@ -2,7 +2,7 @@
 
 namespace App\Models\Columns;
 
-enum ProductImportColumns: string {
+enum ADOBProductsImportColumns: string {
     case PRODUCT_ID                 = 'cikkszam';
     case PRODUCT_NAME               = 'megnevezes';
     case BRAND                      = 'marka';

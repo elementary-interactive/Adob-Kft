@@ -1,6 +1,6 @@
 FROM php:8.1-fpm
 
-# Copy composer.lock and composer.json
+# Copy composer.lock and composer.json                                          
 COPY composer.lock composer.json /var/www/
 
 # Set working directory
@@ -21,11 +21,13 @@ RUN apt-get install -y \
     zip \
     jpegoptim optipng pngquant gifsicle \
     vim \
+    zip \
     unzip \
     git \
     curl \
     libmemcached-dev \
-    libicu-dev
+    libicu-dev \
+    supervisor
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -35,11 +37,12 @@ RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-freetype --with-webp --with-jpeg
 RUN docker-php-ext-install gd
 RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends && rm -rf /var/lib/apt/lists/*
-RUN printf "\n" | pecl install imagick
+RUN pecl install imagick
 RUN docker-php-ext-enable imagick
 RUN docker-php-ext-install intl
 RUN docker-php-ext-enable intl
 RUN pecl install redis
+RUN pecl install excimer
 RUN docker-php-ext-enable redis
 #
 # don't need memcached...
@@ -62,10 +65,13 @@ RUN apt-get install -y build-essential \
     npm 
 RUN npm i -g yarn
 
+COPY --chown=root:root supervisor/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Copy existing application directory contents
 COPY . /var/www
 
 # Copy existing application directory permissions
+RUN ["chmod", "+x", "./start.sh"]
 COPY --chown=www:www . /var/www
 
 # Change current user to www
@@ -73,4 +79,5 @@ USER www
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
+# CMD ./start.sh
 CMD ["php-fpm"]
