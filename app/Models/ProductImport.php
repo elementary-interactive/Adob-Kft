@@ -66,6 +66,10 @@ class ProductImport extends Model
   public function addFail($message)
   {
     $data = json_decode($this->attributes['data']);
+    if (!is_array($data))
+    {
+      $data = [];
+    }
     if (!array_key_exists('fails', $data))
     {
       $data['fails'] = [];
