@@ -32,13 +32,14 @@ class ProductImport extends Model
     'categories_modified',
     'products_inserted',
     'products_modified',
+    'data'
   ];
 
   /** Cast attribute to array...
    *
    */
   protected $casts = [
-    // 'data'          => 'array',
+    'data'          => 'array',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -59,11 +60,14 @@ class ProductImport extends Model
     'categories_modified' => 0,
     'products_inserted'   => 0,
     'products_modified'   => 0,
+    'data'                => [
+      'fails' => []
+    ]
   ];
 
   public function addFail($message)
   {
-    // $this->data['fails'][] = $message;
+    $this->attributes['data']['fails'][] = $message;
   }
 
   public function increaseBrandInserted()
