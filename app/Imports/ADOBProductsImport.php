@@ -290,17 +290,17 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       foreach ($images as $string)
       {
         dump($string);
-        // if (str_contains($string, 'data:image/')) { //- base64 image
-        //   $product
-        //     ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
-        //     ->toMediaCollection(Product::MEDIA_COLLECTION);
-        // }
+        if (str_contains($string, 'data:image/')) { //- base64 image
+          $product
+            ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
+            ->toMediaCollection(Product::MEDIA_COLLECTION);
+        }
 
-        // if (str_contains($string, 'http')) { //- http image
-        //   $product
-        //     ->addMediaFromUrl($string)
-        //     ->toMediaCollection(Product::MEDIA_COLLECTION);
-        // }
+        if (str_contains($string, 'http')) { //- http image
+          $product
+            ->addMediaFromUrl($string)
+            ->toMediaCollection(Product::MEDIA_COLLECTION);
+        }
       }
     }
   }
