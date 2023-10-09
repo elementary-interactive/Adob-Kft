@@ -145,7 +145,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
   public function rules(): array
   {
     return [
-      self::$columns::PRODUCT_ID->value               => 'required',
+      self::$columns::PRODUCT_ID->value               => 'required|unique',
       self::$columns::PRODUCT_NAME->value             => 'required',
       self::$columns::BRAND->value                    => '',
       self::$columns::PRICE->value                    => '',
