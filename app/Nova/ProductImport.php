@@ -5,6 +5,7 @@ namespace App\Nova;
 use App\Nova\Admin as NovaAdmin;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Code;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\HasMany;
@@ -103,6 +104,12 @@ class ProductImport extends Resource
 
             Number::make(__('Brands inserted'), 'brands_inserted'),
             Number::make(__('Brands modified'), 'brands_modified'),
+
+            Number::make(__('Fails counter'), 'fails_counter'),
+
+            Code::make('Log', 'data')
+                ->hideFromIndex()
+                ->showOnDetail(),
 
             DateTime::make(__('Started at'), 'created_at')
                 ->sortable(),

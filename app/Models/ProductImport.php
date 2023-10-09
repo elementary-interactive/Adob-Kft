@@ -77,6 +77,8 @@ class ProductImport extends Model
     $data['fails'][] = $message;
 
     $this->attributes['data'] = json_encode($data);
+    
+    $this->attributes['fails_counter']++;
   }
 
   public function increaseBrandInserted()
