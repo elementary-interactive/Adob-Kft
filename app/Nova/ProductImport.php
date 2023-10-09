@@ -109,7 +109,8 @@ class ProductImport extends Resource
 
             Code::make('Log', 'data')
                 ->hideFromIndex()
-                ->showOnDetail(),
+                ->showOnDetail()
+                ->json(),
 
             DateTime::make(__('Started at'), 'created_at')
                 ->sortable(),
