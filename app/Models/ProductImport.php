@@ -39,7 +39,7 @@ class ProductImport extends Model
    *
    */
   protected $casts = [
-    'data'          => 'array',
+    'data'          => 'json',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -60,14 +60,19 @@ class ProductImport extends Model
     'categories_modified' => 0,
     'products_inserted'   => 0,
     'products_modified'   => 0,
-    'data'                => [
-      'fails' => []
-    ]
+    'data'                => ''
   ];
 
   public function addFail($message)
   {
-    $this->attributes['data']['fails'][] = $message;
+    $data = json_decode($this->attributes['data']);
+    if (!array_key_exists('fails', $data))
+    {
+      $data['fails'] = [];
+    }
+    $data['fails'][] = $message;
+
+    $this->attributes['data'] = json_encode($data);
   }
 
   public function increaseBrandInserted()
@@ -104,4 +109,5 @@ class ProductImport extends Model
   {
     return $this->belongsTo(Admin::class);
   }
+ 
 }
