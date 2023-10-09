@@ -32,6 +32,7 @@ class ProductImport extends Model
     'categories_modified',
     'products_inserted',
     'products_modified',
+    'fails_counter',
     'data'
   ];
 
@@ -60,6 +61,7 @@ class ProductImport extends Model
     'categories_modified' => 0,
     'products_inserted'   => 0,
     'products_modified'   => 0,
+    'fails_counter'       => 0,
     'data'                => ''
   ];
 
