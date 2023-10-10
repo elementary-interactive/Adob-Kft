@@ -108,22 +108,22 @@ class Product extends Model implements HasMedia
     $this->addMediaConversion('thumb')
       ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
-      ->nonQueued();
+      ->queued();
 
     $this->addMediaConversion('medium')
       ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
-      ->nonQueued();
+      ->queued();
 
     $this->addMediaConversion('thumb')
       ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_MAIN)
-      ->nonQueued();
+      ->queued();
 
     $this->addMediaConversion('medium')
       ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_MAIN)
-      ->nonQueued();
+      ->queued();
   }
 
   public function scopeOnlyBrand($query, Brand $brand)
