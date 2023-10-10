@@ -302,11 +302,12 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
 
         if (Str::startsWith($string, 'http')) { //- http image
           dump('http image');
-          $x = $product
+          $media = $product
             ->addMediaFromUrl($string)
             ->preservingOriginal()
             ->toMediaCollection(Product::MEDIA_COLLECTION);
-          dump($x);
+          $media->save();
+          dump($media);
         }
       }
     }
