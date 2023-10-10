@@ -81,36 +81,43 @@ class ProductImport extends Model
     $this->attributes['data'] = json_encode($data);
     
     $this->attributes['fails_counter']++;
+    $this->save();
   }
 
   public function increaseBrandInserted()
   {
     $this->attributes['brands_inserted']++;
+    $this->save();
   }
 
   public function increaseBrandModified()
   {
     $this->attributes['brands_modified']++;
+    $this->save();
   }
 
   public function increaseCategoryInserted()
   {
     $this->attributes['categories_inserted']++;
+    $this->save();
   }
 
   public function increaseCategoryModified()
   {
     $this->attributes['categories_modified']++;
+    $this->save();
   }
 
   public function increaseProductInserted()
   {
     $this->attributes['products_inserted']++;
+    $this->save();
   }
 
   public function increaseProductModified()
   {
     $this->attributes['products_modified']++;
+    $this->save();
   }
 
   public function imported_by(): BelongsTo
