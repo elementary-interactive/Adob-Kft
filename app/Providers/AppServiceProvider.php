@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
             'brand_category_counts' => \App\Models\BrandCategoryCounts::class,
             'category'              => \App\Models\Category::class,
             'category_product'      => \App\Models\CategoryProduct::class,
-            'iroduct'               => \App\Models\Product::class,
+            'product'               => \App\Models\Product::class,
             'product_import'        => \App\Models\ProductImport::class,
             'user'                  => \App\Models\User::class,
         ]);
