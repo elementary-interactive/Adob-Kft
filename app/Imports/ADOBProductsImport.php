@@ -307,7 +307,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
             ->preservingOriginal()
             ->toMediaCollection(Product::MEDIA_COLLECTION);
           $media->save();
-          dump($media);
+          dump($product, $media);
         }
       }
     }
