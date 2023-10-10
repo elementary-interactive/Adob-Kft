@@ -82,7 +82,7 @@ class ADOBProductsImportAction extends Action
         foreach ($failures as $failure) {
           request()->user()->notify(
             NovaNotification::make()
-              ->message($failure->row().'.sor "'.$failure->attribute().'" - '.implode("\n", $failure->errors($failure->errors())))
+              ->message($failure->row().'. sor "'.$failure->attribute().'" - '.implode("\n", $failure->errors($failure->errors())))
               // ->action('Download', URL::remote('https://example.com/report.pdf'))
               ->icon('exclamation-circle')
               ->type('error')
