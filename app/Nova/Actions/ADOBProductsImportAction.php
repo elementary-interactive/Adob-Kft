@@ -66,9 +66,8 @@ class ADOBProductsImportAction extends Action
         'excel.import.calculate'  => false,
       ]);
       try {
-        Excel::import(
-        // Excel::import(
-          new ADOBProductsImport(request()->user(), $this->tracker),
+        Excel::toCollection(
+          new ADOBProductCollectionImport(),
           $fields->file->getRealPath(),
           null,
           \Maatwebsite\Excel\Excel::XLSX
