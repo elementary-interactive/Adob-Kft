@@ -200,10 +200,13 @@ class Product extends Resource
     public function actions(NovaRequest $request)
     {
         return [
-            (new \App\Nova\Actions\ADOBProductsImportAction())
+            // (new \App\Nova\Actions\ADOBProductsImportAction())
+            //     ->onlyOnIndex()
+            //     ->standalone(),
+            (new \App\Nova\Actions\ADOBProductsExportAction())
                 ->onlyOnIndex()
                 ->standalone(),
-            (new \App\Nova\Actions\ADOBProductsExportAction())
+            (new \App\Nova\Actions\BatchProductImportAction())
                 ->onlyOnIndex()
                 ->standalone(),
         ];
