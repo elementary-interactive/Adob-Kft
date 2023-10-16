@@ -4,6 +4,7 @@ namespace App\Nova\Actions;
 
 // use App\Models\AccountData;
 
+use App\Imports\ADOBProductCollectionImport;
 use App\Jobs\ADOBProductImportBatch;
 use App\Models\ProductImport;
 use Illuminate\Bus\Batch;
@@ -20,6 +21,7 @@ use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Excel;
 use Throwable;
 
 class BatchProductImportAction extends Action // implements BatchableAction, ShouldQueue
@@ -66,14 +68,23 @@ class BatchProductImportAction extends Action // implements BatchableAction, Sho
     if ($validator->fails()) {
       return Action::danger($validator->errors);
     } else {
-      $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
+      // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
 
-      $importer = new ProductImport([
-        'file' => $file
-      ]);
-      $importer->save();
+      // $importer = new ProductImport([
+      //   'file' => $file
+      // ]);
+      // $importer->save();
+
+      $items = Excel::toArray(
+        new ADOBProductCollectionImport(),
+        $fields->file,
+        null,
+        \Maatwebsite\Excel\Excel::XLSX
+      );
+
+      dump($items);
       
-      ADOBProductImportBatch::dispatch($importer);
+      // ADOBProductImportBatch::dispatch($importer);
 
       return Action::message('Az állomány feltöltve. A háttérben elindítjuk az importálás folyamatát...');
     }

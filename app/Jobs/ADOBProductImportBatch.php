@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Imports\ADOBProductCollectionImport;
 use App\Models\ProductImport;
 use Carbon\Carbon;
 use Illuminate\Bus\Batchable;
@@ -14,7 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
-
+use Excel;
 class ADOBProductImportBatch implements ShouldQueue
 {
   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -45,6 +46,7 @@ class ADOBProductImportBatch implements ShouldQueue
     //   ['id' => 'product_id_10', 'name' => 'XY10', 'prop10' => 'val10'],
     // ]);
 
+    dump(storage_path($this->import->file));
     
     $items = Excel::toArray(
       new ADOBProductCollectionImport(),

@@ -5,11 +5,11 @@ namespace App\Imports;
 use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\Importable;
 
-class ProductImport implements ToModel
+class ProductImport implements ToArray
 {
     use Importable;
 
-    public function toArray(array $row)
+    public function array(array $row)
     {
         return $row;
     }

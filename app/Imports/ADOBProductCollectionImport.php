@@ -14,17 +14,8 @@ use Maatwebsite\Excel\Concerns\ToArray;
 
 class ADOBProductCollectionImport implements ToArray
 {
-  use Importable;
-
-  const HEADING_ROW = 1;
-
-  const MAX_SUB_CATEGORY_COUNT    = 5;
-
-  static $columns = \App\Models\Columns\ADOBProductsImportColumns::class;
-
-
-  public function toArray()
+  public function array(array $row): array
   {
-
+    return $row;
   }
 }
