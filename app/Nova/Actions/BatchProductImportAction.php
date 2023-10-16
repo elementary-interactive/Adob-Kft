@@ -5,6 +5,7 @@ namespace App\Nova\Actions;
 // use App\Models\AccountData;
 
 use App\Jobs\ADOBProductImportBatch;
+use App\Models\ProductImport;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\PendingBatch;
@@ -54,7 +55,7 @@ class BatchProductImportAction extends Action // implements BatchableAction, Sho
    * @param  \Laravel\Nova\Fields\ActionFields  $fields
    * @return mixed
    */
-  public function      handle(ActionFields $fields)
+  public function handle(ActionFields $fields)
   {
     $rules = array(
       'file' => 'required|mimes:xls,xlsx'
@@ -65,9 +66,17 @@ class BatchProductImportAction extends Action // implements BatchableAction, Sho
     if ($validator->fails()) {
       return Action::danger($validator->errors);
     } else {
+      $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
+
+      $importer = new ProductImport([
+        'file' => $file
+      ]);
+      $importer->save();
       
+      ADOBProductImportBatch::dispatch($importer);
+
+      return Action::message('Az állomány feltöltve. A háttérben elindítjuk az importálás folyamatát...');
     }
-    // ADOBProductImportBatch::dispatch(['324342' => 'werwerwerwe', 'wrwerwe' => 'esrwerwer']);
   }
 
   /** Show popup window's fields.

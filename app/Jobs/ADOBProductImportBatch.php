@@ -32,18 +32,28 @@ class ADOBProductImportBatch implements ShouldQueue
   {
     dump($this);
 
-    $items = collect([
-      ['id' => 'product_id_1', 'name' => 'XY1', 'prop1' => 'val1'],
-      ['id' => 'product_id_2', 'name' => 'XY2', 'prop2' => 'val2'],
-      ['id' => 'product_id_3', 'name' => 'XY3', 'prop3' => 'val3'],
-      ['id' => 'product_id_4', 'name' => 'XY4', 'prop4' => 'val4'],
-      ['id' => 'product_id_5', 'name' => 'XY5', 'prop5' => 'val5'],
-      ['id' => 'product_id_6', 'name' => 'XY6', 'prop6' => 'val6'],
-      ['id' => 'product_id_7', 'name' => 'XY7', 'prop7' => 'val7'],
-      ['id' => 'product_id_8', 'name' => 'XY8', 'prop8' => 'val8'],
-      ['id' => 'product_id_9', 'name' => 'XY9', 'prop9' => 'val9'],
-      ['id' => 'product_id_10', 'name' => 'XY10', 'prop10' => 'val10'],
-    ]);
+    // $items = collect([
+    //   ['id' => 'product_id_1', 'name' => 'XY1', 'prop1' => 'val1'],
+    //   ['id' => 'product_id_2', 'name' => 'XY2', 'prop2' => 'val2'],
+    //   ['id' => 'product_id_3', 'name' => 'XY3', 'prop3' => 'val3'],
+    //   ['id' => 'product_id_4', 'name' => 'XY4', 'prop4' => 'val4'],
+    //   ['id' => 'product_id_5', 'name' => 'XY5', 'prop5' => 'val5'],
+    //   ['id' => 'product_id_6', 'name' => 'XY6', 'prop6' => 'val6'],
+    //   ['id' => 'product_id_7', 'name' => 'XY7', 'prop7' => 'val7'],
+    //   ['id' => 'product_id_8', 'name' => 'XY8', 'prop8' => 'val8'],
+    //   ['id' => 'product_id_9', 'name' => 'XY9', 'prop9' => 'val9'],
+    //   ['id' => 'product_id_10', 'name' => 'XY10', 'prop10' => 'val10'],
+    // ]);
+
+    
+    $items = Excel::toArray(
+      new ADOBProductCollectionImport(),
+      storage_path($this->import->file),
+      null,
+      \Maatwebsite\Excel\Excel::XLSX
+    );
+
+    dump($items);
 
     foreach ($items as $row) {
       $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob($row))->delay(Carbon::now()->addSeconds(90));

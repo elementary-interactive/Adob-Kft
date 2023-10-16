@@ -25,7 +25,6 @@ class ProductImport extends Model
    * @var array
    */
   protected $fillable = [
-    'data',
     'brands_inserted',
     'brands_modified',
     'categories_inserted',
@@ -33,7 +32,8 @@ class ProductImport extends Model
     'products_inserted',
     'products_modified',
     'fails_counter',
-    'data'
+    'data',
+    'file'
   ];
 
   /** Cast attribute to array...
@@ -41,6 +41,7 @@ class ProductImport extends Model
    */
   protected $casts = [
     'data'          => 'json',
+    'file'          => 'string',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
