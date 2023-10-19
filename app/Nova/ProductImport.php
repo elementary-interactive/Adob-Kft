@@ -142,7 +142,9 @@ class ProductImport extends Resource
 
                 $result = [];
                 foreach ($jobs as $job) {
-                    $result[] = $job->exception;
+                    $result[] = Text::make('Hibaüzenet')->resolveUsing(function () use ($job) {
+                        return $job->exception;
+                    });
                 }
                 
                 return $result;
