@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImport;
+use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,7 +15,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Neon\Models\Statuses\BasicStatus;
 
 class ADOBProductImportJob implements ShouldQueue
@@ -70,8 +73,16 @@ class ADOBProductImportJob implements ShouldQueue
   /**
    * @return Product
    */
-  private function save_product(): Product
+  private function save_product(): Product|null
   {
+    $validator = Validator::make($this->record, $this->rules());
+
+    if ($validator->fails()) {
+      $error = ValidationException::withMessages((array) $validator);
+
+      throw $error;
+    }
+
     $is_new = null;
 
     $product = Product::firstOrNew([
