@@ -52,7 +52,7 @@ class ADOBProductImportJob implements ShouldQueue
   /**
    * @return array
    */
-  public static function rules(): array
+  public function rules(): array
   {
     return [
       $this->columns::PRODUCT_ID->value               => 'required|unique:products,product_id',
@@ -75,7 +75,7 @@ class ADOBProductImportJob implements ShouldQueue
    */
   private function save_product(): Product|null
   {
-    $validator = Validator::make($this->record, self::rules());
+    $validator = Validator::make($this->record, $this->rules());
 
     if ($validator->fails()) {
       $error = ValidationException::withMessages((array) $validator);
