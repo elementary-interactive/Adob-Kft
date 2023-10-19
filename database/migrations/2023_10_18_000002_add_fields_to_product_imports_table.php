@@ -14,9 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('product_imports', function (Blueprint $table) {
-            $table->integer('fails_counter', false, true)
+            $table->uuid('batch_id')
+                ->nullable()
+                ->default(null)
+                ->after('id');
+            $table->integer('records_counter', false, true)
                 ->default(0)
-                ->after('categories_modified');
+                ->after('imported_by_id');
         });
     }
 
@@ -28,7 +32,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('product_imports', function (Blueprint $table) {
-            $table->dropColumn('fails_counter');
+            $table->dropColumn('batch_id');
+            $table->dropColumn('records_counter');
         });
     }
 };

@@ -16,6 +16,8 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
 use Excel;
+use Laravel\Nova\Notifications\NovaNotification;
+
 class ADOBProductImportBatch implements ShouldQueue
 {
   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -31,46 +33,48 @@ class ADOBProductImportBatch implements ShouldQueue
    */
   public function handle()
   {
-    dump($this);
-
-    // $items = collect([
-    //   ['id' => 'product_id_1', 'name' => 'XY1', 'prop1' => 'val1'],
-    //   ['id' => 'product_id_2', 'name' => 'XY2', 'prop2' => 'val2'],
-    //   ['id' => 'product_id_3', 'name' => 'XY3', 'prop3' => 'val3'],
-    //   ['id' => 'product_id_4', 'name' => 'XY4', 'prop4' => 'val4'],
-    //   ['id' => 'product_id_5', 'name' => 'XY5', 'prop5' => 'val5'],
-    //   ['id' => 'product_id_6', 'name' => 'XY6', 'prop6' => 'val6'],
-    //   ['id' => 'product_id_7', 'name' => 'XY7', 'prop7' => 'val7'],
-    //   ['id' => 'product_id_8', 'name' => 'XY8', 'prop8' => 'val8'],
-    //   ['id' => 'product_id_9', 'name' => 'XY9', 'prop9' => 'val9'],
-    //   ['id' => 'product_id_10', 'name' => 'XY10', 'prop10' => 'val10'],
-    // ]);
-
-    dump(storage_path($this->import->file));
-    
-    $items = Excel::toArray(
-      new ADOBProductCollectionImport(),
-      storage_path($this->import->file),
-      null,
-      \Maatwebsite\Excel\Excel::XLSX
-    );
-
-    dump($items);
-
-    foreach ($items as $row) {
-      $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob($row))->delay(Carbon::now()->addSeconds(90));
+    if ($this->import->data['header']) {
+      /** Getting the header. The loop will be able to run through right now.
+       * @var array
+       */
+      $header = $this->import->data['file'][0];
     }
 
+    foreach ($this->import->data['file'] as $row) {
+      if ($row != $header) { // Skip header
+        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
+      }
+    }
+
+    $_import = $this->import;
     $batch = Bus::batch($batch_jobs)
-      ->then(function (Batch $batch) {
-        // All jobs completed successfully...
-      })->catch(function (Batch $batch, Throwable $e) {
-        // First batch job failure detected...
-      })->finally(function (Batch $batch) {
-        // The batch has finished executing...
+      ->then(function (Batch $batch) use ($_import) {
+        $_import->status = 'running';
+        $_import->save();
+      })->catch(function (Batch $batch, Throwable $e) use ($_import) {
+        $_import->imported_by->notify(
+          NovaNotification::make()
+            ->message($e->getMessage())
+            // ->action('Download', URL::remote('https://example.com/report.pdf'))
+            ->icon('exclamation-circle')
+            ->type('error')
+        );
+        $_import->fails_counter = $batch->failedJobs;
+        $_import->status = 'failed';
+        $_import->save();
+      })->finally(function (Batch $batch) use ($_import) {
+        $_import->finished_at = $batch->finishedAt;
+        $_import->status = $batch->failedJobs > 0 ? 'failed' : 'finished';
+        $_import->save();
+
+        CountBrandCategoryProducts::dispatch();
       })
         ->name('ADOB product import batch')
         ->dispatch();
+    $this->import->batch_id = $batch->id;
+    $this->import->records_counter = $batch->totalJobs;
+    $this->import->status = 'running';
+    $this->import->save();
 
     return $batch->id;
   }

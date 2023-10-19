@@ -22,6 +22,7 @@ use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Excel;
+use Laravel\Nova\Fields\Boolean;
 use Throwable;
 
 class BatchProductImportAction extends Action // implements BatchableAction, ShouldQueue
@@ -68,23 +69,24 @@ class BatchProductImportAction extends Action // implements BatchableAction, Sho
     if ($validator->fails()) {
       return Action::danger($validator->errors);
     } else {
-      // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
+      $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
 
-      // $importer = new ProductImport([
-      //   'file' => $file
-      // ]);
-      // $importer->save();
-
-      $items = Excel::toArray(
-        new ADOBProductCollectionImport(),
-        $fields->file,
-        null,
-        \Maatwebsite\Excel\Excel::XLSX
-      );
-
-      dump($items);
+      $importer = new ProductImport([
+        'file'  => $file,
+        'data'  => [
+          'header' => $fields->header,
+          'file'   => Excel::toArray(
+            new ADOBProductCollectionImport(),
+            $fields->file,
+            null,
+            \Maatwebsite\Excel\Excel::XLSX
+          )[0], // Getting only the first sheet.
+        ]
+      ]);
+      $importer->imported_by()->associate(request()->user());
+      $importer->save();
       
-      // ADOBProductImportBatch::dispatch($importer);
+      ADOBProductImportBatch::dispatch($importer);
 
       return Action::message('Az állomány feltöltve. A háttérben elindítjuk az importálás folyamatát...');
     }
@@ -100,12 +102,18 @@ class BatchProductImportAction extends Action // implements BatchableAction, Sho
     return [
       File::make("File", 'file')
         ->rules('required', 'mimes:xls,xlsx'),
-      Number::make('Fejléc sor', 'header_row')
-        ->min(0)
-        ->step(1)
+      Boolean::make('Fejléc van?', 'header')
+        ->trueValue(1)
+        ->falseValue(0)
         ->withMeta([
-          "value" => 1,
-        ]),
+          'value' => 1
+        ])
+      // Number::make('Fejléc sor', 'header_row')
+      //   ->min(0)
+      //   ->step(1)
+      //   ->withMeta([
+      //     "value" => 1,
+      //   ]),
     ];
   }
 }

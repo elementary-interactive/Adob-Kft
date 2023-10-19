@@ -32,8 +32,10 @@ class ProductImport extends Model
     'products_inserted',
     'products_modified',
     'fails_counter',
+    'records_counter',
     'data',
-    'file'
+    'file',
+    'batch_id'
   ];
 
   /** Cast attribute to array...
@@ -56,6 +58,7 @@ class ProductImport extends Model
    */
   protected $attributes = [
     'status'              => 'waiting',
+    'records_counter'     => 0,
     'brands_inserted'     => 0,
     'brands_modified'     => 0,
     'categories_inserted' => 0,

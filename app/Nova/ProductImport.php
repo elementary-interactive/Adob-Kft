@@ -3,13 +3,18 @@
 namespace App\Nova;
 
 use App\Nova\Admin as NovaAdmin;
+use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Code;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Slug;
+use Laravel\Nova\Fields\Stack;
 use Laravel\Nova\Fields\Status;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
@@ -96,21 +101,53 @@ class ProductImport extends Resource
             Status::make('', 'status')
                 ->loadingWhen(['waiting', 'running'])
                 ->failedWhen(['failed']),
-            Number::make(__('Products inserted'), 'products_inserted'),
-            Number::make(__('Products modified'), 'products_modified'),
+            Number::make('Összesen', 'records_counter'),
+            Stack::make('Termékek', [
+                Text::make('Beszúrva')->resolveUsing(function () {
+                    return 'Beszúrva: '.$this->resource->products_inserted;
+                }),
+                Text::make('Módosítva')->resolveUsing(function () {
+                    return 'Módosítva: '.$this->resource->products_modified;
+                }),
+            ]),
+            
+            Stack::make('Kategóriák', [
+                Text::make('Beszúrva')->resolveUsing(function () {
+                    return 'Beszúrva: '.$this->resource->categories_inserted;
+                }),
+                Text::make('Módosítva')->resolveUsing(function () {
+                    return 'Módosítva: '.$this->resource->categories_modified;
+                }),
+            ]),
 
-            Number::make(__('Categories inserted'), 'categories_inserted'),
-            Number::make(__('Categories modified'), 'categories_modified'),
-
-            Number::make(__('Brands inserted'), 'brands_inserted'),
-            Number::make(__('Brands modified'), 'brands_modified'),
+            Stack::make('Márkák', [
+                Text::make('Beszúrva')->resolveUsing(function () {
+                    return 'Beszúrva: '.$this->resource->brands_inserted;
+                }),
+                Text::make('Módosítva')->resolveUsing(function () {
+                    return 'Módosítva: '.$this->resource->brands_modified;
+                }),
+            ]),
 
             Number::make(__('Fails counter'), 'fails_counter'),
 
-            Code::make('Log', 'data')
+            Code::make('Adatforrás', 'data')
                 ->hideFromIndex()
                 ->showOnDetail()
                 ->json(),
+
+            Stack::make('Hibaüzenetek', function() {
+                $batch  = Bus::findBatch($this->resource->batch_id);
+                $jobs   = DB::table('failed_jobs')->whereIn('id', $batch->failedJobIds)->get();
+
+                $result = [];
+                foreach ($jobs as $job) {
+                    $result[] = $job->exception;
+                }
+                
+                return $result;
+            })
+                ->hideFromIndex(),
 
             DateTime::make(__('Started at'), 'created_at')
                 ->sortable(),

@@ -14,9 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('product_imports', function (Blueprint $table) {
-            $table->integer('fails_counter', false, true)
-                ->default(0)
-                ->after('categories_modified');
+            $table->longText('data')
+                ->nullable()
+                ->default(null)
+                ->change();
         });
     }
 
@@ -28,7 +29,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('product_imports', function (Blueprint $table) {
-            $table->dropColumn('fails_counter');
+            $table->text('data')
+                ->change();
         });
     }
 };
