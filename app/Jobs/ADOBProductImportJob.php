@@ -55,7 +55,7 @@ class ADOBProductImportJob implements ShouldQueue
   public function rules(): array
   {
     return [
-      $this->columns::PRODUCT_ID->value               => 'required|unique:products,product_id',
+      $this->columns::PRODUCT_ID->value               => 'required',
       $this->columns::PRODUCT_NAME->value             => 'required',
       // $this->columns::BRAND->value                    => '',
       // $this->columns::PRICE->value                    => '',
@@ -78,7 +78,9 @@ class ADOBProductImportJob implements ShouldQueue
     $validator = Validator::make($this->record, $this->rules());
 
     if ($validator->fails()) {
-      $error = ValidationException::withMessages((array) $validator);
+      dump($validator->messages());
+
+      $error = ValidationException::withMessages((array) $validator->messages());
 
       throw $error;
     }
@@ -107,18 +109,6 @@ class ADOBProductImportJob implements ShouldQueue
     $product->on_sale         = (array_key_exists($this->columns::ON_SALE->value, $this->record) && strtolower($this->record[$this->columns::ON_SALE->value]) === 'y');
     $product->status          = ($this->is_active()) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
-    // dump($product);
-    if ($product->exists) {
-      $this->import->increaseProductModified();
-      $is_new = false;
-    } else {
-      $is_new = true;
-      $this->import->increaseProductInserted();
-    }
-    // DB::transaction(function () use ($product) {
-      $product->save();
-    // }, 5);
-
     /** 
      * @var Brand $brand The product's brand.
      */
@@ -139,6 +129,19 @@ class ADOBProductImportJob implements ShouldQueue
         
     // Connect brand to product.
     $product->brand()->associate($brand);
+    // Associating is not saving, so we handle brands here, and then, when prodcut's other parts are also done, save to database.
+
+    // dump($product);
+    if ($product->exists) {
+      $this->import->increaseProductModified();
+      $is_new = false;
+    } else {
+      $is_new = true;
+      $this->import->increaseProductInserted();
+    }
+    // DB::transaction(function () use ($product) {
+      $product->save();
+    // }, 5);
 
     /** Upload images...
      */

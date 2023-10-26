@@ -3,6 +3,9 @@
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 
+
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -39,6 +42,22 @@ Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search']
 Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
     ->name('export.download');
     // ->middleware('signed:relative');
+
+Route::get('lofasz/{id}', function($id) {
+    $batch  = Bus::findBatch($id);
+    // dump($batch->failedJobIds);
+    // DB::enableQueryLog();
+    $jobs   = DB::table('failed_jobs')->whereIn('uuid', $batch->failedJobIds)->get();
+
+    // dd($jobs, DB::getQueryLog());
+    $result = [];
+    foreach ($jobs as $job) {
+        $result[] = $job->exception;
+        // });
+    }
+
+    dd($result);
+});
 
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');
