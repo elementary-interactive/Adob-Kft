@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Code;
 use Laravel\Nova\Fields\Number;
@@ -131,22 +132,22 @@ class ProductImport extends Resource
 
             Number::make(__('Fails counter'), 'fails_counter'),
 
-            Code::make('Adatforrás', 'data')
-                ->hideFromIndex()
-                ->showOnDetail()
-                ->json(),
+            // Code::make('Adatforrás', 'data')
+            //     ->hideFromIndex()
+            //     ->showOnDetail()
+            //     ->json(),
 
             Stack::make('Hibaüzenetek', function() {
                 $batch  = Bus::findBatch($this->resource->batch_id);
-                $jobs   = DB::table('failed_jobs')->whereIn('id', $batch->failedJobIds)->get();
+                $jobs   = DB::table('failed_jobs')->whereIn('uuid', $batch->failedJobIds)->get();
 
                 $result = [];
                 foreach ($jobs as $job) {
-                    $result[] = Text::make('Hibaüzenet')->resolveUsing(function () use ($job) {
-                        return $job->exception;
-                    });
+                    $result[] = Text::make()->resolveUsing(function () use ($job) {
+                        return Str::limit($job->exception, 40);
+                    })->asSmall();
                 }
-                
+
                 return $result;
             })
                 ->hideFromIndex(),
