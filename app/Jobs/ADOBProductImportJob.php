@@ -130,9 +130,6 @@ class ADOBProductImportJob implements ShouldQueue
     $product->brand()->associate($brand);
 
     // dump($product);
-
-    $this->handle_images($product);
-
     if ($product->exists) {
       $this->import->increaseProductModified();
       $is_new = false;
@@ -144,12 +141,15 @@ class ADOBProductImportJob implements ShouldQueue
       $product->save();
     }, 5);
 
+    /** Upload images...
+     */
+    $this->handle_images($product);
+
     /** Upload categories...
      */
     if (!$is_new) { //- If modifying product we detach from all categories.
       $product->categories()->detach();
     }
-
     /** Check is there category & adding to categories.
      * 
      * This method will also insert or modify categories.
