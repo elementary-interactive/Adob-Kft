@@ -115,9 +115,9 @@ class ADOBProductImportJob implements ShouldQueue
       $is_new = true;
       $this->import->increaseProductInserted();
     }
-    DB::transaction(function () use ($product) {
+    // DB::transaction(function () use ($product) {
       $product->save();
-    }, 5);
+    // }, 5);
 
     /** 
      * @var Brand $brand The product's brand.
@@ -133,9 +133,9 @@ class ADOBProductImportJob implements ShouldQueue
     } else {
       $this->import->increaseBrandInserted();
     }
-    DB::transaction(function () use ($brand) {
+    // DB::transaction(function () use ($brand) {
       $brand->save();
-    }, 5);
+    // }, 5);
         
     // Connect brand to product.
     $product->brand()->associate($brand);
