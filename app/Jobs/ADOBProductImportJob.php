@@ -107,6 +107,18 @@ class ADOBProductImportJob implements ShouldQueue
     $product->on_sale         = (array_key_exists($this->columns::ON_SALE->value, $this->record) && strtolower($this->record[$this->columns::ON_SALE->value]) === 'y');
     $product->status          = ($this->is_active()) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
+    // dump($product);
+    if ($product->exists) {
+      $this->import->increaseProductModified();
+      $is_new = false;
+    } else {
+      $is_new = true;
+      $this->import->increaseProductInserted();
+    }
+    DB::transaction(function () use ($product) {
+      $product->save();
+    }, 5);
+
     /** 
      * @var Brand $brand The product's brand.
      */
@@ -124,32 +136,19 @@ class ADOBProductImportJob implements ShouldQueue
     DB::transaction(function () use ($brand) {
       $brand->save();
     }, 5);
-
-
+        
     // Connect brand to product.
     $product->brand()->associate($brand);
 
-    // dump($product);
-
+    /** Upload images...
+     */
     $this->handle_images($product);
-
-    if ($product->exists) {
-      $this->import->increaseProductModified();
-      $is_new = false;
-    } else {
-      $is_new = true;
-      $this->import->increaseProductInserted();
-    }
-    DB::transaction(function () use ($product) {
-      $product->save();
-    }, 5);
 
     /** Upload categories...
      */
     if (!$is_new) { //- If modifying product we detach from all categories.
       $product->categories()->detach();
     }
-
     /** Check is there category & adding to categories.
      * 
      * This method will also insert or modify categories.
