@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Models\Columns\ADOBProductsImportColumns;
 use App\Nova\Admin as NovaAdmin;
 use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
@@ -98,6 +99,8 @@ class ProductImport extends Resource
      */
     public function fields(NovaRequest $request)
     {
+        $m = $this;
+
         return [
             Status::make('', 'status')
                 ->loadingWhen(['waiting', 'running'])
@@ -137,20 +140,34 @@ class ProductImport extends Resource
             //     ->showOnDetail()
             //     ->json(),
 
-            Stack::make('Hibaüzenetek', function() {
-                $batch  = Bus::findBatch($this->resource->batch_id);
+            Text::make('Hibaüzenetek', function() use ($m) {
+                $batch  = Bus::findBatch($m->resource->batch_id);
                 $jobs   = DB::table('failed_jobs')->whereIn('uuid', $batch->failedJobIds)->get();
 
-                $result = [];
+                $result = '';
                 foreach ($jobs as $job) {
-                    $result[] = Text::make()->resolveUsing(function () use ($job) {
-                        return Str::limit($job->exception, 40);
-                    })->asSmall();
+                    $__job = unserialize(json_decode($job->payload)->data->command);
+                    $result .= '<strong>'.$__job->record()[ADOBProductsImportColumns::PRODUCT_ID->value].'</strong>: '.Str::limit($job->exception, 240)."<br/>";
                 }
-
                 return $result;
             })
+                ->asHtml()
                 ->hideFromIndex(),
+
+            // Stack::make('Hibaüzenetek', function() use ($m) {
+            //     $batch  = Bus::findBatch($m->resource->batch_id);
+            //     $jobs   = DB::table('failed_jobs')->whereIn('uuid', $batch->failedJobIds)->get();
+
+            //     $result = [];
+            //     foreach ($jobs as $index => $job) {
+            //         $result[] = Text::make($index)->resolveUsing(function () use ($job) {
+            //             $__job = unserialize(json_decode($job->payload)->data->command);
+            //             return '<strong>'.$__job->record()[ADOBProductsImportColumns::PRODUCT_ID->value].'</strong>: '.Str::limit($job->exception, 240)."<br/>";
+            //         })->asSmall();
+            //     }
+            //     return $result;
+            // })
+            //     ->hideFromIndex(),
 
             DateTime::make(__('Started at'), 'created_at')
                 ->sortable(),

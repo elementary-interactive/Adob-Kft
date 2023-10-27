@@ -36,7 +36,6 @@ class ADOBProductImportJob implements ShouldQueue
   ) {
   }
 
-
   /**
    * Execute the job.
    */
@@ -47,6 +46,11 @@ class ADOBProductImportJob implements ShouldQueue
     } elseif ($this->to_delete()) {
       $this->delete_product();
     }
+  }
+
+  public function record(): array
+  {
+    return (array) $this->record;
   }
 
   /**
