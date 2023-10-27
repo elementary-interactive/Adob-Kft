@@ -94,7 +94,7 @@ class ADOBProductImportJob implements ShouldQueue
     ]);
 
     $product->name            = $this->record[$this->columns::PRODUCT_NAME->value];
-    $product->slug            = Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
+    $product->slug            = $this->record[$this->columns::PRODUCT_ID->value].'-'.Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
     if (array_key_exists($this->columns::PACKAGING->value, $this->record)) {
       $product->packaging       = $this->record[$this->columns::PACKAGING->value];
     }
