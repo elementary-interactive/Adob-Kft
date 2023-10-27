@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 */
 
 Route::get('/termek/{slug}', [\App\Http\Controllers\ProductController::class, 'show'])
-    ->where('slug', '[a-z0-9-_]+$')
+    ->where('slug', '[a-zA-Z0-9-_]+$')
     ->name('product.show');
 
 Route::get('/termekek/{slug?}', [\App\Http\Controllers\CategoryController::class, 'browse'])
