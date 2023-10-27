@@ -82,9 +82,7 @@ class ADOBProductImportJob implements ShouldQueue
     $validator = Validator::make($this->record, $this->rules());
 
     if ($validator->fails()) {
-      dump($validator->messages());
-
-      $error = ValidationException::withMessages((array) $validator->messages());
+      $error = ValidationException::withMessages($validator->messages()->toArray());
 
       throw $error;
     }
