@@ -118,6 +118,7 @@ class ADOBProductImportJob implements ShouldQueue
       'name'        => $this->record[$this->columns::BRAND->value],
       'is_featured' => false
     ]);
+    dump(Str::slug($this->record[$this->columns::BRAND->value]), $brand);
     if ($brand->exists) {
       $this->import->increaseBrandModified();
     } else {
