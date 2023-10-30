@@ -36,7 +36,6 @@ class ADOBProductImportJob implements ShouldQueue
   ) {
   }
 
-
   /**
    * Execute the job.
    */
@@ -47,6 +46,11 @@ class ADOBProductImportJob implements ShouldQueue
     } elseif ($this->to_delete()) {
       $this->delete_product();
     }
+  }
+
+  public function record(): array
+  {
+    return (array) $this->record;
   }
 
   /**
@@ -78,9 +82,7 @@ class ADOBProductImportJob implements ShouldQueue
     $validator = Validator::make($this->record, $this->rules());
 
     if ($validator->fails()) {
-      dump($validator->messages());
-
-      $error = ValidationException::withMessages((array) $validator->messages());
+      $error = ValidationException::withMessages($validator->messages()->toArray());
 
       throw $error;
     }
@@ -92,7 +94,7 @@ class ADOBProductImportJob implements ShouldQueue
     ]);
 
     $product->name            = $this->record[$this->columns::PRODUCT_NAME->value];
-    $product->slug            = Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
+    $product->slug            = $this->record[$this->columns::PRODUCT_ID->value].'-'.Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
     if (array_key_exists($this->columns::PACKAGING->value, $this->record)) {
       $product->packaging       = $this->record[$this->columns::PACKAGING->value];
     }
