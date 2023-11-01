@@ -33,13 +33,28 @@ class ADOBProductImportBatch implements ShouldQueue
    */
   public function handle()
   {
+    /** List of jobs to dispatch...
+     * @var array $batch_jobs
+     */
+    $batch_jobs = [];
+
     if ($this->import->data['header']) {
       /** Getting the header. The loop will be able to run through right now.
        * @var array
        */
       $header = $this->import->data['file'][0];
     }
+    
+    /** Import all possible brands.
+     */
+    $batch_jobs[] = (new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
+    /** Import categories.
+     */
+    // $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+
+    /** Import products line-by-line. 
+     */
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header) { // Skip header
         $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
@@ -47,6 +62,7 @@ class ADOBProductImportBatch implements ShouldQueue
     }
 
     $_import = $this->import;
+
     $batch = Bus::batch($batch_jobs)
       ->then(function (Batch $batch) use ($_import) {
         $_import->status = 'running';

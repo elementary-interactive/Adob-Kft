@@ -114,22 +114,9 @@ class ADOBProductImportJob implements ShouldQueue
     /** 
      * @var Brand $brand The product's brand.
      */
-    $brand = Brand::firstOrNew([
+    $brand = Brand::firstOrFail([
       'slug'        => Str::slug($this->record[$this->columns::BRAND->value]),
-    ], [ //- Fill up data.
-      'name'        => $this->record[$this->columns::BRAND->value],
-      'is_featured' => false
-    ]);
-    dump(Str::slug($this->record[$this->columns::BRAND->value]), $brand);
-    if ($brand->exists) {
-      $this->import->increaseBrandModified();
-    } else {
-      $this->import->increaseBrandInserted();
-    }
-    // DB::transaction(function () use ($brand) {
-      $brand->save();
-    // }, 5);
-        
+    ]); 
     // Connect brand to product.
     $product->brand()->associate($brand);
     // Associating is not saving, so we handle brands here, and then, when prodcut's other parts are also done, save to database.
