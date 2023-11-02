@@ -48,6 +48,8 @@ class ADOBBrandImportJob implements ShouldQueue
    */
   private function save_brand(): Brand|null
   {
+    /** Get the header...
+     */
     if ($this->records_has_header)
     {
       $header = $this->import->data['file'][0];

@@ -124,6 +124,11 @@ class ProductImport extends Model
     $this->save();
   }
 
+  public function addCategoryIds(array $categoryIndexes)
+  {
+    $this->file
+  }
+
   public function imported_by(): BelongsTo
   {
     return $this->belongsTo(Admin::class);
