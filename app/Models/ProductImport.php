@@ -124,9 +124,24 @@ class ProductImport extends Model
     $this->save();
   }
 
-  public function addCategoryIds(array $categoryIndexes)
+  public function addCategoryIds($product_id, $categoryIndexes)
   {
-    $this->file
+    $data = json_decode($this->attributes['data']);
+
+    if (!isset($data->categories))
+    {
+      $data->categories = array();
+    }
+
+    $data->categories = array_merge((array) $data->categories, [$product_id => $categoryIndexes]);
+
+    $this->attributes['data'] = json_encode($data);
+    $this->save();
+  }
+
+  public function getCategoryIds()
+  {
+    return collect(json_decode($this->attributes['data'])->categories);
   }
 
   public function imported_by(): BelongsTo
