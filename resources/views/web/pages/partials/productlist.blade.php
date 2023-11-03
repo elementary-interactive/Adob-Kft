@@ -37,7 +37,7 @@
                                 'slug' => $product->slug,
                             ]) }}"><img
                                     alt=""
-                                    src="{{ $product->getFirstMediaUrl(\App\Models\Product::MEDIA_MAIN, 'thumb') }}"></a>
+                                    src="{{ $product->getFirstMediaUrl(\App\Models\Product::MEDIA_COLLECTION, 'thumb') }}"></a>
                         </td>
                         <td><a
                                 href="{{ route('product.show', [
