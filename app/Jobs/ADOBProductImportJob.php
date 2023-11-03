@@ -115,7 +115,7 @@ class ADOBProductImportJob implements ShouldQueue
      * @var Brand $brand The product's brand.
      */
     $brand = Brand::where('slug', '=', Str::slug($this->record[$this->columns::BRAND->value]))->first();
-    
+
     // Connect brand to product.
     $product->brand()->associate($brand);
     // Associating is not saving, so we handle brands here, and then, when prodcut's other parts are also done, save to database.
@@ -145,7 +145,7 @@ class ADOBProductImportJob implements ShouldQueue
      * 
      * This method will also insert or modify categories.
      */
-    $this->attach_categories($product);
+    $this->attach_categories($product, $this->import);
 
     return $product;
   }
@@ -165,67 +165,34 @@ class ADOBProductImportJob implements ShouldQueue
    * attached.
    * 
    * @param Product $product
-   * 
-   * @return array $categories
+   * @param ProductImport $import
+   * @return void
    */
-  private function attach_categories(Product $product): array
+  private function attach_categories(Product $product, ProductImport $import): void
   {
-    $columns  = array_keys($this->record);
+    $categories = $import->getCategoryIds()->get($product->product_id);
 
-    $result   = [];
 
-    for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
-      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $columns));
+    foreach ($categories as $category_index => $category_id)
+    {
+      /** @var Category $category to attach to the product.
+       */
+      $category = Category::find($category_id);
 
-      if ($this->record[$main_category_column]) {
-        $main_category = Category::firstOrCreate([
-          'slug'        => Str::slug($this->record[$main_category_column]),
-          'parent_id'   => null
-        ], [
-          'name'        => $this->record[$main_category_column],
-          'description' => $this->record[$main_category_column]
-        ]);
+      /** @var int Number of connected items.
+       */
+      $counter  = $category->products()->count();
 
-        $category = null;
-
-        for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
-          if (is_null($category)) {
-            $category = $main_category;
-          }
-          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $columns));
-
-          if (isset($this->record[$sub_category_column]) && !is_null($this->record[$sub_category_column])) {
-            $sub_category = Category::firstOrNew([
-              'slug'        => Str::slug($this->record[$sub_category_column]),
-              'parent_id'   => $category->id
-            ], [
-              'name'        => $this->record[$sub_category_column]
-            ]);
-
-            if (!$sub_category->exists) {
-              $this->import->increaseCategoryInserted();
-              $sub_category->save();
-              $sub_category->makeChildOf($category);
-            } else {
-              $this->import->increaseCategoryModified();
-            }
-
-            $category = $sub_category;
-          }
-        }
-        $result[$categories_index] = $category;
-      }
-    }
-
-    foreach ($result as $category_index => $category) {
-      $counter = $category->products()->count();
+      /** Attach the category and product to each other.
+       */
       $product->categories()->attach($category, [
         'is_main' => ($category_index == 1),
         'order'   => $counter++,
       ]);
     }
 
-    return $result;
+    
+    // return $result;
   }
 
   /** Parse Excel cells to discover images to store them for the products.

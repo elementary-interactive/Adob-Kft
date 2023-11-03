@@ -51,7 +51,7 @@ class ADOBProductImportBatch implements ShouldQueue
 
     /** Import categories.
      */
-    // $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+    $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
     /** Import products line-by-line. 
      */
