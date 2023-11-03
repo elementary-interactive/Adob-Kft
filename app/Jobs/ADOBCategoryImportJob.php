@@ -104,12 +104,14 @@ class ADOBCategoryImportJob implements ShouldQueue
                 $category = $sub_category;
               }
             }
-            $result[$categories_index] = $category;
+            $result[$categories_index] = $category->id;
           }
         }
+        /** Save data into a separated part of the import data....
+         */
+        $this->import->addCategoryIds($record[$this->columns::PRODUCT_ID->value], $result);
       }
     }
-    $this->records[$record_index][] = $result;
   }
 
 }
