@@ -79,7 +79,7 @@ class ADOBProductImportJob implements ShouldQueue
   /**
    * @return Product
    */
-  private function save_product(): Product|null
+  private function save_product(): void
   {
     $validator = Validator::make($this->record, $this->rules());
 
