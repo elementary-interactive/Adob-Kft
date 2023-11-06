@@ -6,6 +6,7 @@ namespace App\Jobs;
  * Whhoooo!!! Be careful!!!
  **/
 ini_set('max_execution_time', 600);
+ini_set('memory_limit', '4000M');
 set_time_limit(600);
 
 use App\Models\Brand;

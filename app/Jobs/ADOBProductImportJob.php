@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+ini_set('memory_limit', '4000M');
+
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
