@@ -2,6 +2,11 @@
 
 namespace App\Jobs;
 
+/**
+ * Whhoooo!!! Be careful!!!
+ **/
+ini_set('max_execution_time', 300);
+
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
