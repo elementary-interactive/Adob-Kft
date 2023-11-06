@@ -71,7 +71,7 @@
                     <div class="col-md-12">
                         <dl>
                             <dt>Márka</dt>
-                            <dd>{{ $product->brand->name }}</dd>
+                            <dd>{{ $product->brand?->name }}</dd>
                         </dl>
                         <dl>
                             <dt>Cikkszám</dt>
