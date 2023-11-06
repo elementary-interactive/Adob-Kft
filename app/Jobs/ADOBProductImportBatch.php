@@ -91,7 +91,7 @@ class ADOBProductImportBatch implements ShouldQueue
       })
         ->name('ADOB product import batch')
         ->allowFailures(true)
-        ->onConnection('database')
+        // ->onConnection('database')
         ->dispatch();
 
     $this->import->batch_id = $batch->id;
