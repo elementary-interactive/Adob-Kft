@@ -61,6 +61,8 @@ class ADOBProductImportBatch implements ShouldQueue
       }
     }
 
+    $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
+
     $_import = $this->import;
 
     $batch = Bus::batch($batch_jobs)
@@ -85,10 +87,13 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->status = $batch->failedJobs > 0 ? 'failed' : 'finished';
         $_import->save();
 
-        CountBrandCategoryProducts::dispatch();
+        // CountBrandCategoryProducts::dispatch();
       })
         ->name('ADOB product import batch')
+        ->allowFailures(true)
+        ->onConnection('default')
         ->dispatch();
+
     $this->import->batch_id = $batch->id;
     $this->import->records_counter = $batch->totalJobs;
     $this->import->status = 'running';
