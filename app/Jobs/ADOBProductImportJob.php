@@ -149,7 +149,7 @@ class ADOBProductImportJob implements ShouldQueue
      */
     $this->attach_categories($product, $this->import);
 
-    return $product;
+    // return $product;
   }
 
   /**

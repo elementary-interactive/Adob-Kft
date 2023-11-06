@@ -44,9 +44,9 @@ class ADOBBrandImportJob implements ShouldQueue
   }
 
   /**
-   * @return Brand
+   * @return void
    */
-  private function save_brand(): Brand|null
+  private function save_brand(): void
   {
     /** Get the header...
      */
@@ -78,8 +78,6 @@ class ADOBBrandImportJob implements ShouldQueue
           $this->import->increaseBrandInserted();
           $brand->save();
         }
-
-        return $brand;
       }
     }
   }
