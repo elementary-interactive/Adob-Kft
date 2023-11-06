@@ -9,7 +9,7 @@
                             <select class="form-control" id="search-brand">
                                 <option value="______">összes</option>
                                 @foreach ($products->unique('brand') as $product)
-                                    <option value="{{ $product->brand->slug }}">{{ $product->brand->name }}</option>
+                                    <option value="{{ $product->brand?->slug }}">{{ $product->brand?->name }}</option>
                                 @endforeach
                             </select>
                         @else
@@ -27,7 +27,7 @@
             </thead>
             <tbody id="search-data">
                 @foreach ($products as $product)
-                    <tr role="button" data-brand="{{ $product->brand->slug }}"
+                    <tr role="button" data-brand="{{ $product->brand?->slug }}"
                         data-href="{{ route('product.show', [
                             'slug' => $product->slug,
                         ]) }}"
@@ -42,7 +42,7 @@
                         <td><a
                                 href="{{ route('product.show', [
                                     'slug' => $product->slug,
-                                ]) }}">{{ $product->brand->name }}</a>
+                                ]) }}">{{ $product->brand?->name }}</a>
                         </td>
                         <td><a
                                 href="{{ route('product.show', [
