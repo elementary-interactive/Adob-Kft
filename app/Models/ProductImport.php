@@ -141,7 +141,7 @@ class ProductImport extends Model
 
   public function getCategoryIds()
   {
-    return collect(json_decode($this->attributes['data'])->categories);
+    return (array) json_decode($this->attributes['data'])->categories;
   }
 
   public function imported_by(): BelongsTo
