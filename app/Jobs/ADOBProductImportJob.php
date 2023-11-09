@@ -172,7 +172,7 @@ class ADOBProductImportJob implements ShouldQueue
    */
   private function attach_categories(Product $product, ProductImport $import): void
   {
-    $categories = $import->getCategoryIds()->get($product->product_id);
+    $categories = (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
 
     if (is_array($categories) && !empty($categories)) {
       foreach ($categories as $category_index => $category_id) {
