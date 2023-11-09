@@ -96,7 +96,7 @@ class ADOBProductImportJob implements ShouldQueue
     ]);
 
     $product->name            = $this->record[$this->columns::PRODUCT_NAME->value];
-    $product->slug            = $this->record[$this->columns::PRODUCT_ID->value].'-'.Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
+    $product->slug            = $this->record[$this->columns::PRODUCT_ID->value] . '-' . Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
     if (array_key_exists($this->columns::PACKAGING->value, $this->record)) {
       $product->packaging       = $this->record[$this->columns::PACKAGING->value];
     }
@@ -131,7 +131,7 @@ class ADOBProductImportJob implements ShouldQueue
       $this->import->increaseProductInserted();
     }
     // DB::transaction(function () use ($product) {
-      $product->save();
+    $product->save();
     // }, 5);
 
     /** Upload images...
@@ -174,26 +174,25 @@ class ADOBProductImportJob implements ShouldQueue
   {
     $categories = $import->getCategoryIds()->get($product->product_id);
 
+    if (is_array($categories) && !empty($categories)) {
+      foreach ($categories as $category_index => $category_id) {
+        /** @var Category $category to attach to the product.
+         */
+        $category = Category::find($category_id);
 
-    foreach ($categories as $category_index => $category_id)
-    {
-      /** @var Category $category to attach to the product.
-       */
-      $category = Category::find($category_id);
+        /** @var int Number of connected items.
+         */
+        $counter  = $category->products()->count();
 
-      /** @var int Number of connected items.
-       */
-      $counter  = $category->products()->count();
-
-      /** Attach the category and product to each other.
-       */
-      $product->categories()->attach($category, [
-        'is_main' => ($category_index == 1),
-        'order'   => $counter++,
-      ]);
+        /** Attach the category and product to each other.
+         */
+        $product->categories()->attach($category, [
+          'is_main' => ($category_index == 1),
+          'order'   => $counter++,
+        ]);
+      }
     }
 
-    
     // return $result;
   }
 
