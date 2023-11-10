@@ -46,7 +46,6 @@ class ADOBProductImportBatch implements ShouldQueue
       $header = $this->import->data['file'][0];
     }
     
-    
     /** Import all possible brands.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
@@ -57,16 +56,17 @@ class ADOBProductImportBatch implements ShouldQueue
     $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
     Log::channel('import')->info('Category import added.');
 
-    /** Import products line-by-line. 
-     */
-    foreach ($this->import->data['file'] as $index => $row) {
-      if ($row != $header) { // Skip header
-        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
-        Log::channel('import')->info('Product import added. ('.$row[0].')');
-      }
-    }
+    $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+    // /** Import products line-by-line. 
+    //  */
+    // foreach ($this->import->data['file'] as $index => $row) {
+    //   if ($row != $header) { // Skip header
+    //     $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
+    //     Log::channel('import')->info('Product import added. ('.$row[0].')');
+    //   }
+    // }
 
-    $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
+    // $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
 
     $_import = $this->import;
 

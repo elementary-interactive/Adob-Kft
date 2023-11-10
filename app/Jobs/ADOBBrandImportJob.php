@@ -10,7 +10,7 @@ use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Log;
+ use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -74,8 +74,6 @@ class ADOBBrandImportJob implements ShouldQueue
           'name'        => $record[$this->columns::BRAND->value],
           'is_featured' => false
         ]);
-       
-        
         
         if (!$brand->exists) {
           $this->import->increaseBrandInserted();
