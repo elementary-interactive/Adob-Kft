@@ -22,6 +22,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -82,6 +83,7 @@ class ADOBCategoryImportJob implements ShouldQueue
               'name'        => $record[$main_category_column],
               'description' => $record[$main_category_column]
             ]);
+            Log::channel('import')->info('Main category imported: '.$record[$main_category_column]);
 
             // $category = null;
 
@@ -99,6 +101,7 @@ class ADOBCategoryImportJob implements ShouldQueue
                 ], [
                   'name'        => $record[$sub_category_column]
                 ]);
+                Log::channel('import')->info(' ⌞ Sub category imported: '.$record[$sub_category_column]);
 
                 if (!$sub_category->exists) {
                   $this->import->increaseCategoryInserted();
@@ -117,6 +120,7 @@ class ADOBCategoryImportJob implements ShouldQueue
         /** Save data into a separated part of the import data....
          */
         $this->import->addCategoryIds($record[$this->columns::PRODUCT_ID->value], $result);
+        Log::channel('import')->info('Product ID connection imported: '.$record[$this->columns::PRODUCT_ID->value].': '.implode(', ', $result));
       }
     }
   }
