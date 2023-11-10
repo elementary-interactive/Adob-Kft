@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 ini_set('memory_limit', '4000M');
+ini_set('max_execution_time', 600);
 
 use App\Models\Brand;
 use App\Models\Category;
@@ -30,6 +31,12 @@ class ADOBAllProductImportJob implements ShouldQueue
   const MAX_SUB_CATEGORY_COUNT    = 5;
 
   private $record;
+
+  /** Get all categories.
+   * @var array|null Categories
+   */
+  private $categories = null;
+
   /**
    * Create a new job instance.
    */
@@ -178,77 +185,77 @@ class ADOBAllProductImportJob implements ShouldQueue
     }
   }
 
-  private function save_categories()
-  {
-    $result = [];
-    /** Get the header...
-     */
-    if ($this->records_has_header)
-    {
-      $header = $this->import->data['file'][0];
-    }
+//   private function save_categories()
+//   {
+//     $result = [];
+//     /** Get the header...
+//      */
+//     if ($this->records_has_header)
+//     {
+//       $header = $this->import->data['file'][0];
+//     }
 
-    foreach ($this->records as $record_index => $record_data)
-    {
-      if ($record_data != $header)
-      {
-        /**
-         * @var array $record Associative array of the given record.
-         */
-        $record = array_combine($header, $record_data);
+//     foreach ($this->records as $record_index => $record_data)
+//     {
+//       if ($record_data != $header)
+//       {
+//         /**
+//          * @var array $record Associative array of the given record.
+//          */
+//         $record = array_combine($header, $record_data);
 
-        for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
-          $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $header));
+//         for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
+//           $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $header));
 
-          if ($record[$main_category_column]) {
-            $category = Category::firstOrCreate([
-              'slug'        => Str::slug($record[$main_category_column]),
-              'parent_id'   => null
-            ], [
-              'name'        => $record[$main_category_column],
-              'description' => $record[$main_category_column]
-            ]);
-            Log::channel('import')->info('Main category imported: '.$record[$main_category_column]);
+//           if ($record[$main_category_column]) {
+//             $category = Category::firstOrCreate([
+//               'slug'        => Str::slug($record[$main_category_column]),
+//               'parent_id'   => null
+//             ], [
+//               'name'        => $record[$main_category_column],
+//               'description' => $record[$main_category_column]
+//             ]);
+//             Log::channel('import')->info('Main category imported: '.$record[$main_category_column]);
 
-            // $category = null;
+//             // $category = null;
 
-            for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
-              // if (is_null($category))
-              // {
-              //   $category = $main_category;
-              // }
-              $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $header));
+//             for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
+//               // if (is_null($category))
+//               // {
+//               //   $category = $main_category;
+//               // }
+//               $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $header));
 
-              if (isset($record[$sub_category_column]) && !is_null($record[$sub_category_column])) {
-                $sub_category = Category::firstOrNew([
-                  'slug'        => Str::slug($record[$sub_category_column]),
-                  'parent_id'   => $category->id
-                ], [
-                  'name'        => $record[$sub_category_column]
-                ]);
-                Log::channel('import')->info(' ⌞ Sub category imported: '.$record[$sub_category_column]);
+//               if (isset($record[$sub_category_column]) && !is_null($record[$sub_category_column])) {
+//                 $sub_category = Category::firstOrNew([
+//                   'slug'        => Str::slug($record[$sub_category_column]),
+//                   'parent_id'   => $category->id
+//                 ], [
+//                   'name'        => $record[$sub_category_column]
+//                 ]);
+//                 Log::channel('import')->info(' ⌞ Sub category imported: '.$record[$sub_category_column]);
 
-                if (!$sub_category->exists) {
-                  $this->import->increaseCategoryInserted();
-                  $sub_category->save();
-                  $sub_category->makeChildOf($category);
-                } else {
-                  $this->import->increaseCategoryModified();
-                }
+//                 if (!$sub_category->exists) {
+//                   $this->import->increaseCategoryInserted();
+//                   $sub_category->save();
+//                   $sub_category->makeChildOf($category);
+//                 } else {
+//                   $this->import->increaseCategoryModified();
+//                 }
 
-                $category = $sub_category;
-              }
-            }
-            $result[$categories_index] = $category->id;
-          }
-        }
-        /** Save data into a separated part of the import data....
-         */
-        $this->import->addCategoryIds($record[$this->columns::PRODUCT_ID->value], $result);
-        Log::channel('import')->info('Product ID connection imported: '.$record[$this->columns::PRODUCT_ID->value].': '.implode(', ', $result));
-      }
-    }
-  }
+//                 $category = $sub_category;
+//               }
+//             }
+//             $result[$categories_index] = $category->id;
+//           }
+//         }
+//         /** Save data into a separated part of the import data....
+//          */
+//         $this->import->addCategoryIds($record[$this->columns::PRODUCT_ID->value], $result);
+//         Log::channel('import')->info('Product ID connection imported: '.$record[$this->columns::PRODUCT_ID->value].': '.implode(', ', $result));
+//       }
+//     }
+//   }
 
   /**
    * @return Product
@@ -347,10 +354,22 @@ class ADOBAllProductImportJob implements ShouldQueue
    */
   private function attach_categories(Product $product, ProductImport $import): void
   {
-    $categories = (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
+    /** Get all categories...
+     */
+    if (is_null($this->categories)) {
+        $this->categories = $import->getCategoryIds();
+    }
 
-    if (is_array($categories) && !empty($categories)) {
-      foreach ($categories as $category_index => $category_id) {
+    /** 
+     * @var array categoris for the given product
+     */
+    $categories = (array) (array_key_exists($product->product_id, $this->categories)) ? $this->categories[$product->product_id] : null;
+
+    if (!empty($categories)) {
+      //Log::channel('import')->info('Product category will be attached to '.sizeof($categories).' category');
+
+      foreach ($categories as $category_index => $category_id)
+      {
         /** @var Category $category to attach to the product.
          */
         $category = Category::find($category_id);
@@ -365,7 +384,7 @@ class ADOBAllProductImportJob implements ShouldQueue
           'is_main' => ($category_index == 1),
           'order'   => $counter++,
         ]);
-        Log::channel('import')->info('Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
+        Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
       }
     }
 
@@ -387,7 +406,8 @@ class ADOBAllProductImportJob implements ShouldQueue
       $images   = array();
       $index    = 0;
 
-      foreach ($__images as $string) {
+      foreach ($__images as $string)
+      {
         if (!array_key_exists($index, $images)) {
           $images[$index] = '';
         }
@@ -399,6 +419,7 @@ class ADOBAllProductImportJob implements ShouldQueue
       }
 
       foreach ($images as $string) {
+
         if (Str::startsWith($string, 'data:image/')) { //- base64 image
           $product
             ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
@@ -413,7 +434,10 @@ class ADOBAllProductImportJob implements ShouldQueue
             ->toMediaCollection(Product::MEDIA_COLLECTION);
           $media->save();
         }
+
       }
+    // } else {
+    //     throw new Exception($this->record[$this->columns::PRODUCT_ID->value].' nincs "'.$this->columns::IMAGES.'" oszlop!');
     }
   }
 

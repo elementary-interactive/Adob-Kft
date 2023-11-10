@@ -57,6 +57,7 @@ class ADOBProductImportBatch implements ShouldQueue
     Log::channel('import')->info('Category import added.');
 
     $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+
     // /** Import products line-by-line. 
     //  */
     // foreach ($this->import->data['file'] as $index => $row) {
@@ -66,7 +67,7 @@ class ADOBProductImportBatch implements ShouldQueue
     //   }
     // }
 
-    // $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
+    $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
 
     $_import = $this->import;
 
@@ -100,7 +101,7 @@ class ADOBProductImportBatch implements ShouldQueue
         ->dispatch();
 
     $this->import->batch_id = $batch->id;
-    $this->import->records_counter = $batch->totalJobs;
+    $this->import->records_counter = count($this->import->data['file']) - 1;
     $this->import->status = 'running';
     $this->import->save();
 
