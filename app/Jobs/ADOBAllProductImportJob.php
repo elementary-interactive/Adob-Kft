@@ -32,11 +32,6 @@ class ADOBAllProductImportJob implements ShouldQueue
 
   private $record;
 
-  /** Get all categories.
-   * @var array|null Categories
-   */
-  private $categories = null;
-
   /**
    * Create a new job instance.
    */
@@ -354,16 +349,10 @@ class ADOBAllProductImportJob implements ShouldQueue
    */
   private function attach_categories(Product $product, ProductImport $import): void
   {
-    /** Get all categories...
-     */
-    if (is_null($this->categories)) {
-        $this->categories = $import->getCategoryIds();
-    }
-
     /** 
      * @var array categoris for the given product
      */
-    $categories = (array) (array_key_exists($product->product_id, $this->categories)) ? $this->categories[$product->product_id] : null;
+    $categories = (array) (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
 
     if (!empty($categories)) {
       //Log::channel('import')->info('Product category will be attached to '.sizeof($categories).' category');
