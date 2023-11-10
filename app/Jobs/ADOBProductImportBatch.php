@@ -16,6 +16,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
 use Excel;
+use Illuminate\Support\Facades\Log;
 use Laravel\Nova\Notifications\NovaNotification;
 
 class ADOBProductImportBatch implements ShouldQueue
@@ -45,19 +46,23 @@ class ADOBProductImportBatch implements ShouldQueue
       $header = $this->import->data['file'][0];
     }
     
+    
     /** Import all possible brands.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+    Log::channel('import')->info('Brand import added.');
 
     /** Import categories.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+    Log::channel('import')->info('Category import added.');
 
     /** Import products line-by-line. 
      */
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header) { // Skip header
         $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
+        Log::channel('import')->info('Product import added. ('.$row[0].')');
       }
     }
 

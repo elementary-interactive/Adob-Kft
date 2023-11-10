@@ -17,6 +17,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -133,6 +134,7 @@ class ADOBProductImportJob implements ShouldQueue
     // DB::transaction(function () use ($product) {
     $product->save();
     // }, 5);
+    Log::channel('import')->info('Product saved: '.$this->record[$this->columns::PRODUCT_ID->value]);
 
     /** Upload images...
      */
@@ -172,6 +174,8 @@ class ADOBProductImportJob implements ShouldQueue
    */
   private function attach_categories(Product $product, ProductImport $import): void
   {
+    dump($import->getCategoryIds());
+    
     $categories = (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
 
     if (is_array($categories) && !empty($categories)) {
@@ -190,6 +194,7 @@ class ADOBProductImportJob implements ShouldQueue
           'is_main' => ($category_index == 1),
           'order'   => $counter++,
         ]);
+        Log::channel('import')->info('Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
       }
     }
 
@@ -230,6 +235,7 @@ class ADOBProductImportJob implements ShouldQueue
         }
 
         if (Str::startsWith($string, 'http')) { //- http image
+          Log::channel('import')->info('Product image queried: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$string);
           $media = $product
             ->addMediaFromUrl($string)
             ->preservingOriginal()
