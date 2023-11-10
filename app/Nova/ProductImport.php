@@ -147,7 +147,8 @@ class ProductImport extends Resource
                 $result = '';
                 foreach ($jobs as $job) {
                     $__job = unserialize(json_decode($job->payload)->data->command);
-                    $result .= '<strong>'.$__job->record()[ADOBProductsImportColumns::PRODUCT_ID->value].'</strong>: '.Str::limit($job->exception, 240)."<br/>";
+                    // $result .= '<strong>'.$__job->record()[ADOBProductsImportColumns::PRODUCT_ID->value].'</strong>: '.Str::limit($job->exception, 240)."<br/>";
+                    $result .= Str::limit($job->exception, 240)."<br/>";
                 }
                 return $result;
             })
