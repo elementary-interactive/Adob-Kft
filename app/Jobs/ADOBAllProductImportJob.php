@@ -428,11 +428,16 @@ class ADOBAllProductImportJob implements ShouldQueue
 
         if (Str::startsWith($string, 'http')) { //- http image
           Log::channel('import')->info('Product image queried: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$string);
-          $media = $product
-            ->addMediaFromUrl($string)
-            ->preservingOriginal()
-            ->toMediaCollection(Product::MEDIA_COLLECTION);
-          $media->save();
+          try {
+              $media = $product
+                ->addMediaFromUrl($string)
+                ->preservingOriginal()
+                ->toMediaCollection(Product::MEDIA_COLLECTION);
+              $media->save();
+          } catch(\Exception $e) {
+            // Kurvaanyád, lófasz
+            $e;
+          }
         }
 
       }
