@@ -234,28 +234,35 @@ class ADOBProductImportJob implements ShouldQueue
         }
       }
 
-      foreach ($images as $string) {
-
-        if (Str::startsWith($string, 'data:image/')) { //- base64 image
-          $product
-            ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
-            ->toMediaCollection(Product::MEDIA_COLLECTION);
+      if (!empty($images))
+      {
+        foreach ($product->getMedia(Product::MEDIA_COLLECTION) as $media)
+        {
+          $media->delete();
         }
 
-        if (Str::startsWith($string, 'http')) { //- http image
-          Log::channel('import')->info('Product image queried: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$string);
-          try {
-              $media = $product
-                ->addMediaFromUrl($string)
-                ->preservingOriginal()
-                ->toMediaCollection(Product::MEDIA_COLLECTION);
-              $media->save();
-          } catch(\Exception $e) {
-            // Kurvaanyád, lófasz
-            $e;
+        foreach ($images as $string) {
+
+          if (Str::startsWith($string, 'data:image/')) { //- base64 image
+            $product
+              ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
+              ->toMediaCollection(Product::MEDIA_COLLECTION);
+          }
+
+          if (Str::startsWith($string, 'http')) { //- http image
+            Log::channel('import')->info('Product image queried: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$string);
+            try {
+                $media = $product
+                  ->addMediaFromUrl($string)
+                  ->preservingOriginal()
+                  ->toMediaCollection(Product::MEDIA_COLLECTION);
+                $media->save();
+            } catch(\Exception $e) {
+              // Kurvaanyád, lófasz
+              $e;
+            }
           }
         }
-
       }
     // } else {
     //     throw new Exception($this->record[$this->columns::PRODUCT_ID->value].' nincs "'.$this->columns::IMAGES.'" oszlop!');
