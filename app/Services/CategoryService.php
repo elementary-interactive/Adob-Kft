@@ -70,12 +70,12 @@ class CategoryService
       $category = Category::roots()
         ->where('slug', Arr::pull($slugs, 0))
         ->first()
-        ->getDescendantsAndSelf();
+        ?->getDescendantsAndSelf();
     } else {
       $category = Category::roots()
         ->where('slug', Arr::pull($slugs, 0))
         ->first()
-        ->getDescendants();
+        ?->getDescendants();
     }
    
     foreach ($slugs as $slug_item)
