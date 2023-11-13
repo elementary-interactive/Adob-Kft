@@ -43,21 +43,21 @@ Route::get('download', [\App\Http\Controllers\DownloadController::class, 'downlo
     ->name('export.download');
     // ->middleware('signed:relative');
 
-Route::get('lofasz/{id}', function($id) {
-    $batch  = Bus::findBatch($id);
-    // dump($batch->failedJobIds);
-    // DB::enableQueryLog();
-    $jobs   = DB::table('failed_jobs')->whereIn('uuid', $batch->failedJobIds)->get();
+// Route::get('lofasz/{id}', function($id) {
+//     $batch  = Bus::findBatch($id);
+//     // dump($batch->failedJobIds);
+//     // DB::enableQueryLog();
+//     $jobs   = DB::table('failed_jobs')->whereIn('uuid', $batch->failedJobIds)->get();
 
-    // dd($jobs, DB::getQueryLog());
-    $result = [];
-    foreach ($jobs as $job) {
-        $result[] = $job->exception;
-        // });
-    }
+//     // dd($jobs, DB::getQueryLog());
+//     $result = [];
+//     foreach ($jobs as $job) {
+//         $result[] = $job->exception;
+//         // });
+//     }
 
-    dd($result);
-});
+//     dd($result);
+// });
 
 // Route::get('/brands', function () {
 //     return view('web.pages.brands');
