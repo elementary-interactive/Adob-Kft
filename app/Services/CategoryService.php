@@ -82,7 +82,12 @@ class CategoryService
     {
       $category = $category->where('slug', $slug_item)
         ->first()
-        ->getDescendantsAndSelf();
+        ?->getDescendantsAndSelf();
+    }
+
+    if (!$category)
+    {
+      abort(404);
     }
 
     /** Getting category... */
