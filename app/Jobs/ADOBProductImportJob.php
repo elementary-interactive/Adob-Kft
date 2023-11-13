@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Logtail\Monolog\LogtailHandler;
+use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
 class ADOBProductImportJob implements ShouldQueue
@@ -28,6 +30,8 @@ class ADOBProductImportJob implements ShouldQueue
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
+
+  private $logger;
 
   /**
    * Create a new job instance.
@@ -37,6 +41,11 @@ class ADOBProductImportJob implements ShouldQueue
     protected $columns,
     protected ProductImport $import
   ) {
+//     use Monolog\Logger;
+// use Logtail\Monolog\LogtailHandler;
+
+    $this->logger = new Logger('adob_importer');
+    $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
   /**
@@ -95,6 +104,7 @@ class ADOBProductImportJob implements ShouldQueue
     $product = Product::firstOrNew([
       'product_id' => $this->record[$this->columns::PRODUCT_ID->value]
     ]);
+    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product importing...');
 
     $product->name            = $this->record[$this->columns::PRODUCT_NAME->value];
     $product->slug            = $this->record[$this->columns::PRODUCT_ID->value] . '-' . Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
@@ -118,6 +128,7 @@ class ADOBProductImportJob implements ShouldQueue
      * @var Brand $brand The product's brand.
      */
     $brand = Brand::where('slug', '=', Str::slug($this->record[$this->columns::BRAND->value]))->first();
+    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product associate to brand: '.$brand->name);
 
     // Connect brand to product.
     $product->brand()->associate($brand);
@@ -126,15 +137,17 @@ class ADOBProductImportJob implements ShouldQueue
     // dump($product);
     if ($product->exists) {
       $this->import->increaseProductModified();
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product modify.');
       $is_new = false;
     } else {
       $is_new = true;
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product create.');
       $this->import->increaseProductInserted();
     }
     // DB::transaction(function () use ($product) {
     $product->save();
     // }, 5);
-    Log::channel('import')->info('Product saved: '.$this->record[$this->columns::PRODUCT_ID->value]);
+    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product saved.', ['product' => $product]);
 
     /** Upload images...
      */
@@ -144,6 +157,7 @@ class ADOBProductImportJob implements ShouldQueue
      */
     if (!$is_new) { //- If modifying product we detach from all categories.
       $product->categories()->detach();
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product remove all categories.');
     }
     /** Check is there category & adding to categories.
      * 
@@ -178,7 +192,7 @@ class ADOBProductImportJob implements ShouldQueue
 
      try {
       $categories = (array) (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
-
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' check categories...', ['categories' => $categories]);
       if (!empty($categories)) {
         //Log::channel('import')->info('Product category will be attached to '.sizeof($categories).' category');
 
@@ -198,7 +212,8 @@ class ADOBProductImportJob implements ShouldQueue
             'is_main' => ($category_index == 1),
             'order'   => $counter++,
           ]);
-          Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
+          $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' category attached >> '.$category_id);
+          // Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
         }
       }
   } catch (\Exception $e) {
@@ -250,7 +265,8 @@ class ADOBProductImportJob implements ShouldQueue
           }
 
           if (Str::startsWith($string, 'http')) { //- http image
-            Log::channel('import')->info('Product image queried: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$string);
+            $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product image check: '.$string);
+
             try {
                 $media = $product
                   ->addMediaFromUrl($string)
@@ -258,8 +274,8 @@ class ADOBProductImportJob implements ShouldQueue
                   ->toMediaCollection(Product::MEDIA_COLLECTION);
                 $media->save();
             } catch(\Exception $e) {
-              // Kurvaanyád, lófasz
-              $e;
+              $this->logger->error($this->record[$this->columns::PRODUCT_ID->value].' product image error: '.$string.' ('.$e->getMessage().')');
+              // $e;
             }
           }
         }

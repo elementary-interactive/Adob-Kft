@@ -18,15 +18,22 @@ use Throwable;
 use Excel;
 use Illuminate\Support\Facades\Log;
 use Laravel\Nova\Notifications\NovaNotification;
+use Logtail\Monolog\LogtailHandler;
+use Monolog\Logger;
 
 class ADOBProductImportBatch implements ShouldQueue
 {
   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+  private $logger;
+
   public function __construct(
     protected ProductImport $import)
   {
     
+
+    $this->logger = new Logger('adob_importer');
+    $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
   /**
@@ -49,12 +56,12 @@ class ADOBProductImportBatch implements ShouldQueue
     /** Import all possible brands.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    Log::channel('import')->info('Brand import added.');
+    $this->logger->info('Brand import added.');
 
     /** Import categories.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    Log::channel('import')->info('Category import added.');
+    $this->logger->info('Category import added.');
 
     // $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
@@ -63,7 +70,7 @@ class ADOBProductImportBatch implements ShouldQueue
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header) { // Skip header
         $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-        Log::channel('import')->info('Product import added. ('.$row[0].')');
+        $this->logger->info('Product import added. ('.$row[0].')');
       }
     }
 
