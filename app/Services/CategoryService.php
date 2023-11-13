@@ -77,17 +77,17 @@ class CategoryService
         ->first()
         ?->getDescendants();
     }
+    
+    if (!$category)
+    {
+      abort(404);
+    }
    
     foreach ($slugs as $slug_item)
     {
       $category = $category->where('slug', $slug_item)
         ->first()
-        ?->getDescendantsAndSelf();
-    }
-
-    if (!$category)
-    {
-      abort(404);
+        ->getDescendantsAndSelf();
     }
 
     /** Getting category... */
