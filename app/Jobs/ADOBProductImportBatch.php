@@ -56,18 +56,18 @@ class ADOBProductImportBatch implements ShouldQueue
     $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
     Log::channel('import')->info('Category import added.');
 
-    $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+    // $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
-    // /** Import products line-by-line. 
-    //  */
-    // foreach ($this->import->data['file'] as $index => $row) {
-    //   if ($row != $header) { // Skip header
-    //     $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
-    //     Log::channel('import')->info('Product import added. ('.$row[0].')');
-    //   }
-    // }
+    /** Import products line-by-line. 
+     */
+    foreach ($this->import->data['file'] as $index => $row) {
+      if ($row != $header) { // Skip header
+        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import))->delay(Carbon::now()->addSeconds(90));
+        Log::channel('import')->info('Product import added. ('.$row[0].')');
+      }
+    }
 
-    $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
+    // $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts());
 
     $_import = $this->import;
 
@@ -86,14 +86,15 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->fails_counter = $batch->failedJobs;
         $_import->status = 'failed';
         $_import->save();
-      })->finally(function (Batch $batch) use ($_import) {
+      })->finally(function (Batch $batch) use ($_import)
+      {
         $_import->fails_counter = $batch->failedJobs;
         $_import->finished_at = $batch->finishedAt;
         $_import->fails_counter = $batch->failedJobs;
         $_import->status = $batch->failedJobs > 0 ? 'failed' : 'finished';
         $_import->save();
-
-        // CountBrandCategoryProducts::dispatch();
+        
+        CountBrandCategoryProducts::dispatch();
       })
         ->name('ADOB product import batch')
         ->allowFailures(true)
