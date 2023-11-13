@@ -62,7 +62,7 @@ class ADOBProductImportBatch implements ShouldQueue
      */
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header) { // Skip header
-        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import)));
+        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
         Log::channel('import')->info('Product import added. ('.$row[0].')');
       }
     }
