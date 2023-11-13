@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Logtail\Monolog\LogtailHandler;
+use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
 class ADOBCategoryImportJob implements ShouldQueue
@@ -33,6 +35,8 @@ class ADOBCategoryImportJob implements ShouldQueue
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
+
+  private $logger;
 
   /**
    * Create a new job instance.
@@ -43,6 +47,10 @@ class ADOBCategoryImportJob implements ShouldQueue
     protected $columns,
     protected ProductImport $import
   ) {
+
+    
+    $this->logger = new Logger('adob_importer');
+    $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
   /**
@@ -83,7 +91,7 @@ class ADOBCategoryImportJob implements ShouldQueue
               'name'        => $record[$main_category_column],
               'description' => $record[$main_category_column]
             ]);
-            Log::channel('import')->info('Main category imported: '.$record[$main_category_column]);
+            $this->logger->info('Main category imported: '.$record[$main_category_column]);
 
             // $category = null;
 
@@ -101,7 +109,7 @@ class ADOBCategoryImportJob implements ShouldQueue
                 ], [
                   'name'        => $record[$sub_category_column]
                 ]);
-                Log::channel('import')->info(' ⌞ Sub category imported: '.$record[$sub_category_column]);
+                $this->logger->info(' ⌞ Sub category imported: '.$record[$sub_category_column]);
 
                 if (!$sub_category->exists) {
                   $this->import->increaseCategoryInserted();
@@ -120,7 +128,7 @@ class ADOBCategoryImportJob implements ShouldQueue
         /** Save data into a separated part of the import data....
          */
         $this->import->addCategoryIds($record[$this->columns::PRODUCT_ID->value], $result);
-        Log::channel('import')->info('Product ID connection imported: '.$record[$this->columns::PRODUCT_ID->value].': '.implode(', ', $result));
+        $this->logger->info('Product ID connection stored: '.$record[$this->columns::PRODUCT_ID->value].': '.implode(', ', $result));
       }
     }
   }
