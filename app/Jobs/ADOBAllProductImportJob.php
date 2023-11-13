@@ -352,29 +352,33 @@ class ADOBAllProductImportJob implements ShouldQueue
     /** 
      * @var array categoris for the given product
      */
-    $categories = (array) (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
+    try {
+        $categories = (array) (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
 
-    if (!empty($categories)) {
-      //Log::channel('import')->info('Product category will be attached to '.sizeof($categories).' category');
+        if (!empty($categories)) {
+          //Log::channel('import')->info('Product category will be attached to '.sizeof($categories).' category');
 
-      foreach ($categories as $category_index => $category_id)
-      {
-        /** @var Category $category to attach to the product.
-         */
-        $category = Category::find($category_id);
+          foreach ($categories as $category_index => $category_id)
+          {
+            /** @var Category $category to attach to the product.
+             */
+            $category = Category::find($category_id);
 
-        /** @var int Number of connected items.
-         */
-        $counter  = $category->products()->count();
+            /** @var int Number of connected items.
+             */
+            $counter  = $category->products()->count();
 
-        /** Attach the category and product to each other.
-         */
-        $product->categories()->attach($category, [
-          'is_main' => ($category_index == 1),
-          'order'   => $counter++,
-        ]);
-        Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
-      }
+            /** Attach the category and product to each other.
+             */
+            $product->categories()->attach($category, [
+              'is_main' => ($category_index == 1),
+              'order'   => $counter++,
+            ]);
+            Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
+          }
+        }
+    } catch (\Exception $e) {
+        
     }
 
     // return $result;
