@@ -60,7 +60,7 @@ class CountBrandCategoryProducts implements ShouldQueue
 
       DB::commit();
 
-      $this->logger->success('Brand category count done.');
+      $this->logger->info('Brand category count done.');
 
       //   $this->info('Counters updated successfully!');
     } catch (\Throwable $e) {

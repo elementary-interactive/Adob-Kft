@@ -13,6 +13,7 @@
         "laravel/nova": "4.23.0",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
+        "logtail/monolog-logtail": "^3.0",
         "maatwebsite/excel": "^3.1",
         "neon/admin-ui": "2.0.0-alpha-4",
         "neon/attributable": "2.0.0-alpha-7",
