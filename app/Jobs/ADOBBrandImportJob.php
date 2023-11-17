@@ -19,11 +19,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Logtail\Monolog\LogtailHandler;
+use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
 class ADOBBrandImportJob implements ShouldQueue
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+  private $logger;
 
   /**
    * Create a new job instance.
@@ -34,6 +38,10 @@ class ADOBBrandImportJob implements ShouldQueue
     protected $columns,
     protected ProductImport $import
   ) {
+    
+    
+    $this->logger = new Logger('adob_importer');
+    $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
   /**
@@ -79,7 +87,7 @@ class ADOBBrandImportJob implements ShouldQueue
           $this->import->increaseBrandInserted();
           $brand->save();
 
-          Log::channel('import')->info('Brand imported: '.$record[$this->columns::BRAND->value]);
+          $this->logger->info('Brand imported: '.$record[$this->columns::BRAND->value]);
         }
       }
     }
