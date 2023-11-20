@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BrandResource\Pages;
 use App\Filament\Resources\BrandResource\RelationManagers;
 use App\Models\Brand;
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class BrandResource extends Resource
 {
@@ -31,18 +33,31 @@ class BrandResource extends Resource
     {
         return $form
             ->schema([
-                \Elementary\Filament\Forms\Components\TitleWithSlugInput::make(
-                    fieldTitle: 'title', // The name of the field in your model that stores the title.
-                    fieldSlug: 'slug', // The name of the field in your model that will store the slug.
-                ),
+                // Forms\Components\TextInput::make('name')
+                //     ->required()
+                //     ->maxLength(255),
+                // Forms\Components\TextInput::make('slug')
+                //     ->required()
+                //     ->maxLength(255),
                 Forms\Components\TextInput::make('name')
+                    ->afterStateUpdated(function ($get, $set, ?string $state) {
+                        if (!$get('is_slug_changed_manually') && filled($state)) {
+                            $set('slug', Str::slug($state));
+                        }
+                    })
+                    ->reactive()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->maxLength(255),
+                    ->afterStateUpdated(function (Closure $set) {
+                        $set('is_slug_changed_manually', true);
+                    })
+                    ->required(),
                 Forms\Components\Toggle::make('is_featured')
                     ->required(),
+                Forms\Components\Hidden::make('is_slug_changed_manually')
+                    ->default(false)
+                    ->dehydrated(false),
             ]);
     }
 
@@ -50,26 +65,37 @@ class BrandResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('id')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Név')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
-                    ->searchable(),
+                    ->label('URL')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Termék URL a vágólapra másolva!')
+                    ->copyableState(fn (string $state): string => route('brands.browse', ['brand' => $state])),
                 Tables\Columns\IconColumn::make('is_featured')
-                    ->boolean(),
+                    ->label('Kiemelt?')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Létrehozva')
                     ->dateTime()
                     ->sortable()
+                    ->since()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Utoljára módosítva')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->since(),
+                // Tables\Columns\TextColumn::make('deleted_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

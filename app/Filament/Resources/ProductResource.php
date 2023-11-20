@@ -4,11 +4,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -18,7 +24,7 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?string $navigationLabel = 'Termékek';
 
@@ -32,8 +38,16 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('parent_id')
-                    ->maxLength(36),
+                SelectTree::make('categories')
+                    ->relationship('categories', 'name', 'parent_id', function ($query) {
+                        return $query;
+                    })
+                    ->withCount()
+                    ->independent(true)
+                    ->expandSelected(true)
+                    ->enableBranchNode()
+                    // ->alwaysOpen(true)
+                    ->searchable(),
                 Forms\Components\Select::make('brand_id')
                     ->relationship('brand', 'name'),
                 Forms\Components\TextInput::make('media_id')
@@ -117,9 +131,34 @@ class ProductResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                SelectFilter::make('brand')
+                    ->relationship('brand', 'name')
+                    ->label('Márka')
+                    ->searchable(),
+                Filter::make('tree')
+                    ->form([
+                        SelectTree::make('categories')
+                            ->relationship('categories', 'name', 'parent_id')
+                            ->independent(false)
+                            ->enableBranchNode(),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query->when($data['categories'], function ($query, $categories) {
+                            return $query->whereHas('categories', fn($query) => $query->whereIn('id', $categories));
+                        });
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['categories']) {
+                            return null;
+                        }
+             
+                        return 'Kategóriák: ' . implode(', ', Category::whereIn('id', $data['categories'])->get()->pluck('name')->toArray());
+                    }),
             ])
             ->actions([
+                Tables\Actions\ReplicateAction::make(),
                 Tables\Actions\EditAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

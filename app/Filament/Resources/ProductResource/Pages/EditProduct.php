@@ -13,6 +13,11 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('edit')
+                ->label('Vissza')
+                ->icon('heroicon-o-arrow-small-left')
+                ->url(fn (): string => route('filament.admin2.resources.products.index')),
+            Actions\ReplicateAction::make(),
             Actions\DeleteAction::make(),
             Actions\ForceDeleteAction::make(),
             Actions\RestoreAction::make(),
