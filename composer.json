@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.1",
         "ext-intl": "*",
+        "codewithdennis/filament-select-tree": "^3.1",
         "ebess/advanced-nova-media-library": "^4.1",
         "elementary-interactive/filament-title-with-slug": "v0.5.7-alpha-3",
         "filament/filament": "^3.0-stable",
@@ -28,6 +29,7 @@
         "neon/site": "^2.0",
         "neon/ui": "0.1.0-alpha-1",
         "sentry/sentry-laravel": "^3.8",
+        "solution-forest/filament-tree": "^2.0",
         "spatie/laravel-medialibrary": "^10.0.0",
         "symfony/intl": "^6.3",
         "toponepercent/baum": "3.1.0"
