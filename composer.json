@@ -2,12 +2,18 @@
     "name": "neon/start",
     "type": "project",
     "description": "The Neon starter project. The home of awesomeness.",
-    "keywords": ["neon", "laravel"],
+    "keywords": [
+        "neon",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.1",
         "ext-intl": "*",
         "ebess/advanced-nova-media-library": "^4.1",
+        "elementary-interactive/filament-title-with-slug": "v0.5.7-alpha-3",
+        "filament/filament": "^3.0-stable",
+        "filament/spatie-laravel-media-library-plugin": "^3.0-stable",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.0",
         "laravel/nova": "4.23.0",
@@ -30,7 +36,6 @@
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
-        
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
         "phpunit/phpunit": "^10.0",
@@ -54,7 +59,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
