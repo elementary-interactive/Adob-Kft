@@ -43,7 +43,7 @@ class ProductResource extends Resource
                         return $query;
                     })
                     ->withCount()
-                    ->independent(true)
+                    ->independent(false)
                     ->expandSelected(true)
                     ->enableBranchNode()
                     // ->alwaysOpen(true)
