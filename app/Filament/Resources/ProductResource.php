@@ -191,7 +191,8 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Név')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->limit(40),
                 // Tables\Columns\TextColumn::make('packaging')
                 //     ->searchable(),
                 // Tables\Columns\TextColumn::make('ean')
