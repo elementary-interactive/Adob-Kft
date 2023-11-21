@@ -126,6 +126,19 @@ class Product extends Model implements HasMedia
       ->queued();
   }
 
+  public function getImagesAttribute()
+  {
+    $media = $this->getMedia(self::MEDIA_COLLECTION);
+    $result = [];
+
+    foreach ($media as $medium)
+    {
+      $result[] = $medium->getUrl('thumb');
+    }
+
+    return $result;
+  }
+
   public function scopeOnlyBrand($query, Brand $brand)
   {
     return $query->whereHas('brand', function ($query) use ($brand) {
