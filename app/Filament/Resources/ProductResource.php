@@ -63,6 +63,10 @@ class ProductResource extends Resource
                             ->conversion('thumb')
                             ->downloadable()
                             ->enableReordering(),
+                        Forms\Components\TextInput::make('name')
+                            ->label('Név')
+                            ->required()
+                            ->maxLength(255),
                         Forms\Components\RichEditor::make('description')
                             ->label('Leírás')
                             ->columnSpanFull()
@@ -245,9 +249,9 @@ class ProductResource extends Resource
                     ->mutateRecordDataUsing(function (array $data): array {
                         /** Prepend COPY_TAG...
                          */
-                        $data['name']        = Product::COPY_TAG . $data['name'];
-                        $data['product_id']  = Product::COPY_TAG . $data['product_id'];
-                        $data['status']      = BasicStatus::Inactive->value;
+                        $data['name']        = 'Punci'; //- \App\Models\Product::COPY_TAG . $data['name'];
+                        $data['product_id']  = \App\Models\Product::COPY_TAG . $data['product_id'];
+                        $data['status']      = \Neon\Models\Statuses\BasicStatus::Inactive->value;
 
                         dd($data);
                         return $data;
