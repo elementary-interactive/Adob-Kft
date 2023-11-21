@@ -9,9 +9,14 @@ use App\Models\Category;
 use App\Models\Product;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -38,50 +43,113 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                SelectTree::make('categories')
-                    ->relationship('categories', 'name', 'parent_id', function ($query) {
-                        return $query;
-                    })
-                    ->withCount()
-                    ->independent(false)
-                    ->expandSelected(true)
-                    ->enableBranchNode()
-                    // ->alwaysOpen(true)
-                    ->searchable(),
-                Forms\Components\Select::make('brand_id')
-                    ->relationship('brand', 'name'),
-                Forms\Components\TextInput::make('media_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('product_id')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('product_number')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('packaging')
-                    ->maxLength(25),
-                Forms\Components\Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('ean')
-                    ->maxLength(13),
-                Forms\Components\TextInput::make('price')
-                    ->numeric()
-                    ->prefix('$'),
-                Forms\Components\Toggle::make('on_sale')
-                    ->required(),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(1)
-                    ->default('N'),
-                Forms\Components\TextInput::make('og_data'),
-                Forms\Components\TextInput::make('meta_data'),
-            ]);
+                Section::make()
+                    ->schema([
+                        Group::make()
+                        ->schema([
+                            Forms\Components\TextInput::make('ean')
+                                ->label('Vonalkód')
+                                ->columnSpan(['s' => 1]),
+                            Forms\Components\TextInput::make('product_id')
+                                ->label('Cikkszám')
+                                ->columnSpan(['s' => 1]),
+                        ])
+                        ->columns(2),
+                        SpatieMediaLibraryFileUpload::make('media')
+                            ->label('Képek')
+                            ->collection(Product::MEDIA_COLLECTION)
+                            ->multiple()
+                            ->imageEditor()
+                            ->conversion('thumb')
+                            ->downloadable()
+                            ->enableReordering(),
+                        Forms\Components\RichEditor::make('description')
+                            ->label('Leírás')
+                            ->columnSpanFull()
+                            ->required(),
+                        Forms\Components\Textarea::make('packaging')
+                            ->label('Csomagolás információk')
+                            ->columnSpanFull(),
+                        Group::make()
+                            ->columns(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('price')
+                                    ->label('Ár')
+                                    ->helperText('Ajánlott nettó fogasztói ár.')
+                                    ->numeric()
+                                    ->prefix('Ft'),
+                                Forms\Components\Toggle::make('on_sale')
+                                    ->label('Jelenleg akciós')
+                                    ->inline(false),
+                            ])
+                    ])
+                    ->columnSpan(['lg' => 2]),
+                
+                // Forms\Components\TextInput::make('product_number')
+                //     ->maxLength(255),
+                // Forms\Components\TextInput::make('name')
+                //     ->required()
+                //     ->maxLength(255),
+                // Forms\Components\TextInput::make('slug')
+                //     ->required()
+                //     ->maxLength(255),
+                // Forms\Components\TextInput::make('packaging')
+                //     ->maxLength(25),
+                // Forms\Components\Textarea::make('description')
+                //     ->maxLength(65535)
+                //     ->columnSpanFull(),
+                // Forms\Components\TextInput::make('ean')
+                //     ->maxLength(13),
+                // Forms\Components\TextInput::make('price')
+                //     ->numeric()
+                //     ->prefix('$'),
+                
+                // Forms\Components\KeyValue::make('og_data'),
+                // Forms\Components\KeyValue::make('meta_data'),
+                Section::make()
+                    ->schema([
+                    Select::make('status')
+                        ->label('Státusz')
+                        ->required()
+                        ->options([
+                            BasicStatus::New->value      => 'Új',
+                            BasicStatus::Active->value   => 'Aktív',
+                            BasicStatus::Inactive->value => 'Inaktív',
+                        ]),
+                    Section::make('Kapcsolatok')
+                        ->description('A termék márka és katergória kapcsolatai.')
+                        ->schema([
+                            Forms\Components\Select::make('brand_id')
+                                ->label('Márka')
+                                ->required()
+                                ->relationship('brand', 'name')
+                                ->columnSpan([
+                                    'sm' => 2,
+                                    'xl' => 3,
+                                    '2xl' => 4,
+                                ]),
+                            SelectTree::make('categories')
+                                ->label('Kategóriák')
+                                ->required()
+                                ->relationship('categories', 'name', 'parent_id', function ($query) {
+                                    return $query;
+                                })
+                                ->withCount()
+                                ->independent(true)
+                                ->expandSelected(true)
+                                ->enableBranchNode()
+                                // ->alwaysOpen(true)
+                                ->searchable()
+                                ->columnSpan([
+                                    'sm' => 2,
+                                    'xl' => 3,
+                                    '2xl' => 4,
+                                ]),
+                        ])
+                    ])
+                    ->columnSpan(['lg' => 1])
+            ])
+            ->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -96,24 +164,41 @@ class ProductResource extends Resource
                 //     ->numeric()
                 //     ->sortable(),
                 Tables\Columns\TextColumn::make('product_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('brand.name'),
-                Tables\Columns\TextColumn::make('product_number')
-                    ->searchable(),
+                    ->label('Cikkszám')
+                    ->searchable()
+                    ->sortable()
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->iconPosition(IconPosition::After)
+                    ->copyable()
+                    ->copyMessage('Termék URL a vágólapra másolva!')
+                    ->copyableState(fn (Product $record): string => route('product.show', ['slug' => $record->slug])),
+                Tables\Columns\ImageColumn::make('images')
+                    ->label('Képek')
+                    ->circular()
+                    ->stacked()
+                    ->limit(3)
+                    ->limitedRemainingText(isSeparate: true)
+                    ->toggleable(),
+                    // ->extraImgAttributes(['loading' => 'lazy']),
+                Tables\Columns\TextColumn::make('brand.name')
+                    ->label('Márka'),
+                // Tables\Columns\TextColumn::make('product_number')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('packaging')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ean')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->label('Név')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('on_sale')
-                    ->boolean(),
+                // Tables\Columns\TextColumn::make('packaging')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('ean')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('price')
+                //     ->money()
+                //     ->sortable(),
+                // Tables\Columns\IconColumn::make('on_sale')
+                //     ->boolean(),
                 Tables\Columns\IconColumn::make('status')
+                    ->label('Státusz')
                     ->boolean(BasicStatus::Active->value)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -156,7 +241,21 @@ class ProductResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ReplicateAction::make(),
+                Tables\Actions\ReplicateAction::make()
+                    ->mutateRecordDataUsing(function (array $data): array {
+                        /** Prepend COPY_TAG...
+                         */
+                        $data['name']        = Product::COPY_TAG . $data['name'];
+                        $data['product_id']  = Product::COPY_TAG . $data['product_id'];
+                        $data['status']      = BasicStatus::Inactive->value;
+
+                        dd($data);
+                        return $data;
+                    })
+                    ->successRedirectUrl(fn (Product $replica): string => route('filament.admin2.resources.products.edit', [
+                        'record' => $replica,
+                    ]))
+                    ->successNotificationTitle('Termék sikeresen duplikálva.'),
                 Tables\Actions\EditAction::make(),
 
             ])
@@ -167,7 +266,7 @@ class ProductResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->paginated([25, 50, 100, 'all']);
+            ->paginated([100, 50, 25, 'all']);
     }
 
     public static function getRelations(): array
