@@ -56,7 +56,7 @@ class ProductResource extends Resource
                                 ->columnSpan(['s' => 1]),
                         ])
                         ->columns(2),
-                        SpatieMediaLibraryFileUpload::make('media')
+                        SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
                             ->collection(Product::MEDIA_COLLECTION)
                             ->multiple()
