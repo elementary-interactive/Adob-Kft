@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use Closure;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
@@ -65,6 +66,19 @@ class ProductResource extends Resource
                             ->enableReordering(),
                         Forms\Components\TextInput::make('name')
                             ->label('Név')
+                            ->afterStateUpdated(function ($get, $set, ?string $state) {
+                                if (!$get('is_slug_changed_manually') && filled($state)) {
+                                    $set('slug', Str::slug($state));
+                                }
+                            })
+                            ->reactive()       
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('slug')
+                            ->label('URL')
+                            ->afterStateUpdated(function (Closure $set) {
+                                $set('is_slug_changed_manually', true);
+                            })
                             ->required()
                             ->maxLength(255),
                         Forms\Components\RichEditor::make('description')
@@ -85,31 +99,16 @@ class ProductResource extends Resource
                                 Forms\Components\Toggle::make('on_sale')
                                     ->label('Jelenleg akciós')
                                     ->inline(false),
-                            ])
+                            ]),
+                        Forms\Components\TextInput::make('product_number')
+                            ->maxLength(255),
+                        Forms\Components\KeyValue::make('og_data'),
+                        Forms\Components\KeyValue::make('meta_data'),
+                        Forms\Components\Hidden::make('is_slug_changed_manually')
+                            ->default(false)
+                            ->dehydrated(false),
                     ])
                     ->columnSpan(['lg' => 2]),
-                
-                // Forms\Components\TextInput::make('product_number')
-                //     ->maxLength(255),
-                // Forms\Components\TextInput::make('name')
-                //     ->required()
-                //     ->maxLength(255),
-                // Forms\Components\TextInput::make('slug')
-                //     ->required()
-                //     ->maxLength(255),
-                // Forms\Components\TextInput::make('packaging')
-                //     ->maxLength(25),
-                // Forms\Components\Textarea::make('description')
-                //     ->maxLength(65535)
-                //     ->columnSpanFull(),
-                // Forms\Components\TextInput::make('ean')
-                //     ->maxLength(13),
-                // Forms\Components\TextInput::make('price')
-                //     ->numeric()
-                //     ->prefix('$'),
-                
-                // Forms\Components\KeyValue::make('og_data'),
-                // Forms\Components\KeyValue::make('meta_data'),
                 Section::make()
                     ->schema([
                     Select::make('status')
@@ -250,7 +249,7 @@ class ProductResource extends Resource
                     ->mutateRecordDataUsing(function (array $data): array {
                         /** Prepend COPY_TAG...
                          */
-                        $data['name']        = 'Punci'; //- \App\Models\Product::COPY_TAG . $data['name'];
+                        $data['name']        = \App\Models\Product::COPY_TAG . $data['name'];
                         $data['product_id']  = \App\Models\Product::COPY_TAG . $data['product_id'];
                         $data['status']      = \Neon\Models\Statuses\BasicStatus::Inactive->value;
 
