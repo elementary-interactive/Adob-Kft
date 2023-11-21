@@ -61,8 +61,12 @@ class ProductResource extends Resource
                             ->collection(Product::MEDIA_COLLECTION)
                             ->multiple()
                             ->imageEditor()
-                            ->conversion('thumb')
+                            ->removeUploadedFileButtonPosition('right')
+                            ->panelLayout('grid')
+                            ->panelAspectRatio('3:2')
+                            ->responsiveImages()
                             ->downloadable()
+                            ->disk('public')
                             ->enableReordering(),
                         Forms\Components\TextInput::make('name')
                             ->label('Név')
