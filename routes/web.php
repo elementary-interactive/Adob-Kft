@@ -43,7 +43,7 @@ Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search']
 
 Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
     ->name('export.download')//-;
-    ->middleware('signed:relative');
+    ->middleware('signed');
 
 
 Route::get('tempcreate', function() {
@@ -58,7 +58,7 @@ Route::get('temread', function (Request $request) {
     }
 })
     ->name('tempcreate.download')//-;
-    ->middleware('signed:relative');
+    ->middleware('signed');
 
 
 // Route::get('lofasz/{id}', function($id) {
