@@ -50,7 +50,7 @@ Route::get('tempcreate', function() {
     echo URL::temporarySignedRoute('tempcreate.download', now()->addMinutes(5));
 });
 
-Route::get('download', function (Request $request) {
+Route::get('temread', function (Request $request) {
     if (!$request->hasValidSignature()) {
         echo "nem valid";
     } else {
