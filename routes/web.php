@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 
 
 use Illuminate\Support\Facades\Bus;
@@ -40,8 +42,24 @@ Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search']
     ->name('search');
 
 Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
-    ->name('export.download');
-    // ->middleware('signed:relative');
+    ->name('export.download')//-;
+    ->middleware('signed:relative');
+
+
+Route::get('tempcreate', function() {
+    echo URL::temporarySignedRoute('tempcreate.download', now()->addMinutes(5));
+});
+
+Route::get('download', function (Request $request) {
+    if (!$request->hasValidSignature()) {
+        echo "nem valid";
+    } else {
+        echo "valid";
+    }
+})
+    ->name('tempcreate.download')//-;
+    ->middleware('signed:relative');
+
 
 // Route::get('lofasz/{id}', function($id) {
 //     $batch  = Bus::findBatch($id);
