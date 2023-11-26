@@ -76,8 +76,8 @@ class ListProducts extends ListRecords
                         ADOBProductImportBatch::dispatch($importer);
 
                         Notification::make()
-                            ->title('Feltöltés sikerült!')
-                            ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
+                            ->title('Importálás feltöltése sikerült!')
+                            ->body('Az importálást beütemeztük az <a style="text-decoration: underline;" href="'.route('filament.admin2.resources.product-imports.view', ['record' => $importer]).'">importálás oldalán</a> lesz elérhető.')
                             ->success()
                             ->sendToDatabase(auth()->user());
                     }
