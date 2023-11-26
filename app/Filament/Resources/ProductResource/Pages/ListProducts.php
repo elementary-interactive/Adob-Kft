@@ -49,11 +49,14 @@ class ListProducts extends ListRecords
                   $validator = Validator::make($data, $rules);
               
                   if ($validator->fails()) {
-                    Notification::make()
-                        ->title('Hiba a feltöltés során!')
-                        ->body($validator->errors())
-                        ->danger()
-                        ->send();
+                    foreach ($validator->errors() as $error)
+                    {
+                        Notification::make()
+                            ->title('Hiba a feltöltés során!')
+                            ->body('Excel fájl: '.$error)
+                            ->danger()
+                            ->send();
+                    }
                   } else {
                     // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
               
@@ -77,7 +80,7 @@ class ListProducts extends ListRecords
                     Notification::make()
                         ->title('Feltöltés sikerült!')
                         ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
-                        ->danger()
+                        ->success()
                         ->send();
                   }
             }),
