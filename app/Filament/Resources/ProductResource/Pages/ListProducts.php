@@ -3,10 +3,15 @@
 namespace App\Filament\Resources\ProductResource\Pages;
 
 use App\Filament\Resources\ProductResource;
+use App\Imports\ADOBProductCollectionImport;
+use App\Jobs\ADOBProductImportBatch;
 use App\Models\ProductImport;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Validator;
+use Excel;
 
 class ListProducts extends ListRecords
 {
@@ -26,14 +31,55 @@ class ListProducts extends ListRecords
             ->form([
                 Forms\Components\Toggle::make('header')
                     ->label('Fejléc?')
+                    ->default(true)
                     ->required(),
                 Forms\Components\FileUpload::make('file')
                     ->label('Excel fájl')
                     ->required()
+                    ->disk(config('filesystems.default'))
+                    ->directory('imports')
+                    ->visibility('private')
                     ->preserveFilenames()
             ])
             ->action(function (array $data, array $arguments): void {
-                dd(func_get_args());
+                $rules = array(
+                    'file' => 'required|mimes:xls,xlsx'
+                  );
+              
+                  $validator = Validator::make($data, $rules);
+              
+                  if ($validator->fails()) {
+                    Notification::make()
+                        ->title('Hiba a feltöltés során!')
+                        ->body($validator->errors)
+                        ->error()
+                        ->send();
+                  } else {
+                    // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
+              
+                    $importer = new ProductImport([
+                      'file'  => $data['file'],
+                      'data'  => [
+                        'header' => $data['header'],
+                        'file'   => Excel::toArray(
+                          new ADOBProductCollectionImport(),
+                          $data['file'],
+                          null,
+                          \Maatwebsite\Excel\Excel::XLSX
+                        )[0], // Getting only the first sheet.
+                      ]
+                    ]);
+                    $importer->imported_by()->associate(request()->user());
+                    $importer->save();
+                    
+                    ADOBProductImportBatch::dispatch($importer);
+              
+                    Notification::make()
+                        ->title('Feltöltés sikerült!')
+                        ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
+                        ->error()
+                        ->send();
+                  }
             }),
             // ->slideOver(),
         ];
