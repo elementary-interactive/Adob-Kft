@@ -46,7 +46,7 @@ class ListProducts extends ListRecords
                     $author = auth()->user();
 
                     $rules = array(
-                        'file' => 'required|mimes:xls,xlsx'
+                        'file' => 'required'
                     );
 
                     $validator = Validator::make($data, $rules);
