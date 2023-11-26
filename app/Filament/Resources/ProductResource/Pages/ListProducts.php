@@ -40,7 +40,6 @@ class ListProducts extends ListRecords
                         ->disk(config('filesystems.default'))
                         ->directory('imports')
                         ->visibility('private')
-                        ->preserveFilenames()
                 ])
                 ->action(function (array $data, array $arguments): void {
                     $rules = array(
