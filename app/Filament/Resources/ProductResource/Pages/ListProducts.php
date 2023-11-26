@@ -52,7 +52,7 @@ class ListProducts extends ListRecords
                     Notification::make()
                         ->title('Hiba a feltöltés során!')
                         ->body($validator->errors())
-                        ->error()
+                        ->danger()
                         ->send();
                   } else {
                     // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
@@ -77,7 +77,7 @@ class ListProducts extends ListRecords
                     Notification::make()
                         ->title('Feltöltés sikerült!')
                         ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
-                        ->error()
+                        ->danger()
                         ->send();
                   }
             }),
