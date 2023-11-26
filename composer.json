@@ -12,7 +12,6 @@
         "ext-intl": "*",
         "codewithdennis/filament-select-tree": "^3.1",
         "ebess/advanced-nova-media-library": "^4.1",
-        "elementary-interactive/filament-title-with-slug": "v0.5.7-alpha-3",
         "filament/filament": "^3.0-stable",
         "filament/spatie-laravel-media-library-plugin": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
