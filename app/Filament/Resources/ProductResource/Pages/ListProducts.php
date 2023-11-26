@@ -52,13 +52,11 @@ class ListProducts extends ListRecords
                     $validator = Validator::make($data, $rules);
 
                     if ($validator->fails()) {
-                        foreach ($validator->errors() as $error) {
-                            Notification::make()
-                                ->title('Hiba a feltöltés során!')
-                                ->body('Excel fájl: ' . $error[0])
-                                ->danger()
-                                ->send();
-                        }
+                        Notification::make()
+                            ->title('Hiba a feltöltés során!')
+                            ->body('Excel fájl: ' . $validator->errors()->getMessages())
+                            ->danger()
+                            ->send();
                     } else {
                         // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
 
@@ -76,8 +74,6 @@ class ListProducts extends ListRecords
                         ]);
                         $importer->imported_by()->associate(request()->user());
                         $importer->save();
-
-                        dd($importer);
 
                         ADOBProductImportBatch::dispatch($importer);
 
