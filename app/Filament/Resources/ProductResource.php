@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImport;
 use Closure;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
@@ -248,6 +249,7 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ReplicateAction::make()
+                    ->excludeAttributes(['slug'])
                     ->mutateRecordDataUsing(function (array $data): array {
                         /** Prepend COPY_TAG...
                          */
@@ -266,6 +268,17 @@ class ProductResource extends Resource
 
             ])
             ->bulkActions([
+                Tables\Actions\BulkAction::make('ADOB_batch_import')
+                    ->label('Importálás')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        // ...
+                    ]),
+                    // ->using(function (array $data, string $model): ProductImport {
+                    //     // return $model::create($data);
+                    // }),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
