@@ -57,7 +57,7 @@ class ListProducts extends ListRecords
                             ->title('Hiba a feltöltés során!')
                             ->body('Excel fájl: '.$error[0])
                             ->danger()
-                            ->sendToDatabase($author);
+                            ->send($author);
                     }
                   } else {
                     // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
@@ -76,15 +76,16 @@ class ListProducts extends ListRecords
                     ]);
                     $importer->imported_by()->associate(request()->user());
                     $importer->save();
+
+                    dd($importer);
                     
                     ADOBProductImportBatch::dispatch($importer);
               
                     Notification::make()
                         ->title('Feltöltés sikerült!')
                         ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
-                        // ->toDatabase()
                         ->success()
-                        ->sendToDatabase($author);
+                        ->send($author);
                   }
             }),
             // ->slideOver(),
