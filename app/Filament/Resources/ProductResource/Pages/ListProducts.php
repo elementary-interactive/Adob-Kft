@@ -51,7 +51,7 @@ class ListProducts extends ListRecords
                   if ($validator->fails()) {
                     Notification::make()
                         ->title('Hiba a feltöltés során!')
-                        ->body($validator->errors)
+                        ->body($validator->errors())
                         ->error()
                         ->send();
                   } else {
