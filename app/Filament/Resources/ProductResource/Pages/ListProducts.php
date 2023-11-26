@@ -51,13 +51,11 @@ class ListProducts extends ListRecords
                   $validator = Validator::make($data, $rules);
               
                   if ($validator->fails()) {
-                    dump($validator->errors()->toArray());
                     foreach ($validator->errors() as $error)
                     {
-                        dump($error);
                         Notification::make()
                             ->title('Hiba a feltöltés során!')
-                            ->body('Excel fájl: '.$error)
+                            ->body('Excel fájl: '.$error[0])
                             ->danger()
                             ->toBroadcast($author);
                     }
