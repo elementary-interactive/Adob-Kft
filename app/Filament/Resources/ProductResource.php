@@ -268,17 +268,6 @@ class ProductResource extends Resource
 
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('ADOB_batch_import')
-                    ->label('Importálás')
-                    ->form([
-                        Forms\Components\TextInput::make('title')
-                            ->required()
-                            ->maxLength(255),
-                        // ...
-                    ]),
-                    // ->using(function (array $data, string $model): ProductImport {
-                    //     // return $model::create($data);
-                    // }),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
