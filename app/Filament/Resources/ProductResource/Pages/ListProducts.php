@@ -43,8 +43,6 @@ class ListProducts extends ListRecords
                         ->preserveFilenames()
                 ])
                 ->action(function (array $data, array $arguments): void {
-                    $author = auth()->user();
-
                     $rules = array(
                         'file' => 'required'
                     );
@@ -56,7 +54,7 @@ class ListProducts extends ListRecords
                             ->title('Hiba a feltöltés során!')
                             ->body('Excel fájl: ' . $validator->errors()->getMessages())
                             ->danger()
-                            ->send();
+                            ->sendToDatabase(auth()->user());
                     } else {
                         // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
 
@@ -72,7 +70,7 @@ class ListProducts extends ListRecords
                                 )[0], // Getting only the first sheet.
                             ]
                         ]);
-                        $importer->imported_by()->associate(request()->user());
+                        $importer->imported_by()->associate(auth()->user());
                         $importer->save();
 
                         ADOBProductImportBatch::dispatch($importer);
@@ -81,7 +79,7 @@ class ListProducts extends ListRecords
                             ->title('Feltöltés sikerült!')
                             ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
                             ->success()
-                            ->send();
+                            ->sendToDatabase(auth()->user());
                     }
                 }),
             // ->slideOver(),
