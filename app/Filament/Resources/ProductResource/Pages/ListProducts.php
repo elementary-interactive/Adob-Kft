@@ -42,6 +42,8 @@ class ListProducts extends ListRecords
                     ->preserveFilenames()
             ])
             ->action(function (array $data, array $arguments): void {
+                $author = auth()->user();
+
                 $rules = array(
                     'file' => 'required|mimes:xls,xlsx'
                   );
@@ -55,7 +57,7 @@ class ListProducts extends ListRecords
                             ->title('Hiba a feltöltés során!')
                             ->body('Excel fájl: '.$error)
                             ->danger()
-                            ->send();
+                            ->toBroadcast($author);
                     }
                   } else {
                     // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
@@ -80,8 +82,9 @@ class ListProducts extends ListRecords
                     Notification::make()
                         ->title('Feltöltés sikerült!')
                         ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
+                        // ->toDatabase()
                         ->success()
-                        ->send();
+                        ->toBroadcast($author);
                   }
             }),
             // ->slideOver(),
