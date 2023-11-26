@@ -17,7 +17,15 @@ class ProductImportResource extends Resource
 {
     protected static ?string $model = ProductImport::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';
+    
+    protected static ?string $navigationLabel = 'Termék importok';
+
+    protected static ?string $modelLabel = 'Termék import';
+
+    protected static ?string $pluralModelLabel = 'Termék importok';
+
+    protected static ?string $navigationGroup = 'Termékek';
 
     public static function form(Form $form): Form
     {
