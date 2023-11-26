@@ -72,6 +72,8 @@ class ADOBBrandImportJob implements ShouldQueue
          * @var array $record Associative array of the given record.
          */
         $record = array_combine($header, $record_data);
+
+        $this->logger->info('Brand found: '.$record[$this->columns::BRAND->value].' at '.$this->columns::BRAND->value);
         
         /** 
          * @var Brand $brand The product's brand.
