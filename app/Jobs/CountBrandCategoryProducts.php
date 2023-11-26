@@ -38,7 +38,7 @@ class CountBrandCategoryProducts implements ShouldQueue
 
     try {
       DB::beginTransaction();
-      
+
       DB::table('brand_category_counts')->truncate();
 
       $data = DB::table('categories')
@@ -64,7 +64,7 @@ class CountBrandCategoryProducts implements ShouldQueue
 
       //   $this->info('Counters updated successfully!');
     } catch (\Throwable $e) {
-      // DB::rollback();
+      DB::rollback();
 
       $this->logger->error('Brand category count error: '.$e->getMessage());
       //   $this->error('Fuck.');

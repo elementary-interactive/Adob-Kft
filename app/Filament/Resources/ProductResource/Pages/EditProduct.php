@@ -20,6 +20,7 @@ class EditProduct extends EditRecord
                 ->icon('heroicon-o-arrow-small-left')
                 ->url(fn (): string => route('filament.admin2.resources.products.index')),
             Actions\ReplicateAction::make()
+                ->excludeAttributes(['slug'])
                 ->mutateRecordDataUsing(function (array $data): array {
                     /** Prepend COPY_TAG...
                      */
@@ -29,6 +30,12 @@ class EditProduct extends EditRecord
 
                     dd($data);
                     return $data;
+                })
+                ->beforeReplicaSaved(function (Product $replica): void {
+                    $replica->name = Product::COPY_TAG.$replica->name;
+                    $replica->product_id = Product::COPY_TAG.$replica->product_id;
+                    $replica->status = BasicStatus::Inactive->value;
+                    // Runs after the record has been replicated but before it is saved to the database.
                 })
                 ->successRedirectUrl(fn (Product $replica): string => route('filament.admin2.resources.products.edit', [
                     'record' => $replica,
