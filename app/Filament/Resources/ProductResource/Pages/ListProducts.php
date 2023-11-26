@@ -57,7 +57,7 @@ class ListProducts extends ListRecords
                             ->title('Hiba a feltöltés során!')
                             ->body('Excel fájl: '.$error[0])
                             ->danger()
-                            ->send($author);
+                            ->send();
                     }
                   } else {
                     // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
@@ -85,7 +85,7 @@ class ListProducts extends ListRecords
                         ->title('Feltöltés sikerült!')
                         ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
                         ->success()
-                        ->send($author);
+                        ->send();
                   }
             }),
             // ->slideOver(),
