@@ -46,6 +46,10 @@ class ADOBProductImportBatch implements ShouldQueue
      */
     $batch_jobs = [];
 
+    /** @var integer $record_counts
+     */
+    $records_counter = 0;
+
     if ($this->import->data['header']) {
       /** Getting the header. The loop will be able to run through right now.
        * @var array
@@ -71,6 +75,7 @@ class ADOBProductImportBatch implements ShouldQueue
       if ($row != $header && !empty($row)) { // Skip header or empty rows
         $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
         $this->logger->info('Product import added. ('.$row[0].')');
+        $records_counter++;
       }
     }
 
@@ -109,7 +114,7 @@ class ADOBProductImportBatch implements ShouldQueue
         ->dispatch();
 
     $this->import->batch_id = $batch->id;
-    $this->import->records_counter = count($this->import->data['file']) - 1;
+    $this->import->records_counter = $records_counter;
     $this->import->status = 'running';
     $this->import->save();
 
