@@ -17,6 +17,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
+use Filament\Panel;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
@@ -275,6 +276,14 @@ class ProductResource extends Resource
                 ]),
             ])
             ->paginated([100, 50, 25, 'all']);
+    }
+
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            // ...
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s');
     }
 
     public static function getRelations(): array

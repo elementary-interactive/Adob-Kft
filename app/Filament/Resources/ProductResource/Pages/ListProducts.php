@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Validator;
 use Excel;
+use Filament\Panel;
 
 class ListProducts extends ListRecords
 {
@@ -22,73 +23,80 @@ class ListProducts extends ListRecords
         return [
             Actions\CreateAction::make(),
             Actions\Action::make('ADOB_batch_import')
-            ->label('Importálás')
-            ->modalHeading('Importálás')
-            ->modalDescription('ADOB Excel file importálása.')
-            ->modalSubmitActionLabel('Importálás')
-            ->icon('heroicon-o-arrow-up-tray')
-            ->modalIcon('heroicon-o-arrow-up-tray')
-            ->form([
-                Forms\Components\Toggle::make('header')
-                    ->label('Fejléc?')
-                    ->default(true)
-                    ->required(),
-                Forms\Components\FileUpload::make('file')
-                    ->label('Excel fájl')
-                    ->required()
-                    ->disk(config('filesystems.default'))
-                    ->directory('imports')
-                    ->visibility('private')
-                    ->preserveFilenames()
-            ])
-            ->action(function (array $data, array $arguments): void {
-                $author = auth()->user();
+                ->label('Importálás')
+                ->modalHeading('Importálás')
+                ->modalDescription('ADOB Excel file importálása.')
+                ->modalSubmitActionLabel('Importálás')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->modalIcon('heroicon-o-arrow-up-tray')
+                ->form([
+                    Forms\Components\Toggle::make('header')
+                        ->label('Fejléc?')
+                        ->default(true)
+                        ->required(),
+                    Forms\Components\FileUpload::make('file')
+                        ->label('Excel fájl')
+                        ->required()
+                        ->disk(config('filesystems.default'))
+                        ->directory('imports')
+                        ->visibility('private')
+                        ->preserveFilenames()
+                ])
+                ->action(function (array $data, array $arguments): void {
+                    $author = auth()->user();
 
-                $rules = array(
-                    'file' => 'required|mimes:xls,xlsx'
-                  );
-              
-                  $validator = Validator::make($data, $rules);
-              
-                  if ($validator->fails()) {
-                    foreach ($validator->errors() as $error)
-                    {
+                    $rules = array(
+                        'file' => 'required|mimes:xls,xlsx'
+                    );
+
+                    $validator = Validator::make($data, $rules);
+
+                    if ($validator->fails()) {
+                        foreach ($validator->errors() as $error) {
+                            Notification::make()
+                                ->title('Hiba a feltöltés során!')
+                                ->body('Excel fájl: ' . $error[0])
+                                ->danger()
+                                ->send();
+                        }
+                    } else {
+                        // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
+
+                        $importer = new ProductImport([
+                            'file'  => $data['file'],
+                            'data'  => [
+                                'header' => $data['header'],
+                                'file'   => Excel::toArray(
+                                    new ADOBProductCollectionImport(),
+                                    $data['file'],
+                                    null,
+                                    \Maatwebsite\Excel\Excel::XLSX
+                                )[0], // Getting only the first sheet.
+                            ]
+                        ]);
+                        $importer->imported_by()->associate(request()->user());
+                        $importer->save();
+
+                        dd($importer);
+
+                        ADOBProductImportBatch::dispatch($importer);
+
                         Notification::make()
-                            ->title('Hiba a feltöltés során!')
-                            ->body('Excel fájl: '.$error[0])
-                            ->danger()
+                            ->title('Feltöltés sikerült!')
+                            ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
+                            ->success()
                             ->send();
                     }
-                  } else {
-                    // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
-              
-                    $importer = new ProductImport([
-                      'file'  => $data['file'],
-                      'data'  => [
-                        'header' => $data['header'],
-                        'file'   => Excel::toArray(
-                          new ADOBProductCollectionImport(),
-                          $data['file'],
-                          null,
-                          \Maatwebsite\Excel\Excel::XLSX
-                        )[0], // Getting only the first sheet.
-                      ]
-                    ]);
-                    $importer->imported_by()->associate(request()->user());
-                    $importer->save();
-
-                    dd($importer);
-                    
-                    ADOBProductImportBatch::dispatch($importer);
-              
-                    Notification::make()
-                        ->title('Feltöltés sikerült!')
-                        ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
-                        ->success()
-                        ->send();
-                  }
-            }),
+                }),
             // ->slideOver(),
         ];
+    }
+
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            // ...
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s');
     }
 }
