@@ -57,7 +57,7 @@ class ListProducts extends ListRecords
                             ->title('Hiba a feltöltés során!')
                             ->body('Excel fájl: '.$error[0])
                             ->danger()
-                            ->toBroadcast($author);
+                            ->sendToDatabase($author);
                     }
                   } else {
                     // $file = $fields->file->storeAs('imports', $fields->file->getFilename().'_'.$fields->file->getClientOriginalName(), config('filesystems.default'));
@@ -84,7 +84,7 @@ class ListProducts extends ListRecords
                         ->body('Az importálást beütemeztük az <a href="#">oldalon</a> lesz elérhető.')
                         // ->toDatabase()
                         ->success()
-                        ->toBroadcast($author);
+                        ->sendToDatabase($author);
                   }
             }),
             // ->slideOver(),
