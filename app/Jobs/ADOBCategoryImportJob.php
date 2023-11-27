@@ -14,6 +14,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImport;
 use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -131,6 +132,10 @@ class ADOBCategoryImportJob implements ShouldQueue
         $this->logger->info('Product ID connection stored: '.$record[$this->columns::PRODUCT_ID->value].': '.implode(', ', $result));
       }
     }
+    Notification::make()
+      ->title('Importálás folyamata...')
+      ->body('Kategóriák sikeresen importálva')
+      ->info()
+      ->sendToDatabase($this->import->imported_by);
   }
-
 }
