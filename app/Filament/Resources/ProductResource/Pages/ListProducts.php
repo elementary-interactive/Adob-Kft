@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ProductResource\Pages;
 
+use App\Filament\Resources\ProductImportResource\Widgets\ProductImportOverview;
 use App\Filament\Resources\ProductResource;
 use App\Imports\ADOBProductCollectionImport;
 use App\Jobs\ADOBProductImportBatch;
@@ -82,6 +83,13 @@ class ListProducts extends ListRecords
                     }
                 }),
             // ->slideOver(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            // ProductImportOverview::class
         ];
     }
 
