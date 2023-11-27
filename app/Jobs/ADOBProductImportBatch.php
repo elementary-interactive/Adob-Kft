@@ -57,6 +57,10 @@ class ADOBProductImportBatch implements ShouldQueue
        */
       $header = $this->import->data['file'][0];
     }
+
+    $this->logger->info('Import batch start! ['.$this->import->id.']', [
+      'import'  => $this->import->id
+    ]);
     
     /** Import all possible brands.
      */
