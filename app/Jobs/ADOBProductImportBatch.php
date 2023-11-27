@@ -123,7 +123,7 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->status = $batch->failedJobs > 0 ? 'failed' : 'finished';
         $_import->save();
         
-        CountBrandCategoryProducts::dispatch();
+        CountBrandCategoryProducts::dispatch($_import);
         $_import->imported_by->notify(
           Notification::make()
               ->title('Importálás folyamata...')
