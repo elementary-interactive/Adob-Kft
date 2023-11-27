@@ -16,6 +16,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
 use Excel;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Laravel\Nova\Notifications\NovaNotification;
 use Logtail\Monolog\LogtailHandler;
@@ -89,11 +90,17 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->save();
       })->catch(function (Batch $batch, Throwable $e) use ($_import) {
         $_import->imported_by->notify(
-          NovaNotification::make()
-            ->message($e->getMessage())
-            // ->action('Download', URL::remote('https://example.com/report.pdf'))
-            ->icon('exclamation-circle')
-            ->type('error')
+          // NovaNotification::make()
+          //   ->message($e->getMessage())
+          //   // ->action('Download', URL::remote('https://example.com/report.pdf'))
+          //   ->icon('exclamation-circle')
+          //   ->type('error')
+
+          Notification::make()
+            ->title('Importálás folyamata...')
+            ->body('Hiba: '.$e->getMessage())
+            ->danger()
+            ->toDatabase()
         );
         $_import->fails_counter = $batch->failedJobs;
         $_import->status = 'failed';
@@ -107,6 +114,13 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->save();
         
         CountBrandCategoryProducts::dispatch();
+        $_import->imported_by->notify(
+          Notification::make()
+              ->title('Importálás folyamata...')
+              ->body('Sikeresen végeztünk!')
+              ->success()
+              ->toDatabase()
+        );
       })
         ->name('ADOB product import batch')
         ->allowFailures(true)

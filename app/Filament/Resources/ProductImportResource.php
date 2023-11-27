@@ -152,6 +152,7 @@ class ProductImportResource extends Resource
                         return '<a href="'.Storage::url($record->file).'" target="_blank">'.$record->file.'</a>';
                     })
                     ->html()
+                    ->size(Tables\Columns\TextColumn\TextColumnSize::ExtraSmall)
                     ->searchable(),
                 
                 // Tables\Columns\TextColumn::make('created_at')
@@ -179,6 +180,7 @@ class ProductImportResource extends Resource
             //         Tables\Actions\DeleteBulkAction::make(),
             //     ]),
             // ])
+            ->defaultSort('created_at', 'desc')
             ->poll('10s');;
     }
 
