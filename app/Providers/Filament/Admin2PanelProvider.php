@@ -28,6 +28,7 @@ class Admin2PanelProvider extends PanelProvider
             ->default()
             ->id('admin2')
             ->path('admin2')
+            ->globalSearch(true)
             ->login()
             ->colors([
                 'primary' => Color::Cyan,
