@@ -78,13 +78,13 @@ class ListProducts extends ListRecords
 
                         Notification::make()
                             ->title('Importálás feltöltése sikerült!')
-                            ->body('Az importálást beütemeztük az <a style="text-decoration: underline;" href="'.route('filament.admin2.resources.product-imports.view', ['record' => $importer]).'">importálás oldalán</a> lesz elérhető.')
+                            ->body('Az importálást beütemeztük az <a style="text-decoration: underline;" href="'.route('filament.admin2.resources.product-imports.index').'">importálás oldalán</a> lesz elérhető.')
                             ->info()
                             ->actions([
                                 Notifications\Actions\Action::make('view')
                                     ->label('Megnyit')
                                     ->button()
-                                    ->url(route('filament.admin2.resources.product-imports.view', ['record' => $importer]), shouldOpenInNewTab: true)
+                                    ->url(route('filament.admin2.resources.product-imports.index'), shouldOpenInNewTab: true)
                             ])
                             ->sendToDatabase(auth()->user());
                     }

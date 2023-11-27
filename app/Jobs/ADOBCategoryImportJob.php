@@ -80,7 +80,7 @@ class ADOBCategoryImportJob implements ShouldQueue
          */
         $record = array_combine($header, $record_data);
 
-        if (isset($record[$this->columns::PRODUCT_ID]) && !is_null($record[$this->columns::PRODUCT_ID])) {
+        if (isset($record[$this->columns::PRODUCT_ID]) && !empty($record[$this->columns::PRODUCT_ID])) {
 
           for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
             $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $header));
