@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImport;
 use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -73,26 +74,33 @@ class ADOBBrandImportJob implements ShouldQueue
          */
         $record = array_combine($header, $record_data);
 
-        $this->logger->info('Brand found: '.$record[$this->columns::BRAND->value].' at '.$this->columns::BRAND->value);
-        
-        /** 
-         * @var Brand $brand The product's brand.
-         */
-        $brand = Brand::firstOrNew([
-          'slug'        => Str::slug($record[$this->columns::BRAND->value]),
-        ], [ //- Fill up data.
-          'name'        => $record[$this->columns::BRAND->value],
-          'is_featured' => false
-        ]);
-        
-        if (!$brand->exists) {
-          $this->import->increaseBrandInserted();
-          $brand->save();
+        if ($record[$this->columns::BRAND->value])
+        {
+          /** 
+           * @var Brand $brand The product's brand.
+           */
+          $brand = Brand::firstOrNew([
+            'slug'        => Str::slug($record[$this->columns::BRAND->value]),
+          ], [ //- Fill up data.
+            'name'        => $record[$this->columns::BRAND->value],
+            'is_featured' => false
+          ]);
+          
+          if (!$brand->exists) {
+            $this->import->increaseBrandInserted();
+            $brand->save();
 
-          $this->logger->info('Brand imported: '.$record[$this->columns::BRAND->value]);
+            $this->logger->info('Brand imported: '.$record[$this->columns::BRAND->value], $record);
+          }
         }
       }
     }
+
+    Notification::make()
+      ->title('Importálás folyamata...')
+      ->body('Márkák sikeresen importálva!')
+      ->success()
+      ->send();
   }
 
 }
