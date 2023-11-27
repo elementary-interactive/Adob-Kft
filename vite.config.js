@@ -14,7 +14,7 @@ export default defineConfig({
         //     jQuery: 'jquery',
         // }),
         laravel({
-            input: ['resources/scss/app.scss', 'resources/js/app.js', 'resources/js/splide.min.js', 'resources/js/site.js'],
+            input: ['resources/scss/app.scss', 'resources/js/app.js', 'resources/js/splide.min.js', 'resources/js/site.js', 'resources/css/filament/admin2/theme.css'],
             refresh: false,
         }),
 
