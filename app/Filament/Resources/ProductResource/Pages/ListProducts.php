@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Validator;
 use Excel;
+use Filament\Notifications;
 use Filament\Panel;
 
 class ListProducts extends ListRecords
@@ -78,7 +79,13 @@ class ListProducts extends ListRecords
                         Notification::make()
                             ->title('Importálás feltöltése sikerült!')
                             ->body('Az importálást beütemeztük az <a style="text-decoration: underline;" href="'.route('filament.admin2.resources.product-imports.view', ['record' => $importer]).'">importálás oldalán</a> lesz elérhető.')
-                            ->success()
+                            ->info()
+                            ->actions([
+                                Notifications\Actions\Action::make('view')
+                                    ->label('Megnyit')
+                                    ->button()
+                                    ->url(route('filament.admin2.resources.product-imports.view', ['record' => $importer]), shouldOpenInNewTab: true)
+                            ])
                             ->sendToDatabase(auth()->user());
                     }
                 }),

@@ -98,9 +98,9 @@ class ADOBBrandImportJob implements ShouldQueue
 
     Notification::make()
       ->title('Importálás folyamata...')
-      ->body('Márkák sikeresen importálva!')
-      ->success()
-      ->send();
+      ->body('Márkák sikeresen importálva')
+      ->info()
+      ->sendToDatabase($this->import->imported_by);
   }
 
 }
