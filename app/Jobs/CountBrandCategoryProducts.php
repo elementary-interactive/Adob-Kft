@@ -37,7 +37,7 @@ class CountBrandCategoryProducts implements ShouldQueue
     $this->logger->info('Brand category count...');
 
     try {
-      DB::beginTransaction();
+      // DB::beginTransaction();
 
       DB::table('brand_category_counts')->truncate();
 
@@ -58,13 +58,13 @@ class CountBrandCategoryProducts implements ShouldQueue
 
       DB::table('brand_category_counts')->insertOrIgnore($data);
 
-      DB::commit();
+      // DB::commit();
 
       $this->logger->info('Brand category count done.');
 
       //   $this->info('Counters updated successfully!');
     } catch (\Throwable $e) {
-      DB::rollback();
+      // DB::rollback();
 
       $this->logger->error('Brand category count error: '.$e->getMessage());
       //   $this->error('Fuck.');
