@@ -62,6 +62,7 @@ class Admin2PanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->viteTheme('resources/css/filament/admin2/theme.css')
             ->authGuard('admin'); // Using admin guard.
     }
 }

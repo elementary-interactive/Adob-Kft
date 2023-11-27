@@ -5,13 +5,16 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductImportResource\Pages;
 use App\Filament\Resources\ProductImportResource\RelationManagers;
 use App\Models\ProductImport;
+use App\Tables\Columns\ProgressColumn;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImportResource extends Resource
 {
@@ -25,7 +28,9 @@ class ProductImportResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Termék importok';
 
-    protected static ?string $navigationGroup = 'Termékek';
+    protected static ?string $navigationGroup = 'Importok / Exportok';
+
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
@@ -73,47 +78,87 @@ class ProductImportResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('imported_by.name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('batch_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('records_counter')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('products_inserted')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('products_modified')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('brands_inserted')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('brands_modified')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('categories_inserted')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('categories_modified')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('fails_counter')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Indítva')
+                    ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('file')
+                Tables\Columns\IconColumn::make('status')
+                    ->label('Státusz')
+                    ->icon(fn (string $state): string => match ($state) {
+                        'waiting' => 'heroicon-o-ellipsis-horizontal-circle',
+                        'running' => 'heroicon-o-play-circle',
+                        'finished' => 'heroicon-o-check-circle',
+                        'failed' => 'heroicon-o-exclamation-circle',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'waiting' => 'gray',
+                        'running' => 'info',
+                        'finished' => 'success',
+                        'failed' => 'danger',
+
+                        default => 'gray'
+                    })
+                    ->searchable(),
+                // Tables\Columns\TextColumn::make('id')
+                //     ->searchable(),
+                Tables\Columns\TextColumn::make('imported_by.name')
+                    ->label('Indította')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('finished_at')
+                    ->label('Befejezve')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ProgressColumn::make('progress')
+                    ->label('Folyamat')
+                    ->getStateUsing(function (ProductImport $record) {
+                        // dd($record->products_modified, intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100));
+                        return ($record->records_counter > 0) ? intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100) : 0;
+                    }),
+                // Tables\Columns\TextColumn::make('batch_id')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('records_statistics')
+                //     ->label('Statisztika')
+                //     ->description(function (ProductImport $record) {
+                //         return $record->records_counter.' rekord';
+                //     }),
+                // Tables\Columns\TextColumn::make('products_inserted')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('products_modified')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('brands_inserted')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('brands_modified')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('categories_inserted')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('categories_modified')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('fails_counter')
+                //     ->numeric()
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('file')
+                    ->label('Állomány')
+                    ->icon('heroicon-o-arrow-down-on-square')
+                    ->iconPosition(IconPosition::Before)
+                    ->getStateUsing(function (ProductImport $record) {
+                        return '<a href="'.Storage::url($record->file).'" target="_blank">'.$record->file.'</a>';
+                    })
+                    ->html()
+                    ->size(Tables\Columns\TextColumn\TextColumnSize::ExtraSmall)
+                    ->searchable(),
+                
+                // Tables\Columns\TextColumn::make('created_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -128,13 +173,15 @@ class ProductImportResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ])
+            ->defaultSort('created_at', 'desc')
+            ->poll('10s');;
     }
 
     public static function getRelations(): array

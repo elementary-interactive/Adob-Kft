@@ -7,10 +7,11 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImport;
 use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
- use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -38,8 +39,8 @@ class ADOBBrandImportJob implements ShouldQueue
     protected $columns,
     protected ProductImport $import
   ) {
-    
-    
+
+
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
@@ -59,40 +60,46 @@ class ADOBBrandImportJob implements ShouldQueue
   {
     /** Get the header...
      */
-    if ($this->records_has_header)
-    {
+    if ($this->records_has_header) {
       $header = $this->import->data['file'][0];
     }
 
-    foreach ($this->records as $record_data)
-    {
-      if ($record_data != $header)
-      {
+    foreach ($this->records as $record_data) {
+      if ($record_data != $header) {
         /**  
          * @var array $record Associative array of the given record.
          */
         $record = array_combine($header, $record_data);
 
-        $this->logger->info('Brand found: '.$record[$this->columns::BRAND->value].' at '.$this->columns::BRAND->value);
-        
-        /** 
-         * @var Brand $brand The product's brand.
-         */
-        $brand = Brand::firstOrNew([
-          'slug'        => Str::slug($record[$this->columns::BRAND->value]),
-        ], [ //- Fill up data.
-          'name'        => $record[$this->columns::BRAND->value],
-          'is_featured' => false
-        ]);
-        
-        if (!$brand->exists) {
-          $this->import->increaseBrandInserted();
-          $brand->save();
+        if ($record[$this->columns::PRODUCT_ID->value] && $record[$this->columns::BRAND->value]) {
+          /** 
+           * @var Brand $brand The product's brand.
+           */
+          $brand = Brand::firstOrNew([
+            'slug'        => Str::slug($record[$this->columns::BRAND->value]),
+          ], [ //- Fill up data.
+            'name'        => $record[$this->columns::BRAND->value],
+            'is_featured' => false
+          ]);
 
-          $this->logger->info('Brand imported: '.$record[$this->columns::BRAND->value]);
+          if (!$brand->exists) {
+            $this->import->increaseBrandInserted();
+            $brand->save();
+
+            /** Logging... */
+            $this->logger->info('Brand import done. [' . $record[$this->columns::BRAND->value] . ']', [
+              'import'  =>  $this->import->id,
+              'record'  => $record
+            ]);
+          }
         }
       }
     }
-  }
 
+    Notification::make()
+      ->title('Importálás folyamata...')
+      ->body('Márkák sikeresen importálva')
+      ->info()
+      ->sendToDatabase($this->import->imported_by);
+  }
 }

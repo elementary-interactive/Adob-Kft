@@ -16,6 +16,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
 use Excel;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Laravel\Nova\Notifications\NovaNotification;
 use Logtail\Monolog\LogtailHandler;
@@ -56,25 +57,35 @@ class ADOBProductImportBatch implements ShouldQueue
        */
       $header = $this->import->data['file'][0];
     }
+
+    $this->logger->info('Import batch start! ['.$this->import->id.']', [
+      'import'  => $this->import->id
+    ]);
     
     /** Import all possible brands.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    $this->logger->info('Brand import added.');
+    $this->logger->info('Brand import added.', [
+      'import'  => $this->import->id
+    ]);
 
     /** Import categories.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    $this->logger->info('Category import added.');
+    $this->logger->info('Category import added.', [
+      'import'  => $this->import->id
+    ]);
 
     // $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
     /** Import products line-by-line. 
      */
     foreach ($this->import->data['file'] as $index => $row) {
-      if ($row != $header && !empty($row)) { // Skip header or empty rows
+      if ($row != $header && !empty($row[0])) { // Skip header or empty rows
         $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-        $this->logger->info('Product import added. ('.$row[0].')');
+        $this->logger->info('Product import added. ('.$row[0].')', [
+          'import'  => $this->import->id
+        ]);
         $records_counter++;
       }
     }
@@ -89,11 +100,17 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->save();
       })->catch(function (Batch $batch, Throwable $e) use ($_import) {
         $_import->imported_by->notify(
-          NovaNotification::make()
-            ->message($e->getMessage())
-            // ->action('Download', URL::remote('https://example.com/report.pdf'))
-            ->icon('exclamation-circle')
-            ->type('error')
+          // NovaNotification::make()
+          //   ->message($e->getMessage())
+          //   // ->action('Download', URL::remote('https://example.com/report.pdf'))
+          //   ->icon('exclamation-circle')
+          //   ->type('error')
+
+          Notification::make()
+            ->title('Importálás folyamata...')
+            ->body('Hiba: '.$e->getMessage())
+            ->danger()
+            ->toDatabase()
         );
         $_import->fails_counter = $batch->failedJobs;
         $_import->status = 'failed';
@@ -106,7 +123,14 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->status = $batch->failedJobs > 0 ? 'failed' : 'finished';
         $_import->save();
         
-        CountBrandCategoryProducts::dispatch();
+        CountBrandCategoryProducts::dispatch($_import);
+        $_import->imported_by->notify(
+          Notification::make()
+              ->title('Importálás folyamata...')
+              ->body('Sikeresen végeztünk!')
+              ->success()
+              ->toDatabase()
+        );
       })
         ->name('ADOB product import batch')
         ->allowFailures(true)

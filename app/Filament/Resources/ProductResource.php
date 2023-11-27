@@ -42,6 +42,8 @@ class ProductResource extends Resource
 
     protected static ?string $navigationGroup = 'Termékek';
 
+    protected static ?int $navigationSort = 3;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -275,7 +277,8 @@ class ProductResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->paginated([100, 50, 25, 'all']);
+            ->paginated([25, 50, 100, 'all'])
+            ->defaultPaginationPageOption(25);
     }
 
     public function panel(Panel $panel): Panel

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ProductImport;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -23,8 +24,9 @@ class CountBrandCategoryProducts implements ShouldQueue
   /**
    * Create a new job instance.
    */
-  public function __construct()
-  {
+  public function __construct(
+    protected ProductImport $import
+  ) {
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
@@ -60,13 +62,17 @@ class CountBrandCategoryProducts implements ShouldQueue
 
       // DB::commit();
 
-      $this->logger->info('Brand category count done.');
+      $this->logger->info('Brand category count done.', [
+        'import'  => $this->import->id,
+      ]);
 
       //   $this->info('Counters updated successfully!');
     } catch (\Throwable $e) {
       // DB::rollback();
 
-      $this->logger->error('Brand category count error: '.$e->getMessage());
+      $this->logger->error('Brand category count error: '.$e->getMessage(), [
+        'import'  => $this->import->id,
+      ]);
       //   $this->error('Fuck.');
     }
   }
