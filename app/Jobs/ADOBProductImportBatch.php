@@ -61,21 +61,27 @@ class ADOBProductImportBatch implements ShouldQueue
     /** Import all possible brands.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    $this->logger->info('Brand import added.');
+    $this->logger->info('Brand import added.', [
+      'import'  => $this->import->id
+    ]);
 
     /** Import categories.
      */
     $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    $this->logger->info('Category import added.');
+    $this->logger->info('Category import added.', [
+      'import'  => $this->import->id
+    ]);
 
     // $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
     /** Import products line-by-line. 
      */
     foreach ($this->import->data['file'] as $index => $row) {
-      if ($row != $header && !empty($row)) { // Skip header or empty rows
+      if ($row != $header && !empty($row[0])) { // Skip header or empty rows
         $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-        $this->logger->info('Product import added. ('.$row[0].')');
+        $this->logger->info('Product import added. ('.$row[0].')', [
+          'import'  => $this->import->id
+        ]);
         $records_counter++;
       }
     }

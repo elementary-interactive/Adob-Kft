@@ -71,7 +71,7 @@ class ADOBBrandImportJob implements ShouldQueue
          */
         $record = array_combine($header, $record_data);
 
-        if ($record[$this->columns::BRAND->value]) {
+        if ($record[$this->columns::PRODUCT_ID->value] && $record[$this->columns::BRAND->value]) {
           /** 
            * @var Brand $brand The product's brand.
            */
@@ -85,7 +85,7 @@ class ADOBBrandImportJob implements ShouldQueue
           if (!$brand->exists) {
             $this->import->increaseBrandInserted();
             $brand->save();
-            
+
             /** Logging... */
             $this->logger->info('Brand import done. [' . $record[$this->columns::BRAND->value] . ']', [
               'import'  =>  $this->import->id,
