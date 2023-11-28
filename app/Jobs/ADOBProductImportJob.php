@@ -42,7 +42,8 @@ class ADOBProductImportJob implements ShouldQueue
     protected array $record,
     protected string $columns, //- Columns enumeration
     protected ProductImport $import,
-    protected bool $import_categories = false
+    protected bool $import_categories = false,
+    protected bool $import_images = false
   ) {
     //     use Monolog\Logger;
     // use Logtail\Monolog\LogtailHandler;
@@ -162,9 +163,11 @@ class ADOBProductImportJob implements ShouldQueue
     // }, 5);
     $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product saved.', ['product' => $product]);
 
-    /** Upload images...
-     */
-    $this->handle_images($product);
+    if ($import_images) {
+      /** Upload images if needed.
+       */
+      $this->handle_images($product);
+    }
 
     /** Upload categories...
      */
