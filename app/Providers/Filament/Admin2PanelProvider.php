@@ -29,6 +29,7 @@ class Admin2PanelProvider extends PanelProvider
             ->id('admin2')
             ->path('admin2')
             ->globalSearch(true)
+            ->globalSearchKeyBindings(['command+f', 'ctrl+f'])
             ->login()
             ->colors([
                 'primary' => Color::Cyan,

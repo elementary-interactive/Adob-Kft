@@ -35,11 +35,11 @@ class ProductImportResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Select::make('imported_by_id')
+        ->schema([
+            Forms\Components\Group::make()
+                ->schema([
+                    Forms\Components\Select::make('imported_by_id')
                     ->relationship('imported_by', 'name'),
-                Forms\Components\TextInput::make('batch_id')
-                    ->maxLength(36),
                 Forms\Components\TextInput::make('records_counter')
                     ->required()
                     ->numeric()
@@ -70,8 +70,54 @@ class ProductImportResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('file')
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('finished_at'),
-            ]);
+                    // Forms\Components\Section::make('Inventory')
+                    //     ->schema([
+                    //         Forms\Components\TextInput::make('sku')
+                    //             ->label('SKU (Stock Keeping Unit)')
+                    //             ->unique(Product::class, 'sku', ignoreRecord: true)
+                    //             ->required(),
+
+                    //         Forms\Components\TextInput::make('barcode')
+                    //             ->label('Barcode (ISBN, UPC, GTIN, etc.)')
+                    //             ->unique(Product::class, 'barcode', ignoreRecord: true)
+                    //             ->required(),
+
+                    //         Forms\Components\TextInput::make('qty')
+                    //             ->label('Quantity')
+                    //             ->numeric()
+                    //             ->rules(['integer', 'min:0'])
+                    //             ->required(),
+
+                    //         Forms\Components\TextInput::make('security_stock')
+                    //             ->helperText('The safety stock is the limit stock for your products which alerts you if the product stock will soon be out of stock.')
+                    //             ->numeric()
+                    //             ->rules(['integer', 'min:0'])
+                    //             ->required(),
+                    //     ])
+                    //     ->columns(2),
+
+                ])
+                ->columnSpan(['lg' => 2]),
+
+            Forms\Components\Group::make()
+                ->schema([
+                    Forms\Components\Section::make('Állapot')
+                        ->schema([
+                            Forms\Components\TextInput::make('status')
+                                ->label('Állapot')
+                                ->default(true),
+
+                            Forms\Components\DatePicker::make('created_at')
+                                ->label('Elindítva')
+                                ->readOnly(),
+                            Forms\Components\DatePicker::make('finished_at')
+                                ->label('Befejezve')
+                                ->readOnly(),
+                        ]),
+                ])
+                ->columnSpan(['lg' => 1]),
+        ])
+        ->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -80,6 +126,10 @@ class ProductImportResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Indítva')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('finished_at')
+                    ->label('Befejezve')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
@@ -106,10 +156,6 @@ class ProductImportResource extends Resource
                 Tables\Columns\TextColumn::make('imported_by.name')
                     ->label('Indította')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('finished_at')
-                    ->label('Befejezve')
-                    ->dateTime()
-                    ->sortable(),
                 ProgressColumn::make('progress')
                     ->label('Folyamat')
                     ->getStateUsing(function (ProductImport $record) {
