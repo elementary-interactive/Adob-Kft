@@ -78,10 +78,11 @@ class ADOBProductImportBatch implements ShouldQueue
       'import'  => $this->import->id
     ]);
 
+     /** Import all possible brands.
+     */
     $batch_jobs[] = Bus::batch([
-      /** Import all possible brands.
-       */
-      new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import)
+
+      new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import),
     ])->then(function (Batch $batch) use ($_import) {
 
       /** Getting informaion from $batch
@@ -93,11 +94,11 @@ class ADOBProductImportBatch implements ShouldQueue
 
       $_import->save();
 
-      Notification::make()
-        ->title('Importálás folyamata...')
-        ->body('Sikeresen végeztünk!')
-        ->success()
-        ->sendToDatabase($_import->imported_by);
+      // Notification::make()
+      //   ->title('Importálás folyamata...')
+      //   ->body('Sikeresen végeztünk!')
+      //   ->success()
+      //   ->sendToDatabase($_import->imported_by);
     });
     
     $this->logger->info('Brand import added.', [
@@ -106,8 +107,28 @@ class ADOBProductImportBatch implements ShouldQueue
 
     /** Import categories.
      */
-    $batch_jobs[] = (new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
-    $this->logger->info('Category import added.', [
+    $batch_jobs[] =  Bus::batch([
+
+      new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import),
+    ])->then(function (Batch $batch) use ($_import) {
+
+      /** Getting informaion from $batch
+       */
+      $_import->fails_counter = $batch->failedJobs;
+      $_import->finished_at   = $batch->finishedAt;
+      $_import->fails_counter = $batch->failedJobs;
+      $_import->status        = 'running';
+
+      $_import->save();
+
+      // Notification::make()
+      //   ->title('Importálás folyamata...')
+      //   ->body('Sikeresen végeztünk!')
+      //   ->success()
+      //   ->sendToDatabase($_import->imported_by);
+    });
+
+    $this->logger->info('Categories import added.', [
       'import'  => $this->import->id
     ]);
 
