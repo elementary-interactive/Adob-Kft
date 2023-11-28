@@ -161,8 +161,6 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->status = 'failed';
         $_import->save();
       })
-
-      // ->allowFailures(false)
       ->onConnection('redis')
       ->onQueue('default')
       ->dispatch();

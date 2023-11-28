@@ -246,7 +246,7 @@ class ADOBProductImportJob implements ShouldQueue
     $result = [];
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
-      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $header));
+      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header));
 
       if ($this->record[$main_category_column]) {
         $category = Category::firstOrCreate([
@@ -264,7 +264,7 @@ class ADOBProductImportJob implements ShouldQueue
           // {
           //   $category = $main_category;
           // }
-          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $header));
+          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $this->header));
 
           if (isset($this->record[$sub_category_column]) && !is_null($this->record[$sub_category_column])) {
             $sub_category = Category::firstOrNew([
