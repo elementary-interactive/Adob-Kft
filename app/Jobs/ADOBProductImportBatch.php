@@ -134,6 +134,8 @@ class ADOBProductImportBatch implements ShouldQueue
 
     $batch_jobs[] = new \App\Jobs\CountBrandCategoryProducts($_import);
 
+    dd($batch_jobs);
+
     Bus::chain($batch_jobs)
       ->catch(function (Batch $batch, Throwable $e) use ($_import) {
         $_import->imported_by->notify(
