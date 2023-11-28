@@ -163,7 +163,7 @@ class ADOBProductImportJob implements ShouldQueue
     // }, 5);
     $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product saved.', ['product' => $product]);
 
-    if ($import_images) {
+    if ($this->import_images) {
       /** Upload images if needed.
        */
       $this->handle_images($product);
