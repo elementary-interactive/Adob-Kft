@@ -31,14 +31,14 @@ class ADOBProductImportBatch implements ShouldQueue
   private $logger;
 
   public function __construct(
-    protected ProductImport $import)
-  {
-    
+    protected ProductImport $import
+  ) {
+
 
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
-  
+
   /**
    * Get the middleware the job should pass through.
    *
@@ -68,8 +68,7 @@ class ADOBProductImportBatch implements ShouldQueue
      */
     $records_counter = 0;
 
-    if ($this->import->data['header'])
-    {
+    if ($this->import->data['header']) {
       /** Getting the header. The loop will be able to run through right now.
        * @var array
        */
@@ -78,14 +77,14 @@ class ADOBProductImportBatch implements ShouldQueue
       $header = array_column(ADOBProductsImportColumns::cases(), 'value');
     }
 
-    $this->logger->info('Import batch start! ['.$this->import->id.']', [
+    $this->logger->info('Import batch start! [' . $this->import->id . ']', [
       'import'  => $this->import->id
     ]);
 
-     /** Import all possible brands.
+    /** Import all possible brands.
      */
     $batch_jobs[] = new \App\Jobs\ADOBBrandImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import);
-    
+
     $this->logger->info('Brand import added.', [
       'import'  => $this->import->id
     ]);
@@ -100,49 +99,36 @@ class ADOBProductImportBatch implements ShouldQueue
 
     // $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
+    /** Separate bach for images.
+     * @var array $import_images 
+     */
+    $import_images = [];
+
     /** Import products line-by-line. 
      */
-    // $import_jobs = [];
-
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header && !empty($row[0])) { // Skip header or empty rows
-        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import, import_categories: true));
-        $this->logger->info('Product import added. ('.$row[0].')', [
+
+        $batch_jobs[]     = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import, import_categories: true));
+        $import_images[]  = (new \App\Jobs\ADOBProductImportImagesJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+
+        $this->logger->info('Product import added. (' . $row[0] . ') (Extended image handler)', [
           'import'  => $this->import->id
         ]);
         $records_counter++;
       }
     }
 
-    // $batch_jobs[] = Bus::batch($import_jobs)
-    //   ->then(function (Batch $batch) use ($_import) {
-
-    //     /** Getting informaion from $batch
-    //      */
-    //     $_import->fails_counter = $batch->failedJobs;
-    //     $_import->finished_at   = $batch->finishedAt;
-    //     $_import->fails_counter = $batch->failedJobs;
-    //     $_import->status        = $batch->failedJobs > 0 ? 'failed' : 'finished';
-    //     $_import->save();
-
-    //     Notification::make()
-    //       ->title('Importálás folyamata...')
-    //       ->body(($batch->failedJobs > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
-    //       ->success()
-    //       ->sendToDatabase($_import->imported_by);
-    //   })
-    //   ->name('ADOB product import batch');
-
     $batch_jobs[] = new \App\Jobs\CountBrandCategoryProducts($_import);
 
-    $batch_jobs[] = function() use ($_import) {
+    $batch_jobs[] = function () use ($_import) {
       /** Getting informaion from $batch
        */
       $_import->finished_at   = now();
       $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
       $_import->save();
 
-      
+
       Notification::make()
         ->title('Importálás folyamata...')
         ->body(($_import->fails_counter > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
@@ -150,14 +136,24 @@ class ADOBProductImportBatch implements ShouldQueue
         ->sendToDatabase($_import->imported_by);
     };
 
+    $batch_jobs[] = Bus::batch($import_images)
+      ->then(function (Batch $batch) use ($_import) {
+        Notification::make()
+          ->title('Importálás folyamata...')
+          ->body('Képek importálása sikeres!')
+          ->success()
+          ->sendToDatabase($_import->imported_by);
+      })
+      ->name('ADOB product import batch');
+
     Bus::chain($batch_jobs)
       ->catch(function (Throwable $e) use ($_import) {
         $_import->imported_by->notify(
           /** Uups...
-           */     
+           */
           Notification::make()
             ->title('Importálás folyamata...')
-            ->body('Hiba: '.$e->getMessage())
+            ->body('Hiba: ' . $e->getMessage())
             ->danger()
             ->toDatabase()
         );
@@ -165,7 +161,7 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->status = 'failed';
         $_import->save();
       })
-      
+
       // ->allowFailures(false)
       ->onConnection('redis')
       ->onQueue('default')
