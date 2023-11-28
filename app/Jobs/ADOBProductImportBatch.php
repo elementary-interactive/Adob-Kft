@@ -126,7 +126,7 @@ class ADOBProductImportBatch implements ShouldQueue
 
     
 
-    $batch = Bus::chain($batch_jobs)
+    Bus::chain($batch_jobs)
       ->catch(function (Batch $batch, Throwable $e) use ($_import) {
         $_import->imported_by->notify(
           /** Uups...
@@ -145,11 +145,11 @@ class ADOBProductImportBatch implements ShouldQueue
       // ->allowFailures(false)
       ->dispatch();
 
-    $this->import->batch_id = $batch->id;
+    // $this->import->batch_id = $batch->id;
     $this->import->records_counter = $records_counter;
     $this->import->status = 'running';
     $this->import->save();
 
-    return $batch->id;
+    // return $batch->id;
   }
 }
