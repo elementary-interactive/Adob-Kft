@@ -5,9 +5,9 @@ namespace App\Jobs;
 /**
  * Whhoooo!!! Be careful!!!
  **/
-ini_set('max_execution_time', 1500);
+ini_set('max_execution_time', 1200);
 ini_set('memory_limit', '4000M');
-set_time_limit(1500);
+set_time_limit(1200);
 
 use App\Models\Brand;
 use App\Models\Category;
@@ -39,7 +39,7 @@ class ADOBCategoryImportJob implements ShouldQueue
 
   private $logger;
 
-  public $timeout = 2400;
+  public $timeout = 1200;
 
   /**
    * Create a new job instance.
