@@ -17,6 +17,8 @@ use Exception;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -31,7 +33,7 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
-class ADOBCategoryImportJob implements ShouldQueue
+class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -54,6 +56,17 @@ class ADOBCategoryImportJob implements ShouldQueue
 
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
+  }
+
+  
+  /**
+   * Get the middleware the job should pass through.
+   *
+   * @return array<int, object>
+   */
+  public function middleware(): array
+  {
+    return [new WithoutOverlapping($this->import->id)];
   }
 
   /**
