@@ -9,6 +9,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
@@ -35,6 +36,16 @@ class ADOBProductImportBatch implements ShouldQueue
 
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
+  }
+  
+  /**
+   * Get the middleware the job should pass through.
+   *
+   * @return array<int, object>
+   */
+  public function middleware(): array
+  {
+    return [new WithoutOverlapping($this->import->id)];
   }
 
   /**
@@ -89,23 +100,37 @@ class ADOBProductImportBatch implements ShouldQueue
     //     $records_counter++;
     //   }
     // }
-
-    // $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts($this->import));
-
     $_import = $this->import;
+    $_import->status = 'running';
+    $_import->save();
 
-    $batch = Bus::batch($batch_jobs)
-      ->then(function (Batch $batch) use ($_import) {
-        $_import->status = 'running';
-        $_import->save();
-      })->catch(function (Batch $batch, Throwable $e) use ($_import) {
+    $batch_jobs[] = Bus::batch([
+      new \App\Jobs\CountBrandCategoryProducts($_import),
+    ])->then(function (Batch $batch) use ($_import) {
+
+      /** Getting informaion from $batch
+       */
+      $_import->fails_counter = $batch->failedJobs;
+      $_import->finished_at   = $batch->finishedAt;
+      $_import->fails_counter = $batch->failedJobs;
+      $_import->status        = $batch->failedJobs > 0 ? 'failed' : 'finished';
+      $_import->save();
+
+      Notification::make()
+        ->title('Importálás folyamata...')
+        ->body('Sikeresen végeztünk!')
+        ->success()
+        ->sendToDatabase($_import->imported_by);
+    });
+    
+
+    
+
+    $batch = Bus::chain($batch_jobs)
+      ->catch(function (Batch $batch, Throwable $e) use ($_import) {
         $_import->imported_by->notify(
-          // NovaNotification::make()
-          //   ->message($e->getMessage())
-          //   // ->action('Download', URL::remote('https://example.com/report.pdf'))
-          //   ->icon('exclamation-circle')
-          //   ->type('error')
-
+          /** Uups...
+           */
           Notification::make()
             ->title('Importálás folyamata...')
             ->body('Hiba: '.$e->getMessage())
@@ -115,25 +140,10 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->fails_counter = $batch->failedJobs;
         $_import->status = 'failed';
         $_import->save();
-      })->finally(function (Batch $batch) use ($_import) {
-        $_import->fails_counter = $batch->failedJobs;
-        $_import->finished_at = $batch->finishedAt;
-        $_import->fails_counter = $batch->failedJobs;
-        $_import->status = $batch->failedJobs > 0 ? 'failed' : 'finished';
-        $_import->save();
-        
-        CountBrandCategoryProducts::dispatch($_import);
-        
-        Notification::make()
-            ->title('Importálás folyamata...')
-            ->body('Sikeresen végeztünk!')
-            ->success()
-            ->sendToDatabase($_import->imported_by);
       })
-        ->name('ADOB product import batch')
-        ->allowFailures(true)
-        // ->onConnection('database')
-        ->dispatch();
+      // ->name('ADOB product import batch')
+      // ->allowFailures(false)
+      ->dispatch();
 
     $this->import->batch_id = $batch->id;
     $this->import->records_counter = $records_counter;

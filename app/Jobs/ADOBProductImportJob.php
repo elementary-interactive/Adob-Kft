@@ -13,6 +13,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
@@ -58,6 +59,16 @@ class ADOBProductImportJob implements ShouldQueue
     } elseif ($this->to_delete()) {
       $this->delete_product();
     }
+  }
+
+  /**
+   * Get the middleware the job should pass through.
+   *
+   * @return array<int, object>
+   */
+  public function middleware(): array
+  {
+    return [new WithoutOverlapping($this->import->id)];
   }
 
   public function record(): array

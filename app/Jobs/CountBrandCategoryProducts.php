@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
-class CountBrandCategoryProducts implements ShouldQueue
+class CountBrandCategoryProducts implements ShouldQueue, ShouldBeUnique
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -29,6 +30,24 @@ class CountBrandCategoryProducts implements ShouldQueue
   ) {
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
+  }
+
+  /**
+   * Get the unique ID for the job.
+   */
+  public function uniqueId(): string
+  {
+    return $this->import->id;
+  }
+
+  /**
+   * Get the middleware the job should pass through.
+   *
+   * @return array<int, object>
+   */
+  public function middleware(): array
+  {
+    return [new WithoutOverlapping($this->import->id)];
   }
 
   /**
@@ -70,7 +89,7 @@ class CountBrandCategoryProducts implements ShouldQueue
     } catch (\Throwable $e) {
       // DB::rollback();
 
-      $this->logger->error('Brand category count error: '.$e->getMessage(), [
+      $this->logger->error('Brand category count error: ' . $e->getMessage(), [
         'import'  => $this->import->id,
       ]);
       //   $this->error('Fuck.');
