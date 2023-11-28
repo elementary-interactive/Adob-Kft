@@ -10,10 +10,10 @@ class ViewProductImport extends ViewRecord
 {
     protected static string $resource = ProductImportResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\EditAction::make(),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Actions\EditAction::make(),
+    //     ];
+    // }
 }
