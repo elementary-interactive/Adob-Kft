@@ -39,7 +39,7 @@ class ADOBCategoryImportJob implements ShouldQueue
 
   private $logger;
 
-  public $timeout = 800;
+  // public $timeout = 800;
 
   /**
    * Create a new job instance.

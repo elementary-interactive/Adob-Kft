@@ -90,7 +90,7 @@ class ADOBProductImportBatch implements ShouldQueue
     //   }
     // }
 
-    $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts($this->import));
+    // $batch_jobs[] = (new \App\Jobs\CountBrandCategoryProducts($this->import));
 
     $_import = $this->import;
 
@@ -115,8 +115,7 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->fails_counter = $batch->failedJobs;
         $_import->status = 'failed';
         $_import->save();
-      })->finally(function (Batch $batch) use ($_import)
-      {
+      })->finally(function (Batch $batch) use ($_import) {
         $_import->fails_counter = $batch->failedJobs;
         $_import->finished_at = $batch->finishedAt;
         $_import->fails_counter = $batch->failedJobs;
@@ -124,13 +123,12 @@ class ADOBProductImportBatch implements ShouldQueue
         $_import->save();
         
         CountBrandCategoryProducts::dispatch($_import);
-        $_import->imported_by->notify(
-          Notification::make()
-              ->title('Importálás folyamata...')
-              ->body('Sikeresen végeztünk!')
-              ->success()
-              ->toDatabase()
-        );
+        
+        Notification::make()
+            ->title('Importálás folyamata...')
+            ->body('Sikeresen végeztünk!')
+            ->success()
+            ->sendToDatabase($_import->imported_by);
       })
         ->name('ADOB product import batch')
         ->allowFailures(true)
