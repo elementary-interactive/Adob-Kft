@@ -90,23 +90,23 @@ class ADOBProductImportBatch implements ShouldQueue
       'import'  => $this->import->id
     ]);
 
-    /** Import categories.
-     */
-    $batch_jobs[] =  new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import);
+    // /** Import categories.
+    //  */
+    // $batch_jobs[] =  new \App\Jobs\ADOBCategoryImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import);
 
-    $this->logger->info('Categories import added.', [
-      'import'  => $this->import->id
-    ]);
+    // $this->logger->info('Categories import added.', [
+    //   'import'  => $this->import->id
+    // ]);
 
     // $batch_jobs[] = (new \App\Jobs\ADOBAllProductImportJob($this->import->data['file'], $this->import->data['header'], \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
     /** Import products line-by-line. 
      */
-    $import_jobs = [];
+    // $import_jobs = [];
 
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header && !empty($row[0])) { // Skip header or empty rows
-        $import_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
+        $batch_jobs[] = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import, import_categories: true));
         $this->logger->info('Product import added. ('.$row[0].')', [
           'import'  => $this->import->id
         ]);
@@ -114,32 +114,47 @@ class ADOBProductImportBatch implements ShouldQueue
       }
     }
 
-    $batch_jobs[] = Bus::batch($import_jobs)
-      ->then(function (Batch $batch) use ($_import) {
+    // $batch_jobs[] = Bus::batch($import_jobs)
+    //   ->then(function (Batch $batch) use ($_import) {
 
-        /** Getting informaion from $batch
-         */
-        $_import->fails_counter = $batch->failedJobs;
-        $_import->finished_at   = $batch->finishedAt;
-        $_import->fails_counter = $batch->failedJobs;
-        $_import->status        = $batch->failedJobs > 0 ? 'failed' : 'finished';
-        $_import->save();
+    //     /** Getting informaion from $batch
+    //      */
+    //     $_import->fails_counter = $batch->failedJobs;
+    //     $_import->finished_at   = $batch->finishedAt;
+    //     $_import->fails_counter = $batch->failedJobs;
+    //     $_import->status        = $batch->failedJobs > 0 ? 'failed' : 'finished';
+    //     $_import->save();
 
-        Notification::make()
-          ->title('Importálás folyamata...')
-          ->body(($batch->failedJobs > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
-          ->success()
-          ->sendToDatabase($_import->imported_by);
-      })
-      ->name('ADOB product import batch');
+    //     Notification::make()
+    //       ->title('Importálás folyamata...')
+    //       ->body(($batch->failedJobs > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
+    //       ->success()
+    //       ->sendToDatabase($_import->imported_by);
+    //   })
+    //   ->name('ADOB product import batch');
 
     $batch_jobs[] = new \App\Jobs\CountBrandCategoryProducts($_import);
+
+    $batch_jobs[] = function() use ($_import) {
+      /** Getting informaion from $batch
+       */
+      $_import->finished_at   = now();
+      $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
+      $_import->save();
+
+      
+      Notification::make()
+        ->title('Importálás folyamata...')
+        ->body(($_import->fails_counter > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
+        ->success()
+        ->sendToDatabase($_import->imported_by);
+    };
 
     Bus::chain($batch_jobs)
       ->catch(function (Throwable $e) use ($_import) {
         $_import->imported_by->notify(
           /** Uups...
-           */
+           */     
           Notification::make()
             ->title('Importálás folyamata...')
             ->body('Hiba: '.$e->getMessage())

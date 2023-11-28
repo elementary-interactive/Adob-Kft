@@ -6,6 +6,7 @@ ini_set('memory_limit', '4000M');
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Columns\ADOBProductsImportColumns;
 use App\Models\Product;
 use App\Models\ProductImport;
 use Exception;
@@ -38,12 +39,13 @@ class ADOBProductImportJob implements ShouldQueue
    * Create a new job instance.
    */
   public function __construct(
-    protected $record,
-    protected $columns,
-    protected ProductImport $import
+    protected array $record,
+    protected string $columns, //- Columns enumeration
+    protected ProductImport $import,
+    protected bool $import_categories = false
   ) {
-//     use Monolog\Logger;
-// use Logtail\Monolog\LogtailHandler;
+    //     use Monolog\Logger;
+    // use Logtail\Monolog\LogtailHandler;
 
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
@@ -115,7 +117,7 @@ class ADOBProductImportJob implements ShouldQueue
     $product = Product::firstOrNew([
       'product_id' => $this->record[$this->columns::PRODUCT_ID->value]
     ]);
-    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product importing...');
+    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product importing...');
 
     $product->name            = $this->record[$this->columns::PRODUCT_NAME->value];
     $product->slug            = $this->record[$this->columns::PRODUCT_ID->value] . '-' . Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
@@ -139,7 +141,7 @@ class ADOBProductImportJob implements ShouldQueue
      * @var Brand $brand The product's brand.
      */
     $brand = Brand::where('slug', '=', Str::slug($this->record[$this->columns::BRAND->value]))->first();
-    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product associate to brand: '.$brand->name);
+    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product associate to brand: ' . $brand->name);
 
     // Connect brand to product.
     $product->brand()->associate($brand);
@@ -148,17 +150,17 @@ class ADOBProductImportJob implements ShouldQueue
     // dump($product);
     if ($product->exists) {
       $this->import->increaseProductModified();
-      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product modify.');
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product modify.');
       $is_new = false;
     } else {
       $is_new = true;
-      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product create.');
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product create.');
       $this->import->increaseProductInserted();
     }
     // DB::transaction(function () use ($product) {
     $product->save();
     // }, 5);
-    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product saved.', ['product' => $product]);
+    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product saved.', ['product' => $product]);
 
     /** Upload images...
      */
@@ -168,7 +170,7 @@ class ADOBProductImportJob implements ShouldQueue
      */
     if (!$is_new) { //- If modifying product we detach from all categories.
       $product->categories()->detach();
-      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product remove all categories.');
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product remove all categories.');
     }
     /** Check is there category & adding to categories.
      * 
@@ -200,15 +202,18 @@ class ADOBProductImportJob implements ShouldQueue
   private function attach_categories(Product $product, ProductImport $import): void
   {
     //dump($import->getCategoryIds());
-
-     try {
-      $categories = (array) (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
-      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' check categories...', ['categories' => $categories]);
+    try {
+      
+      if ($this->import_categories) {
+        $categories = $this->parse_categories();
+      } else {
+        $categories = (array) (array_key_exists($product->product_id, $import->getCategoryIds())) ? $import->getCategoryIds()[$product->product_id] : null;
+      }
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' check categories...', ['categories' => $categories]);
       if (!empty($categories)) {
         //Log::channel('import')->info('Product category will be attached to '.sizeof($categories).' category');
 
-        foreach ($categories as $category_index => $category_id)
-        {
+        foreach ($categories as $category_index => $category_id) {
           /** @var Category $category to attach to the product.
            */
           $category = Category::find($category_id);
@@ -223,15 +228,65 @@ class ADOBProductImportJob implements ShouldQueue
             'is_main' => ($category_index == 1),
             'order'   => $counter++,
           ]);
-          $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' category attached >> '.$category_id);
+          $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' category attached >> ' . $category_id);
           // Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
         }
       }
-  } catch (\Exception $e) {
-      
-  }
+    } catch (\Exception $e) {
+    }
 
     // return $result;
+  }
+
+  private function parse_categories(): array
+  {
+    $result = [];
+
+    for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
+      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $header));
+
+      if ($this->record[$main_category_column]) {
+        $category = Category::firstOrCreate([
+          'slug'        => Str::slug($this->record[$main_category_column]),
+          'parent_id'   => null
+        ], [
+          'name'        => $this->record[$main_category_column],
+          'description' => $this->record[$main_category_column]
+        ]);
+
+        // $category = null;
+
+        for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
+          // if (is_null($category))
+          // {
+          //   $category = $main_category;
+          // }
+          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $header));
+
+          if (isset($this->record[$sub_category_column]) && !is_null($this->record[$sub_category_column])) {
+            $sub_category = Category::firstOrNew([
+              'slug'        => Str::slug($this->record[$sub_category_column]),
+              'parent_id'   => $category->id
+            ], [
+              'name'        => $this->record[$sub_category_column]
+            ]);
+
+            if (!$sub_category->exists) {
+              $this->import->increaseCategoryInserted();
+              $sub_category->save();
+              $sub_category->makeChildOf($category);
+            } else {
+              $this->import->increaseCategoryModified();
+            }
+
+            $category = $sub_category;
+          }
+        }
+        $result[$categories_index] = $category->id;
+      }
+    }
+
+    return $result;
   }
 
   /** Parse Excel cells to discover images to store them for the products.
@@ -260,10 +315,8 @@ class ADOBProductImportJob implements ShouldQueue
         }
       }
 
-      if (!empty($images))
-      {
-        foreach ($product->getMedia(Product::MEDIA_COLLECTION) as $media)
-        {
+      if (!empty($images)) {
+        foreach ($product->getMedia(Product::MEDIA_COLLECTION) as $media) {
           $media->delete();
         }
 
@@ -276,22 +329,22 @@ class ADOBProductImportJob implements ShouldQueue
           }
 
           if (Str::startsWith($string, 'http')) { //- http image
-            $this->logger->info($this->record[$this->columns::PRODUCT_ID->value].' product image check: '.$string);
+            $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product image check: ' . $string);
 
             try {
-                $media = $product
-                  ->addMediaFromUrl($string)
-                  ->preservingOriginal()
-                  ->toMediaCollection(Product::MEDIA_COLLECTION);
-                $media->save();
-            } catch(\Exception $e) {
-              $this->logger->error($this->record[$this->columns::PRODUCT_ID->value].' product image error: '.$string.' ('.$e->getMessage().')');
+              $media = $product
+                ->addMediaFromUrl($string)
+                ->preservingOriginal()
+                ->toMediaCollection(Product::MEDIA_COLLECTION);
+              $media->save();
+            } catch (\Exception $e) {
+              $this->logger->error($this->record[$this->columns::PRODUCT_ID->value] . ' product image error: ' . $string . ' (' . $e->getMessage() . ')');
             }
           }
         }
       }
-    // } else {
-    //     throw new Exception($this->record[$this->columns::PRODUCT_ID->value].' nincs "'.$this->columns::IMAGES.'" oszlop!');
+      // } else {
+      //     throw new Exception($this->record[$this->columns::PRODUCT_ID->value].' nincs "'.$this->columns::IMAGES.'" oszlop!');
     }
   }
 
