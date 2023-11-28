@@ -130,14 +130,13 @@ class ADOBProductImportBatch implements ShouldQueue
           ->body(($batch->failedJobs > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
           ->success()
           ->sendToDatabase($_import->imported_by);
-      });
+      })
+      ->name('ADOB product import batch');
 
     $batch_jobs[] = new \App\Jobs\CountBrandCategoryProducts($_import);
 
-    dd($batch_jobs);
-
     Bus::chain($batch_jobs)
-      ->catch(function (Batch $batch, Throwable $e) use ($_import) {
+      ->catch(function (Throwable $e) use ($_import) {
         $_import->imported_by->notify(
           /** Uups...
            */
@@ -147,11 +146,11 @@ class ADOBProductImportBatch implements ShouldQueue
             ->danger()
             ->toDatabase()
         );
-        $_import->fails_counter = $batch->failedJobs;
+        $_import->fails_counter++;
         $_import->status = 'failed';
         $_import->save();
       })
-      // ->name('ADOB product import batch')
+      
       // ->allowFailures(false)
       ->onConnection('redis')
       ->onQueue('default')
