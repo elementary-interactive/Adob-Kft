@@ -27,6 +27,7 @@ use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
 class ADOBBrandImportJob implements ShouldQueue, ShouldBeUnique
+{
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
   private $logger;
