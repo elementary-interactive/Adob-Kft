@@ -5,9 +5,9 @@ namespace App\Jobs;
 /**
  * Whhoooo!!! Be careful!!!
  **/
-ini_set('max_execution_time', 2400);
+ini_set('max_execution_time', 1800);
 ini_set('memory_limit', '4000M');
-set_time_limit(2400);
+set_time_limit(1800);
 
 use App\Models\Brand;
 use App\Models\Category;
