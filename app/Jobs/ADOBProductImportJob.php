@@ -43,7 +43,8 @@ class ADOBProductImportJob implements ShouldQueue
     protected string $columns, //- Columns enumeration
     protected ProductImport $import,
     protected bool $import_categories = false,
-    protected bool $import_images = false
+    protected bool $import_images = false,
+    protected array $header
   ) {
     //     use Monolog\Logger;
     // use Logtail\Monolog\LogtailHandler;
