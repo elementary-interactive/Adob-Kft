@@ -109,7 +109,14 @@ class ADOBProductImportBatch implements ShouldQueue
     foreach ($this->import->data['file'] as $index => $row) {
       if ($row != $header && !empty($row[0])) { // Skip header or empty rows
 
-        $batch_jobs[]     = (new \App\Jobs\ADOBProductImportJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import, import_categories: true, import_images: false));
+        $batch_jobs[]     = (new \App\Jobs\ADOBProductImportJob(
+          record: array_combine($header, $row),
+          header: $header,
+          columns: \App\Models\Columns\ADOBProductsImportColumns::class,
+          import: $this->import,
+          import_categories: true,
+          import_images: false
+        ));
         $import_images[]  = (new \App\Jobs\ADOBProductImportImagesJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
         $this->logger->info('Product import added. (' . $row[0] . ') (Extended image handler)', [

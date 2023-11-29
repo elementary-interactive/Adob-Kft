@@ -20,11 +20,12 @@ class EditProduct extends EditRecord
                 ->icon('heroicon-o-arrow-small-left')
                 ->url(fn (): string => route('filament.admin2.resources.products.index')),
             Actions\ReplicateAction::make()
-                ->excludeAttributes(['slug'])
+                // ->excludeAttributes(['slug'])
                 ->mutateRecordDataUsing(function (array $data): array {
                     /** Prepend COPY_TAG...
                      */
                     $data['name']        = Product::COPY_TAG . $data['name'];
+                    $data['slug']        = Product::COPY_TAG . $data['slug'];
                     $data['product_id']  = Product::COPY_TAG . $data['product_id'];
                     $data['status']      = BasicStatus::Inactive->value;
 
@@ -33,6 +34,7 @@ class EditProduct extends EditRecord
                 })
                 ->beforeReplicaSaved(function (Product $replica): void {
                     $replica->name = Product::COPY_TAG.$replica->name;
+                    $replica->slug = Product::COPY_TAG.$replica->slug;
                     $replica->product_id = Product::COPY_TAG.$replica->product_id;
                     $replica->status = BasicStatus::Inactive->value;
                     // Runs after the record has been replicated but before it is saved to the database.
