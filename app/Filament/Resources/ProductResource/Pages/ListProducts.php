@@ -84,7 +84,7 @@ class ListProducts extends ListRecords
                                 Notifications\Actions\Action::make('view')
                                     ->label('Megnyit')
                                     ->button()
-                                    ->url(route('filament.admin2.resources.product-imports.index'), shouldOpenInNewTab: true)
+                                    ->url(route('filament.admin2.resources.product-imports.index'))
                             ])
                             ->sendToDatabase(auth()->user());
                     }

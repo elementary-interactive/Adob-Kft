@@ -257,11 +257,19 @@ class ProductResource extends Resource
                         /** Prepend COPY_TAG...
                          */
                         $data['name']        = \App\Models\Product::COPY_TAG . $data['name'];
+                        $data['slug']        = \App\Models\Product::COPY_TAG . $data['slug'];
                         $data['product_id']  = \App\Models\Product::COPY_TAG . $data['product_id'];
                         $data['status']      = \Neon\Models\Statuses\BasicStatus::Inactive->value;
 
                         dd($data);
                         return $data;
+                    })
+                    ->beforeReplicaSaved(function (Product $replica): void {
+                        $replica->name = \App\Models\Product::COPY_TAG.$replica->name;
+                        $replica->slug = \App\Models\Product::COPY_TAG.$replica->slug;
+                        $replica->product_id = \App\Models\Product::COPY_TAG.$replica->product_id;
+                        $replica->status = BasicStatus::Inactive->value;
+                        // Runs after the record has been replicated but before it is saved to the database.
                     })
                     ->successRedirectUrl(fn (Product $replica): string => route('filament.admin2.resources.products.edit', [
                         'record' => $replica,
