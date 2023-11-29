@@ -218,7 +218,7 @@ class ADOBProductImportJob implements ShouldQueue
   private function attach_categories(Product $product, ProductImport $import): void
   {
     //dump($import->getCategoryIds());
-    try {
+    // try {
       
       if ($this->import_categories) {
         $categories = $this->parse_categories();
@@ -252,8 +252,8 @@ class ADOBProductImportJob implements ShouldQueue
           // Log::channel('import')->info(' ⌞ Product category attached: '.$this->record[$this->columns::PRODUCT_ID->value].' >> '.$category_id);
         }
       }
-    } catch (\Exception $e) {
-    }
+    // } catch (\Exception $e) {
+    // }
 
     // return $result;
   }
