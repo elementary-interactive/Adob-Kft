@@ -44,6 +44,7 @@ class ProductImport extends Model
   protected $casts = [
     'data'          => 'json',
     'file'          => 'string',
+    'job'           => 'string',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -66,7 +67,8 @@ class ProductImport extends Model
     'products_inserted'   => 0,
     'products_modified'   => 0,
     'fails_counter'       => 0,
-    'data'                => ''
+    'data'                => '',
+    'job'                 => '',
   ];
 
   public function addFail($message)

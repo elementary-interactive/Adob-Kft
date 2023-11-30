@@ -161,10 +161,11 @@ class ProductImportResource extends Resource
                         return ($record->records_counter > 0) ? intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100) : 0;
                     }),
                 Tables\Columns\TextColumn::make('job')
+                    ->label('')
                     ->getStateUsing(function (ProductImport $record) {
-                        return $record->records_counter.'/'.($record->products_inserted + $record->products_modified).' termék';
+                        return $record->records_counter.'/'.($record->products_inserted + $record->products_modified).' termék, '.($record->categories_inserted + $record->categories_modified).' kategória, '.($record->brands_inserted + $record->brands_modified).' márka';
                     })
-                    ->description(fn (ProductImport $record): string => $record->job),
+                    ->description(fn (ProductImport $record): string => $record->job ?: ''),
                 // Tables\Columns\TextColumn::make('batch_id')
                 //     ->searchable(),
                 // Tables\Columns\TextColumn::make('records_statistics')
