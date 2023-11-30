@@ -98,12 +98,12 @@ class ProductResource extends Resource
                         Forms\Components\Textarea::make('packaging')
                             ->label('Csomagolás információk')
                             ->columnSpanFull(),
-                        Select::make('status')
-                            ->label('Státusz')
-                            ->required()
-                            ->reactive()
-                            ->default(Status::New)
-                            ->options(Status::class),
+                        // Select::make('status')
+                        //     ->label('Státusz')
+                        //     ->required()
+                        //     ->reactive()
+                        //     ->default(Status::New)
+                        //     ->options(Status::class),
                         Group::make()
                             ->columns(2)
                             ->schema([
@@ -256,7 +256,9 @@ class ProductResource extends Resource
                     ->label('Márka')
                     ->searchable(),
                 SelectFilter::make('status')
-                    ->options(Status::class),
+                    ->options(Status::class)
+                    ->label('Státusz')
+                    ->searchable(),
                 Filter::make('tree')
                     ->form([
                         SelectTree::make('categories')

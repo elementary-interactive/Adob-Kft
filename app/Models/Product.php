@@ -38,7 +38,7 @@ class Product extends Model implements HasMedia
    */
   protected $fillable = [
     'product_id', 'product_number', 'name', 'slug', 'packaging', 'description',
-    'ean', 'price', 'on_sale'
+    'ean', 'price', 'on_sale', 'status'
   ];
 
   /** The attributes that should be handled as date or datetime.
@@ -140,14 +140,24 @@ class Product extends Model implements HasMedia
     return $result;
   }
 
-  public function setIsActiveAttribute($attribute)
-  {
-    if ($attribute == true) {
-      $this->status = BasicStatus::Active;
-    } else {
-      $this->status = BasicStatus::Inactive;
-    }
-  }
+  // public function setStatusAttribute($attribute)
+  // {
+  //   if (is_string($attribute))
+  //   {
+  //     switch ($attribute)
+  //     {
+  //       case BasicStatus::Active->value: 
+  //         $this->attributes['status'] = BasicStatus::Active;
+  //         break;
+  //       case BasicStatus::Inactive->value:
+  //         $this->attributes['status'] = BasicStatus::Inactive;
+  //         break;
+  //       case BasicStatus::New->value:
+  //         $this->attributes['status'] = BasicStatus::New;
+  //         break;
+  //     }
+  //   }
+  // }
 
   public function getIsActiveAttribute(): bool
   {
