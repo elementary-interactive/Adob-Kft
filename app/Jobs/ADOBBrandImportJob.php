@@ -62,6 +62,9 @@ class ADOBBrandImportJob implements ShouldQueue, ShouldBeUnique
    */
   public function handle(): void
   {
+    $this->import->job = 'Márkák importálása...';
+    $this->import->save();
+    
     $this->save_brand();
   }
 

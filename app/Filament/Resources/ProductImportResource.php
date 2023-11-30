@@ -151,8 +151,6 @@ class ProductImportResource extends Resource
                         default => 'gray'
                     })
                     ->searchable(),
-                // Tables\Columns\TextColumn::make('id')
-                //     ->searchable(),
                 Tables\Columns\TextColumn::make('imported_by.name')
                     ->label('Indította')
                     ->searchable(),
@@ -162,6 +160,11 @@ class ProductImportResource extends Resource
                         // dd($record->products_modified, intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100));
                         return ($record->records_counter > 0) ? intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100) : 0;
                     }),
+                Tables\Columns\TextColumn::make('job')
+                    ->getStateUsing(function (ProductImport $record) {
+                        return $record->records_counter.'/'.($record->products_inserted + $record->products_modified).' termék';
+                    })
+                    ->description(fn (ProductImport $record): string => $record->job),
                 // Tables\Columns\TextColumn::make('batch_id')
                 //     ->searchable(),
                 // Tables\Columns\TextColumn::make('records_statistics')

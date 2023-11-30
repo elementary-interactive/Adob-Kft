@@ -53,6 +53,9 @@ class ADOBProductImportImagesJob implements ShouldQueue
    */
   public function handle(): void
   {
+    $this->import->job = 'Képek feldolgozása...';
+    $this->import->save();
+    
     $product = Product::where('product_id', $this->record[$this->columns::PRODUCT_ID->value])
       ->first();
     if ($product) {
