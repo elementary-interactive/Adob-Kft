@@ -56,6 +56,7 @@ class Product extends Model implements HasMedia
     'og_data'   => 'array',
     'meta_data' => 'array',
     'price'     => 'integer',
+    'is_active' => 'boolean'
   ];
 
   /** The model's default values for attributes.
@@ -139,6 +140,20 @@ class Product extends Model implements HasMedia
     return $result;
   }
 
+  public function setIsActiveAttribute($attribute)
+  {
+    if ($attribute == true) {
+      $this->status = BasicStatus::Active;
+    } else {
+      $this->status = BasicStatus::Inactive;
+    }
+  }
+
+  public function getIsActiveAttribute(): bool
+  {
+    return $this->status == BasicStatus::Active;
+  }
+
   public function scopeOnlyBrand($query, Brand $brand)
   {
     return $query->whereHas('brand', function ($query) use ($brand) {
@@ -150,7 +165,6 @@ class Product extends Model implements HasMedia
   {
     return $this->belongsTo(\App\Models\Brand::class);
   }
-
 
   public function categories(): BelongsToMany
   {

@@ -58,6 +58,9 @@ class ADOBProductImportJob implements ShouldQueue
    */
   public function handle(): void
   {
+    $this->import->job = 'Termékek importálása...';
+    $this->import->save();
+    
     if ($this->to_save()) {
       $this->save_product();
     } elseif ($this->to_delete()) {

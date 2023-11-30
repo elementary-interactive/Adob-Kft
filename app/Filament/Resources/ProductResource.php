@@ -8,6 +8,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImport;
+use App\Models\Status;
 use Closure;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
@@ -16,6 +17,7 @@ use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Panel;
 use Filament\Resources\Resource;
@@ -26,6 +28,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
+use Neon\Models\Scopes\ActiveScope;
 use Neon\Models\Statuses\BasicStatus;
 
 class ProductResource extends Resource
@@ -82,7 +86,7 @@ class ProductResource extends Resource
                             ->maxLength(255),
                         Forms\Components\TextInput::make('slug')
                             ->label('URL')
-                            ->afterStateUpdated(function (Closure $set) {
+                            ->afterStateUpdated(function ($set) {
                                 $set('is_slug_changed_manually', true);
                             })
                             ->required()
@@ -94,6 +98,12 @@ class ProductResource extends Resource
                         Forms\Components\Textarea::make('packaging')
                             ->label('Csomagolás információk')
                             ->columnSpanFull(),
+                        Select::make('status')
+                            ->label('Státusz')
+                            ->required()
+                            ->reactive()
+                            ->default(Status::New)
+                            ->options(Status::class),
                         Group::make()
                             ->columns(2)
                             ->schema([
@@ -117,14 +127,19 @@ class ProductResource extends Resource
                     ->columnSpan(['lg' => 2]),
                 Section::make()
                     ->schema([
+                    // Toggle::make('is_active')
+                    //     ->label('Aktív')
+                    //     ->onIcon('heroicon-o-check-circle')
+                    //     ->onColor('success')
+                    //     ->offIcon('heroicon-o-x-circle')
+                    //     ->offColor('danger')
+                    //     ->helperText('Csak az aktív termékek jelennek meg a weboldalon!'),
                     Select::make('status')
                         ->label('Státusz')
                         ->required()
-                        ->options([
-                            BasicStatus::New->value      => 'Új',
-                            BasicStatus::Active->value   => 'Aktív',
-                            BasicStatus::Inactive->value => 'Inaktív',
-                        ]),
+                        ->reactive()
+                        ->default(Status::New)
+                        ->options(Status::class),
                     Section::make('Kapcsolatok')
                         ->description('A termék márka és katergória kapcsolatai.')
                         ->schema([
@@ -209,8 +224,18 @@ class ProductResource extends Resource
                 //     ->boolean(),
                 Tables\Columns\IconColumn::make('status')
                     ->label('Státusz')
-                    ->boolean(BasicStatus::Active->value)
-                    ->searchable(),
+                    ->icon(fn (BasicStatus $state): string => match ($state) {
+                        BasicStatus::New      => 'heroicon-o-sparkles',
+                        BasicStatus::Active   => 'heroicon-o-check-circle',
+                        BasicStatus::Inactive => 'heroicon-o-x-circle',
+                    })
+                    ->color(fn (BasicStatus $state): string => match ($state) {
+                        BasicStatus::New      => 'gray',
+                        BasicStatus::Active   => 'success',
+                        BasicStatus::Inactive => 'danger',
+                    })
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -230,6 +255,8 @@ class ProductResource extends Resource
                     ->relationship('brand', 'name')
                     ->label('Márka')
                     ->searchable(),
+                SelectFilter::make('status')
+                    ->options(Status::class),
                 Filter::make('tree')
                     ->form([
                         SelectTree::make('categories')
@@ -252,22 +279,10 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ReplicateAction::make()
-                    ->excludeAttributes(['slug'])
-                    ->mutateRecordDataUsing(function (array $data): array {
-                        /** Prepend COPY_TAG...
-                         */
-                        $data['name']        = \App\Models\Product::COPY_TAG . $data['name'];
-                        $data['slug']        = \App\Models\Product::COPY_TAG . $data['slug'];
-                        $data['product_id']  = \App\Models\Product::COPY_TAG . $data['product_id'];
-                        $data['status']      = \Neon\Models\Statuses\BasicStatus::Inactive->value;
-
-                        dd($data);
-                        return $data;
-                    })
                     ->beforeReplicaSaved(function (Product $replica): void {
-                        $replica->name = \App\Models\Product::COPY_TAG.$replica->name;
-                        $replica->slug = \App\Models\Product::COPY_TAG.$replica->slug;
-                        $replica->product_id = \App\Models\Product::COPY_TAG.$replica->product_id;
+                        $replica->name          = \App\Models\Product::COPY_TAG.$replica->name;
+                        $replica->slug          = \App\Models\Product::COPY_TAG.$replica->slug;
+                        $replica->product_id    = \App\Models\Product::COPY_TAG.$replica->product_id;
                         $replica->status = BasicStatus::Inactive->value;
                         // Runs after the record has been replicated but before it is saved to the database.
                     })
@@ -297,6 +312,7 @@ class ProductResource extends Resource
             ->databaseNotificationsPolling('30s');
     }
 
+
     public static function getRelations(): array
     {
         return [
@@ -317,6 +333,7 @@ class ProductResource extends Resource
     {
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
+                ActiveScope::class,
                 SoftDeletingScope::class,
             ]);
     }

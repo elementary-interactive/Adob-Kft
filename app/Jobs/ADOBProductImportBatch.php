@@ -132,6 +132,7 @@ class ADOBProductImportBatch implements ShouldQueue
       /** Getting informaion from $batch
        */
       $_import->finished_at   = now();
+      $_import->job           = 'Kész.';
       $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
       $_import->save();
 
@@ -145,6 +146,9 @@ class ADOBProductImportBatch implements ShouldQueue
 
     $batch_jobs[] = Bus::batch($import_images)
       ->then(function (Batch $batch) use ($_import) {
+        $_import->job           = 'Kész.';
+        $_import->save();
+        
         Notification::make()
           ->title('Importálás folyamata...')
           ->body('Képek importálása sikeres!')
