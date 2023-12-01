@@ -199,7 +199,7 @@ class ProductImportResource extends Resource
                     ->icon('heroicon-o-arrow-down-on-square')
                     ->iconPosition(IconPosition::Before)
                     ->getStateUsing(function (ProductImport $record) {
-                        return '<a href="'.Storage::url($record->file).'" target="_blank">'.$record->file.'</a>';
+                        return '<a href="'.Storage::url($record->file).'" target="_blank">'.substr($record->file, 13).'</a>';
                     })
                     ->html()
                     ->size(Tables\Columns\TextColumn\TextColumnSize::ExtraSmall)
