@@ -293,7 +293,7 @@ class ProductResource extends Resource
                     ]))
                     ->successNotificationTitle('Termék sikeresen duplikálva.'),
                 Tables\Actions\EditAction::make(),
-
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
