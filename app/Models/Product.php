@@ -96,6 +96,10 @@ class Product extends Model implements HasMedia
     static::saved(function ($model) {
       // CountBrandCategoryProducts::dispatch();
     });
+
+    static::deleting(function($model) {
+      $model->categories()->detach();
+    });
   }
 
   public function registerMediaCollections(): void
