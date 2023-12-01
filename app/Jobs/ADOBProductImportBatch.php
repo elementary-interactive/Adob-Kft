@@ -161,19 +161,18 @@ class ADOBProductImportBatch implements ShouldQueue
       ->catch(function (Throwable $e) use ($_import) {
         if (!$_import->finished_at)
         { //- We don't care about picture issues, so after it's finished, we became good girl and swallow all of our "fails".
-          $_import->imported_by->notify(
-            /** Uups...
-             */
-            Notification::make()
-              ->title('Importálás folyamata...')
-              ->body('Hiba: ' . $e->getMessage())
-              ->danger()
-              ->toDatabase()
-          );
           $_import->fails_counter++;
           $_import->status = 'failed';
           $_import->job = 'Hiba: ' . $e->getMessage();
           $_import->save();
+
+          /** Uups...
+           */
+          Notification::make()
+            ->title('Importálás folyamata...')
+            ->body('Hiba: ' . $e->getMessage())
+            ->danger()
+            ->sendToDatabase($_import->imported_by);
         }
       })
       ->onQueue('default')
