@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductImportResource\Pages;
 use App\Filament\Resources\ProductImportResource\RelationManagers;
+use App\Jobs\ADOBProductImportBatch;
 use App\Models\ProductImport;
 use App\Tables\Columns\ProgressColumn;
 use Filament\Forms;
@@ -223,6 +224,12 @@ class ProductImportResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('restart')
+                    ->label('Újra')
+                    ->icon('heroicon-o-arrow-path')
+                    ->requiresConfirmation()
+                    ->color('warning')
+                    ->action(fn (ProductImport $record) => ADOBProductImportBatch::dispatch($record)),
                 // Tables\Actions\EditAction::make(),
             ])
             // ->bulkActions([

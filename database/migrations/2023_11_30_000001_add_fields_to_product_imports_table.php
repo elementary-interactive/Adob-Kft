@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('product_imports', function (Blueprint $table) {
-            $table->uuid('job')
+            $table->text('job')
                 ->nullable()
                 ->default(null)
                 ->after('data');
