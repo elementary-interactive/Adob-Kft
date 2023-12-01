@@ -260,6 +260,7 @@ class ProductResource extends Resource
                     ->label('Státusz')
                     ->searchable(),
                 Filter::make('tree')
+                    ->label('Kategória')
                     ->form([
                         SelectTree::make('categories')
                             ->relationship('categories', 'name', 'parent_id')
