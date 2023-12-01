@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Excel;
 use Filament\Notifications;
 use Filament\Panel;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ListProducts extends ListRecords
 {
@@ -38,9 +39,14 @@ class ListProducts extends ListRecords
                         ->required(),
                     Forms\Components\FileUpload::make('file')
                         ->label('Excel fájl')
+                        ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
                         ->required()
                         ->disk(config('filesystems.default'))
                         ->directory('imports')
+                        ->getUploadedFileNameForStorageUsing(
+                            fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                                ->prepend(substr(str_shuffle(str_repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 5)), 0, 5)),
+                        )
                         ->visibility('private')
                 ])
                 ->action(function (array $data, array $arguments): void {
