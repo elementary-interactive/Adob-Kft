@@ -15,7 +15,7 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('edit')
+            Actions\Action::make('index')
                 ->label('Vissza')
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
