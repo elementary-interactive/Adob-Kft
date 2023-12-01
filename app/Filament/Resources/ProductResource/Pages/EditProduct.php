@@ -17,8 +17,13 @@ class EditProduct extends EditRecord
         return [
             Actions\Action::make('edit')
                 ->label('Vissza')
+                ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
                 ->url(fn (): string => route('filament.admin2.resources.products.index')),
+            Actions\Action::make('save')
+                ->label('Mentés')
+                ->action(fn () => $this->record->save())
+                ->successRedirectUrl(fn (): string => route('filament.admin2.resources.products.index')),
             Actions\ReplicateAction::make()
                 ->beforeReplicaSaved(function (Product $replica): void {
                     $replica->name = Product::COPY_TAG . $replica->name;
@@ -34,9 +39,6 @@ class EditProduct extends EditRecord
             Actions\DeleteAction::make(),
             Actions\ForceDeleteAction::make(),
             Actions\RestoreAction::make(),
-            Actions\Action::make('save')
-                ->label('Mentés')
-                ->action(fn () => $this->record->save())
         ];
     }
 

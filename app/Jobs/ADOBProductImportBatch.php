@@ -148,7 +148,7 @@ class ADOBProductImportBatch implements ShouldQueue
       ->then(function (Batch $batch) use ($_import) {
         $_import->job           = 'Kész.';
         $_import->save();
-        
+
         Notification::make()
           ->title('Importálás folyamata...')
           ->body('Képek importálása sikeres!')
@@ -172,6 +172,7 @@ class ADOBProductImportBatch implements ShouldQueue
           );
           $_import->fails_counter++;
           $_import->status = 'failed';
+          $_import->job = 'Hiba: ' . $e->getMessage();
           $_import->save();
         }
       })
