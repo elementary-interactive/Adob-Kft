@@ -176,7 +176,6 @@ class ADOBProductImportBatch implements ShouldQueue
           $_import->save();
         }
       })
-      ->onConnection('redis')
       ->onQueue('default')
       ->dispatch();
 
