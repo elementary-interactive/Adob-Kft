@@ -93,8 +93,7 @@ class ProductResource extends Resource
                             ->maxLength(255),
                         Forms\Components\RichEditor::make('description')
                             ->label('Leírás')
-                            ->columnSpanFull()
-                            ->required(),
+                            ->columnSpanFull(),
                         Forms\Components\Textarea::make('packaging')
                             ->label('Csomagolás információk')
                             ->columnSpanFull(),
