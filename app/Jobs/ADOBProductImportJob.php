@@ -121,6 +121,9 @@ class ADOBProductImportJob implements ShouldQueue
 
     $product = Product::firstOrNew([
       'product_id' => $this->record[$this->columns::PRODUCT_ID->value]
+    ])
+      ->withoutGlobalScopes([
+        ActiveScope::class,
     ]);
     $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product importing...', [
       'import'  => $this->import->id
