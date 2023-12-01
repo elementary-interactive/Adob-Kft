@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductImportResource extends Resource
 {
@@ -42,29 +43,33 @@ class ProductImportResource extends Resource
                     Forms\Components\Select::make('imported_by_id')
                     ->relationship('imported_by', 'name'),
                 Forms\Components\TextInput::make('records_counter')
+                    ->label('Rekordok száma')
                     ->required()
                     ->numeric()
                     ->default(0),
-                Forms\Components\TextInput::make('products_inserted')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('products_modified')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('brands_inserted')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('brands_modified')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('categories_inserted')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('categories_modified')
-                    ->required()
-                    ->numeric(),
+                // Forms\Components\TextInput::make('products_inserted')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('products_modified')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('brands_inserted')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('brands_modified')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('categories_inserted')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('categories_modified')
+                //     ->required()
+                //     ->numeric(),
                 Forms\Components\TextInput::make('fails_counter')
+                    ->label('Hibák száma')
                     ->numeric(),
+                Forms\Components\Textarea::make('job')
+                    ->label('Státusz/Hibaüzenet'),
                 Forms\Components\TextInput::make('status')
                     ->maxLength(255),
                 Forms\Components\Textarea::make('data')
@@ -166,7 +171,7 @@ class ProductImportResource extends Resource
                     ->getStateUsing(function (ProductImport $record) {
                         return $record->records_counter.'/'.($record->products_inserted + $record->products_modified).' termék, '.($record->categories_inserted + $record->categories_modified).' kategória, '.($record->brands_inserted + $record->brands_modified).' márka';
                     })
-                    ->description(fn (ProductImport $record): string => $record->job ?: ''),
+                    ->description(fn (ProductImport $record): string => Str::limit($record->job, 50) ?: ''),
                 // Tables\Columns\TextColumn::make('batch_id')
                 //     ->searchable(),
                 // Tables\Columns\TextColumn::make('records_statistics')
