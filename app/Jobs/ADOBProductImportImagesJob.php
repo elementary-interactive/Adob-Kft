@@ -90,7 +90,7 @@ class ADOBProductImportImagesJob implements ShouldQueue
 
       $__images = explode(';', $this->record[$this->columns::IMAGES->value]);
 
-      dump($__images);
+      // dump($__images);
 
       $images   = array();
       $index    = 0;
@@ -106,14 +106,13 @@ class ADOBProductImportImagesJob implements ShouldQueue
         }
       }
 
-      dump($images);
+      // dump($images);
       if (!empty($images)) {
         foreach ($product->getMedia(Product::MEDIA_COLLECTION) as $media) {
           $media->delete();
         }
 
         foreach ($images as $string) {
-          dump($string);
           if (Str::startsWith($string, 'data:image/')) { //- base64 image
             $product
               ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
@@ -121,7 +120,9 @@ class ADOBProductImportImagesJob implements ShouldQueue
           }
 
           if (Str::startsWith($string, 'http')) { //- http image
-            $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product image check: ' . $string);
+            $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product image check: ' . $string, [
+              'import'  =>  $this->import->id
+            ]);
 
             try {
               $media = $product
@@ -130,8 +131,10 @@ class ADOBProductImportImagesJob implements ShouldQueue
                 ->toMediaCollection(Product::MEDIA_COLLECTION);
               $media->save();
             } catch (\Exception $e) {
-              dump($e->getMessage());
-              $this->logger->error($this->record[$this->columns::PRODUCT_ID->value] . ' product image error: ' . $string . ' (' . $e->getMessage() . ')');
+              // dump($e->getMessage());
+              $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product image error: ' . $string . ' (' . $e->getMessage() . ')', [
+                'import'  =>  $this->import->id
+              ]);
             }
           }
         }

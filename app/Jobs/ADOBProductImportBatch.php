@@ -129,12 +129,12 @@ class ADOBProductImportBatch implements ShouldQueue
     $batch_jobs[] = new \App\Jobs\CountBrandCategoryProducts($_import);
 
     $batch_jobs[] = function () use ($_import) {
-      /** Getting informaion from $batch
-       */
-      $_import->finished_at   = now();
-      $_import->job           = 'Kész.';
-      $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
-      $_import->save();
+      // /** Getting informaion from $batch
+      //  */
+      // $_import->finished_at   = now();
+      // $_import->job           = 'Kész.';
+      // $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
+      // $_import->save();
 
 
       Notification::make()
@@ -162,10 +162,10 @@ class ADOBProductImportBatch implements ShouldQueue
     $batch_jobs[] = function () use ($_import) {
       /** Getting informaion from $batch
        */
-      // $_import->finished_at   = now();
-      // $_import->job           = 'Kész.';
-      // $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
-      // $_import->save();
+      $_import->finished_at   = now();
+      $_import->job           = 'Kész.';
+      $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
+      $_import->save();
 
 
       Notification::make()
