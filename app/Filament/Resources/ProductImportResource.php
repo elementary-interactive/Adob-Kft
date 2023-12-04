@@ -281,9 +281,16 @@ class ProductImportResource extends Resource
                     ->icon('heroicon-o-arrow-path')
                     ->requiresConfirmation()
                     ->color('warning')
-                    ->action(fn (ProductImport $record) => ADOBProductImportBatch::dispatch($record)),
+                    ->action(function(ProductImport $record) {
+                        $new = ProductImport::create([
+                            'data'  => $record['data'],
+                            'file'  => $record['file'],
+                            'imported_by_id'    => $record['imported_by_id'],
+                            'satus' => 'waiting'
+                        ]);
+                        ADOBProductImportBatch::dispatch($new);
+                    }),
                 Tables\Actions\ViewAction::make(),
-                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
