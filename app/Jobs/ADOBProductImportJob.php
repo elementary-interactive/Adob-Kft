@@ -131,7 +131,7 @@ class ADOBProductImportJob implements ShouldQueue
     ]);
 
     $product->name            = $this->record[$this->columns::PRODUCT_NAME->value];
-    $product->slug            = $this->record[$this->columns::PRODUCT_ID->value] . '-' . Str::slug($this->record[$this->columns::PRODUCT_NAME->value], '-');
+    $product->slug            = Str::slug($this->record[$this->columns::PRODUCT_ID->value] . '-' .$this->record[$this->columns::PRODUCT_NAME->value], '-');
     if (array_key_exists($this->columns::PACKAGING->value, $this->record)) {
       $product->packaging       = $this->record[$this->columns::PACKAGING->value];
     }
@@ -272,7 +272,7 @@ class ADOBProductImportJob implements ShouldQueue
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header));
-
+      dd(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header, preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header));
       if ($this->record[$main_category_column]) {
         $category = Category::firstOrCreate([
           'slug'        => Str::slug($this->record[$main_category_column]),
