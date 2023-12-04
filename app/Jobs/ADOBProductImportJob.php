@@ -280,7 +280,7 @@ class ADOBProductImportJob implements ShouldQueue
         $this->record,
         $this->record[$main_category_column]
       );
-      if ($this->record[$main_category_column]) {
+      if (array_key_exists($main_category_column, $this->record) && isset($this->record[$main_category_column])) {
         $category = Category::firstOrCreate([
           'slug'        => Str::slug($this->record[$main_category_column]),
           'parent_id'   => null
