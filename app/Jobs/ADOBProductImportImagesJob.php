@@ -129,6 +129,7 @@ class ADOBProductImportImagesJob implements ShouldQueue
                 ->toMediaCollection(Product::MEDIA_COLLECTION);
               $media->save();
             } catch (\Exception $e) {
+              dump($e->getMessage());
               $this->logger->error($this->record[$this->columns::PRODUCT_ID->value] . ' product image error: ' . $string . ' (' . $e->getMessage() . ')');
             }
           }
