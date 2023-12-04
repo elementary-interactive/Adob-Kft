@@ -272,15 +272,8 @@ class ADOBProductImportJob implements ShouldQueue
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header));
-      dump(
-        ($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/",
-        $this->header,
-        preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header),
-        Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $this->header)),
-        $this->record,
-        $this->record[$main_category_column]
-      );
-      if (array_key_exists($main_category_column, $this->record) && isset($this->record[$main_category_column])) {
+
+      if (array_key_exists($main_category_column, $this->record) && isset($this->record[$main_category_column]) && !is_null($this->record[$main_category_column])) {
         $category = Category::firstOrCreate([
           'slug'        => Str::slug($this->record[$main_category_column]),
           'parent_id'   => null
