@@ -59,8 +59,6 @@ class ADOBProductImportImagesJob implements ShouldQueue
     $product = Product::where('product_id', $this->record[$this->columns::PRODUCT_ID->value])
       ->first();
 
-    dd($product, $this);
-
     if ($product) {
       $this->handle_images($product);
     }
