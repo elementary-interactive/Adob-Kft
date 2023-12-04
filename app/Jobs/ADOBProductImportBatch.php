@@ -144,18 +144,36 @@ class ADOBProductImportBatch implements ShouldQueue
         ->sendToDatabase($_import->imported_by);
     };
 
-    $batch_jobs[] = Bus::batch($import_images)
-      ->then(function (Batch $batch) use ($_import) {
-        $_import->job           = 'Kész.';
-        $_import->save();
+    // $batch_jobs[] = Bus::batch($import_images)
+    //   ->then(function (Batch $batch) use ($_import) {
+    //     $_import->job           = 'Kész.';
+    //     $_import->save();
 
-        Notification::make()
-          ->title('Importálás folyamata...')
-          ->body('Képek importálása sikeres!')
-          ->success()
-          ->sendToDatabase($_import->imported_by);
-      })
-      ->name('ADOB product import batch');
+    //     Notification::make()
+    //       ->title('Importálás folyamata...')
+    //       ->body('Képek importálása sikeres!')
+    //       ->success()
+    //       ->sendToDatabase($_import->imported_by);
+    //   })
+    //   ->name('ADOB product import batch');
+
+    $batch_jobs = array_merge($batch_jobs, $import_images);
+
+    $batch_jobs[] = function () use ($_import) {
+      /** Getting informaion from $batch
+       */
+      // $_import->finished_at   = now();
+      // $_import->job           = 'Kész.';
+      // $_import->status        = $_import->fails_counter > 0 ? 'failed' : 'finished';
+      // $_import->save();
+
+
+      Notification::make()
+        ->title('Importálás folyamata...')
+        ->body('Képek feldolgozása kész.')
+        ->success()
+        ->sendToDatabase($_import->imported_by);
+    };
 
     Bus::chain($batch_jobs)
       ->catch(function (Throwable $e) use ($_import) {
