@@ -89,6 +89,8 @@ class ADOBProductImportImagesJob implements ShouldQueue
 
       $__images = explode(';', $this->record[$this->columns::IMAGES->value]);
 
+      dump($__images);
+
       $images   = array();
       $index    = 0;
 
@@ -103,13 +105,14 @@ class ADOBProductImportImagesJob implements ShouldQueue
         }
       }
 
+      dump($images);
       if (!empty($images)) {
         foreach ($product->getMedia(Product::MEDIA_COLLECTION) as $media) {
           $media->delete();
         }
 
         foreach ($images as $string) {
-
+          dump($string);
           if (Str::startsWith($string, 'data:image/')) { //- base64 image
             $product
               ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
