@@ -65,33 +65,29 @@ class CategoryService
   {
     $slugs = Str::of($slug)->explode('/');
 
-    if ($slugs->count() == 1)
-    {
-      $category = Category::roots()
-        ->where('slug', Arr::pull($slugs, 0))
-        ->first()
-        ?->getDescendantsAndSelf();
-    } else {
-      $category = Category::roots()
-        ->where('slug', Arr::pull($slugs, 0))
-        ->first()
-        ?->getDescendants();
-    }
+    $category = Category::roots()
+      ->where('slug', Arr::pull($slugs, 0))
+      ->first();
     
     if (!$category)
     {
       abort(404);
     }
-   
+
     foreach ($slugs as $slug_item)
     {
-      $category = $category->where('slug', $slug_item)
-        ->first()
-        ->getDescendantsAndSelf();
+      $category = $category->children()
+        ->where('slug', $slug_item)
+        ->first();
+    
+      if (!$category)
+      {
+        abort(404);
+      }
     }
 
     /** Getting category... */
-    $this->category = $category->first();
+    $this->category = $category;
 
     return $this->category;
   }
