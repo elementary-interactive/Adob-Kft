@@ -114,19 +114,19 @@ class Category extends Node
   {
     $counts   = 0;
 
-    if (request()->session()->has('brand'))
-    {
-      foreach ($this->brandCounts as $counter)
-      {
-        if ($counter->brand_id == request()->session()->get('brand'))
-        {
-          $counts += $counter->counts;
-        }
-      }
-    }
+    // if (request()->session()->has('brand'))
+    // {
+    //   foreach ($this->brandCounts as $counter)
+    //   {
+    //     if ($counter->brand_id == request()->session()->get('brand'))
+    //     {
+    //       $counts += $counter->counts;
+    //     }
+    //   }
+    // }
 
-    if (!$counts)
-    {
+    // if (!$counts)
+    // {
       $children = $this->getDescendantsAndSelf();
 
       foreach ($children as $child)
@@ -143,7 +143,7 @@ class Category extends Node
           $counts += $record->counts;
         }
       }
-    }
+    // }
 
     return $counts;
   }
