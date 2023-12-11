@@ -103,8 +103,7 @@ class ListProducts extends ListRecords
             Actions\Action::make('ADOB_batch_export')
                 ->label('Exportálás')
                 ->icon('heroicon-o-arrow-up-tray')
-                ->url(function (): string {
-                    $result = '';
+                ->action(function () {
 
                     /** The name of the file to export data into...
                      * @var string
@@ -133,15 +132,12 @@ class ListProducts extends ListRecords
                                         'filename' => encrypt($file),
                                     ]))
                             ])
-                            ->send();
-                            // ->sendToDatabase(auth()->user());
-                            $result = URL::temporarySignedRoute('export.download', now()->addDays(7), [
+                            ->sendToDatabase(auth()->user());
+                            return redirect()->to(URL::temporarySignedRoute('export.download', now()->addDays(7), [
                                 'path'     => encrypt('exports/'.$file),
                                 'filename' => encrypt($file),
-                            ]);
+                            ]));
                     }
-
-                    return $result;
                 }),
         ];
     }
