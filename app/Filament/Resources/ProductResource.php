@@ -34,13 +34,6 @@ use Illuminate\Support\Str;
 use Neon\Models\Scopes\ActiveScope;
 use Neon\Models\Statuses\BasicStatus;
 
-// /**
-//  * Whhoooo!!! Be careful!!!
-//  **/
-ini_set('max_execution_time', 1200);
-// ini_set('memory_limit', '4000M');
-set_time_limit(1200);
-
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
