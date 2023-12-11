@@ -110,7 +110,7 @@ class ListProducts extends ListRecords
                      */
                     $file = 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
 
-                    $response = Excel::store((new ADOBProductsExport(auth()->user(), null)), 'exports/'.$file);
+                    $response = Excel::store((new ADOBProductsExport(auth()->user(), null)), 'exports/'.$file, config('filesystem.default', 'local'), \Maatwebsite\Excel\Excel::XLSX);
 
                     if (!$response) {//- instanceof BinaryFileResponse || $response->isInvalid()) {
                         Notification::make()
