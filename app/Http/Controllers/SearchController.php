@@ -16,6 +16,7 @@ class SearchController extends Controller
     public function search(LinkService $page_service, Request $request)
     {
         $page       = $page_service->static('search');
+        $page->title = 'Keresés';
 
         $this->validate($request, [
             'query' => 'required|max:255'
