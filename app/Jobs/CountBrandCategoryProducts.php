@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
+use Ramsey\Uuid\Uuid;
 
 class CountBrandCategoryProducts implements ShouldQueue, ShouldBeUnique
 {
@@ -26,7 +27,7 @@ class CountBrandCategoryProducts implements ShouldQueue, ShouldBeUnique
    * Create a new job instance.
    */
   public function __construct(
-    protected ProductImport $import
+    protected ProductImport|null $import = null
   ) {
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
@@ -37,7 +38,7 @@ class CountBrandCategoryProducts implements ShouldQueue, ShouldBeUnique
    */
   public function uniqueId(): string
   {
-    return $this->import->id;
+    return $this->import?->id ?: Uuid::uuid4();
   }
 
   /**
@@ -47,7 +48,9 @@ class CountBrandCategoryProducts implements ShouldQueue, ShouldBeUnique
    */
   public function middleware(): array
   {
-    return [new WithoutOverlapping($this->import->id)];
+    if ($this->import) {
+      return [new WithoutOverlapping($this->import->id)];
+    }
   }
 
   /**
@@ -81,17 +84,20 @@ class CountBrandCategoryProducts implements ShouldQueue, ShouldBeUnique
 
       // DB::commit();
 
-      $this->logger->info('Brand category count done.', [
-        'import'  => $this->import->id,
-      ]);
+      if ($this->import) {
+        $this->logger->info('Brand category count done.', [
+          'import'  => $this->import->id,
+        ]);
+      }
 
       //   $this->info('Counters updated successfully!');
     } catch (\Throwable $e) {
       // DB::rollback();
-
-      $this->logger->error('Brand category count error: ' . $e->getMessage(), [
-        'import'  => $this->import->id,
-      ]);
+      if ($this->import) {
+        $this->logger->error('Brand category count error: ' . $e->getMessage(), [
+          'import'  => $this->import->id,
+        ]);
+      }
       //   $this->error('Fuck.');
     }
   }
