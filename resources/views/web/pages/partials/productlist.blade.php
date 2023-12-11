@@ -36,6 +36,7 @@
                             <a href="{{ route('product.show', [
                                 'slug' => $product->slug,
                             ]) }}"><img
+                                    height="100"
                                     alt=""
                                     src="{{ $product->getFirstMediaUrl(\App\Models\Product::MEDIA_COLLECTION, 'thumb') }}"></a>
                         </td>

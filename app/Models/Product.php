@@ -111,22 +111,34 @@ class Product extends Model implements HasMedia
   public function registerMediaConversions(Media $media = null): void
   {
     $this->addMediaConversion('thumb')
-      ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
+      ->height(100)
+      ->fit(Manipulations::FIT_MAX, 100, 100)
+      ->optimize()
+      // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
       ->queued();
 
     $this->addMediaConversion('medium')
-      ->setManipulations(['h' => 600, 'fit' => 'max'])
+      ->height(600)
+      ->fit(Manipulations::FIT_MAX, 600, 600)
+      ->optimize()
+      // ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
       ->queued();
 
     $this->addMediaConversion('thumb')
-      ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
+      ->height(100)
+      ->fit(Manipulations::FIT_MAX, 100, 100)
+      ->optimize()
+      // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_MAIN)
       ->queued();
 
     $this->addMediaConversion('medium')
-      ->setManipulations(['h' => 600, 'fit' => 'max'])
+      ->height(600)
+      ->fit(Manipulations::FIT_MAX, 600, 600)
+      ->optimize()
+      // ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_MAIN)
       ->queued();
   }

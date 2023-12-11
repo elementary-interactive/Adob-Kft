@@ -45,7 +45,7 @@
                         <ul class="splide__list">
                             @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                                 <li class="splide__slide">
-                                    <img src="{{ $media->getUrl('medium') }}" alt="">
+                                    <img src="{{ $media->getUrl('medium') }}" height="600" alt="">
                                 </li>
                             @empty
                                 <li class="splide__slide">
@@ -57,7 +57,7 @@
                 <ul id="thumbnails" class="thumbnails">
                     @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                         <li class="thumbnail">
-                            <img src="{{ $media->getUrl('thumb') }}" alt="">
+                            <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
                         </li>
                     @empty
                         <li class="thumbnail">

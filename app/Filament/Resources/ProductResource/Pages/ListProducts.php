@@ -100,10 +100,10 @@ class ListProducts extends ListRecords
                     }
                 }),
                 // ->slideOver(),
-            Actions\Action::make('ADOB_batch_export')
+            Actions\Action::make('ADOB_export')
                 ->label('Exportálás')
                 ->icon('heroicon-o-arrow-up-tray')
-                ->action(function () {
+                ->action(function (): void {
 
                     /** The name of the file to export data into...
                      * @var string
@@ -133,10 +133,10 @@ class ListProducts extends ListRecords
                                     ]))
                             ])
                             ->sendToDatabase(auth()->user());
-                            return redirect()->to(URL::temporarySignedRoute('export.download', now()->addDays(7), [
-                                'path'     => encrypt('exports/'.$file),
-                                'filename' => encrypt($file),
-                            ]));
+                            // return redirect()->to(URL::temporarySignedRoute('export.download', now()->addDays(7), [
+                            //     'path'     => encrypt('exports/'.$file),
+                            //     'filename' => encrypt($file),
+                            // ]));
                     }
                 }),
         ];
