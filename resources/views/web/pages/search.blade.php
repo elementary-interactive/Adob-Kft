@@ -1,6 +1,6 @@
 @extends('web.layouts.default')
 
-@section('title', $page->title.' / '.$search_term)
+@section('title', $page->title.': '.$search_term)
 
 @push('og')
   @include('web.layouts.head.og', ['og' => [
