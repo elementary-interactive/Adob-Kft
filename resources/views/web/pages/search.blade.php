@@ -1,10 +1,10 @@
 @extends('web.layouts.default')
 
-@section('title', __('meta.impressum.title'))
+@section('title', $page->title.' / '.$search_term)
 
 @push('og')
   @include('web.layouts.head.og', ['og' => [
-      'title'             => __('meta.impressum.title'),
+      'title'             => $page->title.': '.$search_term,
       'description'       =>  __('meta.impressum.description'),
       'type'              => 'info-page',
       'url'               => \Request::url()
@@ -19,7 +19,7 @@
   <div class="container-fluid search-container">
     <div class="row">
       <div class="col-12">
-        <div class="page-header"><h1>Keresés: <small>{{ $search_term }}</small></h1></div>
+        <div class="page-header"><h1>{{ $page->title }}: <small>{{ $search_term }}</small></h1></div>
         <div class="accordion" id="accordionExample">
           <div class="accordion-item">
             <h2 class="accordion-header">
