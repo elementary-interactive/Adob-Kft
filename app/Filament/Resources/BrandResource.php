@@ -5,15 +5,20 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BrandResource\Pages;
 use App\Filament\Resources\BrandResource\RelationManagers;
 use App\Models\Brand;
+use App\Models\Status;
 use Closure;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
+use Neon\Models\Scopes\ActiveScope;
+use Neon\Models\Statuses\BasicStatus;
 
 class BrandResource extends Resource
 {
@@ -55,6 +60,7 @@ class BrandResource extends Resource
                     ->required(),
                 Forms\Components\Toggle::make('is_featured')
                     ->required(),
+
                 Forms\Components\Hidden::make('is_slug_changed_manually')
                     ->default(false)
                     ->dehydrated(false),
@@ -80,6 +86,20 @@ class BrandResource extends Resource
                     ->label('Kiemelt?')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\IconColumn::make('status')
+                    ->label('Státusz')
+                    ->icon(fn (BasicStatus $state): string => match ($state) {
+                        BasicStatus::New      => 'heroicon-o-sparkles',
+                        BasicStatus::Active   => 'heroicon-o-check-circle',
+                        BasicStatus::Inactive => 'heroicon-o-x-circle',
+                    })
+                    ->color(fn (BasicStatus $state): string => match ($state) {
+                        BasicStatus::New      => 'gray',
+                        BasicStatus::Active   => 'success',
+                        BasicStatus::Inactive => 'danger',
+                    })
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Létrehozva')
                     ->dateTime()
@@ -98,15 +118,36 @@ class BrandResource extends Resource
                 //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('status')
+                    ->options(Status::class)
+                    ->label('Státusz')
+                    ->searchable(),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\Action::make('link')
+                    ->label('Link')
+                    ->icon('heroicon-o-link')
+                    ->url(fn (Brand $record): string => route('brands.browse', ['brand' => $record->slug]))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
+                Tables\Actions\BulkAction::make('activate')
+                    ->label('Márkák aktiválása')
+                    ->action(fn (Collection $records) => $records->each->activate())
+                    ->deselectRecordsAfterCompletion()
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle'),
+                Tables\Actions\BulkAction::make('inactivate')
+                    ->label('Márkák inaktiválása')
+                    ->action(fn (Collection $records) => $records->each->inactivate())
+                    ->deselectRecordsAfterCompletion()
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle'),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
@@ -126,6 +167,7 @@ class BrandResource extends Resource
     {
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
+                ActiveScope::class,
                 SoftDeletingScope::class,
             ]);
     }

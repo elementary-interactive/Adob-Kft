@@ -13,6 +13,7 @@ use Closure;
 use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -27,6 +28,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Neon\Models\Scopes\ActiveScope;
@@ -97,12 +99,43 @@ class ProductResource extends Resource
                         Forms\Components\Textarea::make('packaging')
                             ->label('Csomagolás információk')
                             ->columnSpanFull(),
-                        // Select::make('status')
-                        //     ->label('Státusz')
-                        //     ->required()
-                        //     ->reactive()
-                        //     ->default(Status::New)
-                        //     ->options(Status::class),
+                        Select::make('status')
+                            ->label('Státusz')
+                            ->required()
+                            ->reactive()
+                            ->default(Status::New)
+                            ->options(Status::class),
+                        Fieldset::make()
+                            ->label('Kapcsolatok')
+                            // ->description('A termék márka és katergória kapcsolatai.')
+                            ->schema([
+                                Forms\Components\Select::make('brand_id')
+                                    ->label('Márka')
+                                    ->required()
+                                    ->relationship('brand', 'name')
+                                    ->columnSpan([
+                                        'sm' => 2,
+                                        'xl' => 3,
+                                        '2xl' => 4,
+                                    ]),
+                                SelectTree::make('categories')
+                                    ->label('Kategóriák')
+                                    ->required()
+                                    ->relationship('categories', 'name', 'parent_id', function ($query) {
+                                        return $query;
+                                    })
+                                    ->withCount()
+                                    ->independent(true)
+                                    ->expandSelected(true)
+                                    ->enableBranchNode()
+                                    // ->alwaysOpen(true)
+                                    ->searchable()
+                                    ->columnSpan([
+                                        'sm' => 2,
+                                        'xl' => 3,
+                                        '2xl' => 4,
+                                    ]),
+                                ]),
                         Group::make()
                             ->columns(2)
                             ->schema([
@@ -122,56 +155,8 @@ class ProductResource extends Resource
                         Forms\Components\Hidden::make('is_slug_changed_manually')
                             ->default(false)
                             ->dehydrated(false),
+                        ]),
                     ])
-                    ->columnSpan(['lg' => 2]),
-                Section::make()
-                    ->schema([
-                    // Toggle::make('is_active')
-                    //     ->label('Aktív')
-                    //     ->onIcon('heroicon-o-check-circle')
-                    //     ->onColor('success')
-                    //     ->offIcon('heroicon-o-x-circle')
-                    //     ->offColor('danger')
-                    //     ->helperText('Csak az aktív termékek jelennek meg a weboldalon!'),
-                    Select::make('status')
-                        ->label('Státusz')
-                        ->required()
-                        ->reactive()
-                        ->default(Status::New)
-                        ->options(Status::class),
-                    Section::make('Kapcsolatok')
-                        ->description('A termék márka és katergória kapcsolatai.')
-                        ->schema([
-                            Forms\Components\Select::make('brand_id')
-                                ->label('Márka')
-                                ->required()
-                                ->relationship('brand', 'name')
-                                ->columnSpan([
-                                    'sm' => 2,
-                                    'xl' => 3,
-                                    '2xl' => 4,
-                                ]),
-                            SelectTree::make('categories')
-                                ->label('Kategóriák')
-                                ->required()
-                                ->relationship('categories', 'name', 'parent_id', function ($query) {
-                                    return $query;
-                                })
-                                ->withCount()
-                                ->independent(true)
-                                ->expandSelected(true)
-                                ->enableBranchNode()
-                                // ->alwaysOpen(true)
-                                ->searchable()
-                                ->columnSpan([
-                                    'sm' => 2,
-                                    'xl' => 3,
-                                    '2xl' => 4,
-                                ]),
-                        ])
-                    ])
-                    ->columnSpan(['lg' => 1])
-            ])
             ->columns(3);
     }
 
@@ -193,8 +178,8 @@ class ProductResource extends Resource
                     ->icon('heroicon-o-clipboard-document-check')
                     ->iconPosition(IconPosition::After)
                     ->copyable()
-                    ->copyMessage('Termék URL a vágólapra másolva!')
-                    ->copyableState(fn (Product $record): string => route('product.show', ['slug' => $record->slug])),
+                    ->copyMessage('Termék URL a vágólapra másolva!'),
+                    // ->copyableState(fn (Product $record): string => route('product.show', ['slug' => $record->slug])),
                 Tables\Columns\ImageColumn::make('images')
                     ->label('Képek')
                     ->circular()
@@ -280,7 +265,12 @@ class ProductResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ReplicateAction::make()
+                Tables\Actions\Action::make('link')
+                    ->label('Link')
+                    ->icon('heroicon-o-link')
+                    ->url(fn (Product $record): string => route('product.show', ['slug' => $record->slug]))
+                    ->openUrlInNewTab(),
+                Tables\Actions\ReplicateAction::make('replica')
                     ->beforeReplicaSaved(function (Product $replica): void {
                         $replica->name          = \App\Models\Product::COPY_TAG.$replica->name;
                         $replica->slug          = \App\Models\Product::COPY_TAG.$replica->slug;
@@ -296,6 +286,18 @@ class ProductResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
+                Tables\Actions\BulkAction::make('activate')
+                    ->label('Termékek aktiválása')
+                    ->action(fn (Collection $records) => $records->each->activate())
+                    ->deselectRecordsAfterCompletion()
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle'),
+                Tables\Actions\BulkAction::make('inactivate')
+                    ->label('Termékek inaktiválása')
+                    ->action(fn (Collection $records) => $records->each->inactivate())
+                    ->deselectRecordsAfterCompletion()
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle'),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),

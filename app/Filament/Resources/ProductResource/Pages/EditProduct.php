@@ -20,6 +20,12 @@ class EditProduct extends EditRecord
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
                 ->url(fn (): string => route('filament.admin2.resources.products.index')),
+            Actions\Action::make('link')
+                ->label('Link')
+                ->color('gray')
+                ->icon('heroicon-o-link')
+                ->url(fn (Product $record): string => route('product.show', ['slug' => $record->slug]))
+                ->openUrlInNewTab(),
             Actions\Action::make('save')
                 ->label('Mentés')
                 ->action(fn () => $this->record->save())

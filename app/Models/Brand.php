@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Neon\Models\Traits\Uuid;
-use App\Jobs\CountBrandCategoryProducts;
+use Neon\Models\Traits\Statusable;
 
 class Brand extends Model
 {
     use SoftDeletes;
+    use Statusable;
     use Uuid;
 
     /**
@@ -19,7 +20,7 @@ class Brand extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'slug'
+        'name', 'slug', 'status'
     ];
 
     /** The attributes that should be handled as date or datetime.

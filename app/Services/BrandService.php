@@ -27,12 +27,12 @@ class BrandService
 
   public function getFeaturedBrands()
   {
-    return Brand::where('is_featured', 1)->get();
+    return Brand::where('is_featured', 1)->orderBy('name', 'asc')->get();
   }
 
   public function getBrands()
   {
-    return Brand::where('is_featured', 0)->get();
+    return Brand::where('is_featured', 0)->orderBy('name', 'asc')->get();
   }
 
   public function find($id)

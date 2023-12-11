@@ -18,7 +18,7 @@ class SearchController extends Controller
         $page       = $page_service->static('search');
 
         $this->validate($request, [
-            'query' => 'required|alpha_dash|max:255'
+            'query' => 'required|max:255'
         ]);
 
         $search_term = $request->input('query');
