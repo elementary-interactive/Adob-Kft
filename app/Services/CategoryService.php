@@ -58,7 +58,7 @@ class CategoryService
       $roots = collect($roots);
     }
 
-    return $roots;
+    return $roots->sortBy('name');
   }
 
   public function findBySlug($slug): Category
@@ -114,7 +114,7 @@ class CategoryService
         $categories = Category::onlyBrand($brand)->get();
         foreach ($categories as $category)
         {
-          $ancestors = $category->getAncestorsAndSelf();
+          $ancestors = $category->getAncestorsAndSelf()->orderBy('name', 'asc');
   
           foreach ($ancestors as $ancestor)
           {
@@ -127,7 +127,7 @@ class CategoryService
         $children = collect($children);
     }
 
-    return $children;
+    return $children->sortBy('name');
   }
 
   public function getProducts(Brand $brand = null)
