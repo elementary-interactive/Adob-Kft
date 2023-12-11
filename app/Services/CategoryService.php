@@ -110,7 +110,7 @@ class CategoryService
         $categories = Category::onlyBrand($brand)->get();
         foreach ($categories as $category)
         {
-          $ancestors = $category->getAncestorsAndSelf()->orderBy('name', 'asc');
+          $ancestors = $category->getAncestorsAndSelf()->sortBy('name');
   
           foreach ($ancestors as $ancestor)
           {
