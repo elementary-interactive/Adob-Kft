@@ -34,20 +34,18 @@ class DownloadController extends Controller
             'filename' => 'required',
         ]);
 
-        $decryptedPath = decrypt($data['path']);
+        // if (config('filesystem.default')) {
+            // app()->terminating(function () use ($decryptedPath) {
+            //     Storage::disk(config('filesystem.default'))->delete($decryptedPath);
+            // });
 
-        if (config('filesystem.default')) {
-            app()->terminating(function () use ($decryptedPath) {
-                Storage::disk(config('filesystem.default'))->delete($decryptedPath);
-            });
-
-            return Storage::disk(config('filesystem.default'))
-                ->download($decryptedPath, $data['filename']);
-        } else {
-            return $response->download(
-                decrypt($data['path']),
-                $data['filename']
-            )->deleteFileAfterSend($shouldDelete = true);
-        }
+            return Storage::disk(config('filesystem.default', 'local'))
+                ->download(decrypt($data['path']), decrypt($data['filename']));
+        // } else {
+        //     return $response->download(
+        //         decrypt($data['path']), //decrypt($data['path']),
+        //         decrypt($data['filename'])
+        //     );//->deleteFileAfterSend($shouldDelete = true);
+        // }
     }
 }

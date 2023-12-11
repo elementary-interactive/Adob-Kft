@@ -139,7 +139,7 @@ class ADOBProductImportBatch implements ShouldQueue
 
       Notification::make()
         ->title('Importálás folyamata...')
-        ->body(($_import->fails_counter > 0) ? 'Végeztünk' : 'Sikeresen végeztünk!')
+        ->body((($_import->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A termékek mostmár elérhetők a weben. A képek importálása még folyamatban.')
         ->success()
         ->sendToDatabase($_import->imported_by);
     };

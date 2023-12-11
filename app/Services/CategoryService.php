@@ -132,7 +132,7 @@ class CategoryService
 
   public function getProducts(Brand $brand = null)
   {
-    $products = $this->category->products()->orderByPivot("order");
+    $products = $this->category->products()->orderBy('name', 'asc'); //->orderByPivot("order");
 
     if ($brand)
     {
@@ -176,9 +176,12 @@ class CategoryService
   {
     $slugs = [];
     $categories = $product->categories()->where('is_main', true)->first()?->getAncestorsAndSelf();
-    foreach ($categories as $category)
+    if ($categories)
     {
-      $slugs[] = $category->slug;
+      foreach ($categories as $category)
+      {
+        $slugs[] = $category->slug;
+      }
     }
 
     return Arr::join($slugs, '/');
