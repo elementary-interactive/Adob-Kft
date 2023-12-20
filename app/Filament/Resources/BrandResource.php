@@ -59,6 +59,7 @@ class BrandResource extends Resource
                     })
                     ->required(),
                 Forms\Components\Toggle::make('is_featured')
+                    ->label('Kiemelt?')
                     ->required(),
 
                 Forms\Components\Hidden::make('is_slug_changed_manually')
