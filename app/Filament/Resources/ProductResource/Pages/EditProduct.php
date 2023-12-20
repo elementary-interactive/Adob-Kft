@@ -28,7 +28,7 @@ class EditProduct extends EditRecord
                 ->openUrlInNewTab(),
             Actions\Action::make('save')
                 ->label('Mentés')
-                ->action(fn () => $this->record->save())
+                ->action('save')
                 ->successRedirectUrl(fn (): string => route('filament.admin2.resources.products.index')),
             Actions\ReplicateAction::make()
                 ->beforeReplicaSaved(function (Product $replica): void {
