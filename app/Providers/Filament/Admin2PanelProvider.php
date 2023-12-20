@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Http\Middleware\TrustHosts;
 use App\Http\Middleware\TrustProxies;
+use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
 use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -45,6 +46,9 @@ class Admin2PanelProvider extends PanelProvider
             ->pages([
                 \App\Filament\Pages\Dashboard::class,
             ])
+            ->plugins([
+                StickyHeaderPlugin::make(),
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->databaseNotifications()
             ->middleware([
@@ -64,6 +68,7 @@ class Admin2PanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->viteTheme('resources/css/filament/admin2/theme.css')
-            ->authGuard('admin'); // Using admin guard.
+            ->authGuard('admin') // Using admin guard.
+            ->sidebarFullyCollapsibleOnDesktop();
     }
 }
