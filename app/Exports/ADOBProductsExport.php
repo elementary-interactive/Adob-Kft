@@ -131,7 +131,7 @@ class ADOBProductsExport implements FromCollection, WithHeadingRow, WithEvents /
         implode(', ', $paths), // PRODUCT_CATEGORIES
         route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
         $media->count(), // IMAGE_COUNT
-        implode('; ', $sizes), // IMAGE_SIZES
+        implode(';', $sizes), // IMAGE_SIZES
         ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
         implode('; ', $urls), // IMAGE_LINKS
         strip_tags($product->description), // PRODUCT_DESCRIPTION
