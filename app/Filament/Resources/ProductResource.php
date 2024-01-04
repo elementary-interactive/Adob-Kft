@@ -74,6 +74,7 @@ class ProductResource extends Resource
                             ->panelLayout('grid')
                             ->responsiveImages()
                             ->downloadable()
+                            ->previewable()
                             ->disk('public')
                             ->enableReordering(),
                         Forms\Components\TextInput::make('name')
@@ -186,7 +187,6 @@ class ProductResource extends Resource
                     ->stacked()
                     ->limit(3)
                     ->limitedRemainingText(isSeparate: true)
-                    ->previewable()
                     ->toggleable(),
                     // ->extraImgAttributes(['loading' => 'lazy']),
                 Tables\Columns\TextColumn::make('brand.name')
