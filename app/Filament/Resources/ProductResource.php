@@ -186,6 +186,7 @@ class ProductResource extends Resource
                     ->stacked()
                     ->limit(3)
                     ->limitedRemainingText(isSeparate: true)
+                    ->previewable()
                     ->toggleable(),
                     // ->extraImgAttributes(['loading' => 'lazy']),
                 Tables\Columns\TextColumn::make('brand.name')
