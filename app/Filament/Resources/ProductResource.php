@@ -74,6 +74,7 @@ class ProductResource extends Resource
                             ->panelLayout('grid')
                             ->responsiveImages()
                             ->downloadable()
+                            ->previewable()
                             ->disk('public')
                             ->enableReordering(),
                         Forms\Components\TextInput::make('name')

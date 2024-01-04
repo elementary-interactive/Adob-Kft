@@ -20,6 +20,36 @@ class EditProduct extends EditRecord
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
                 ->url(fn (): string => route('filament.admin2.resources.products.index')),
+            Actions\Action::make('prev')
+                ->label(false)
+                ->color('gray')
+                ->icon('heroicon-o-chevron-double-left')
+                ->disabled(fn (Product $record): bool => ($record->prev() == null))
+                ->url(function(Product $record): string
+                {
+                    $url = '';
+
+                    if ($record->prev())
+                    {
+                        $url = route('filament.admin2.resources.products.edit', ['record' => $record->prev()]);
+                    }
+                    return $url;
+                }),
+            Actions\Action::make('next')
+                ->label(false)
+                ->color('gray')
+                ->icon('heroicon-o-chevron-double-right')
+                ->disabled(fn (Product $record): bool => ($record->next() == null))
+                ->url(function(Product $record): string
+                {
+                    $url = '';
+
+                    if ($record->next())
+                    {
+                        $url = route('filament.admin2.resources.products.edit', ['record' => $record->next()]);
+                    }
+                    return $url;
+                }),
             Actions\Action::make('link')
                 ->label('Link')
                 ->color('gray')

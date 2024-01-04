@@ -156,28 +156,25 @@ class Product extends Model implements HasMedia
     return $result;
   }
 
-  // public function setStatusAttribute($attribute)
-  // {
-  //   if (is_string($attribute))
-  //   {
-  //     switch ($attribute)
-  //     {
-  //       case BasicStatus::Active->value: 
-  //         $this->attributes['status'] = BasicStatus::Active;
-  //         break;
-  //       case BasicStatus::Inactive->value:
-  //         $this->attributes['status'] = BasicStatus::Inactive;
-  //         break;
-  //       case BasicStatus::New->value:
-  //         $this->attributes['status'] = BasicStatus::New;
-  //         break;
-  //     }
-  //   }
-  // }
-
   public function getIsActiveAttribute(): bool
   {
     return $this->status == BasicStatus::Active;
+  }
+
+  public function prev(): Product|null
+  {
+    return Product::where('product_id', '<', $this->product_id)
+      ->limit(1)
+      ->orderBy('product_id', 'asc')
+      ->first();
+  }
+
+  public function next(): Product|null
+  {
+    return Product::where('product_id', '>', $this->product_id)
+      ->limit(1)
+      ->orderBy('product_id', 'asc')
+      ->first();
   }
 
   public function scopeOnlyBrand($query, Brand $brand)
