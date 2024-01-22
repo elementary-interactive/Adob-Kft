@@ -79,8 +79,8 @@ class ProductResource extends Resource
                             ->previewable()
                             ->disk('public')
                             ->enableReordering()
-                            ->afterStateUpdated(function (Get $get, ?array $state, ?string $old, ?string $model) {
-                                
+                            ->afterStateUpdated(function (Get $get, ?array $state, ?array $old, ?string $model) {
+
                                 /** Getting the product object and attach media files.
                                  * 
                                  */
