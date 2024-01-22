@@ -80,9 +80,8 @@ class ProductResource extends Resource
                             ->disk('public')
                             ->enableReordering()
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
-				   dd($old, $state); 
-				/** Getting the product object and attach media files.
-                                 * 
+                                
+                                /** Getting the product object and attach media files. 
                                  */
                                 $obj = $model::find($get('id'));
 
