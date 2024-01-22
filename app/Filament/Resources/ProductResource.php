@@ -86,13 +86,10 @@ class ProductResource extends Resource
                                  */
                                 $obj = $model::find($get('id'));
 
-                                foreach ($state as $file)
-                                {
-                                    try {
+                                foreach ($state as $file) {
+                                    if (!is_string($file)) {
                                         $obj->addMedia($file)
                                             ->toMediaCollection($model::MEDIA_COLLECTION);
-                                    } catch (\Exception $e) {
-                                        
                                     }
                                 }
                             }),
