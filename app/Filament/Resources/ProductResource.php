@@ -20,6 +20,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Panel;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
@@ -78,8 +79,17 @@ class ProductResource extends Resource
                             ->previewable()
                             ->disk('public')
                             ->enableReordering()
-                            ->afterStateUpdated(function (?array $state, ?string $old, ?Model $model) {
-                              $model->save();
+                            ->afterStateUpdated(function (Get $get, ?array $state, ?string $old, ?string $model) {
+      
+				    $obj = $model::find($get('id'));
+				    foreach($state as $file) {
+					    dump($file);
+					    $t = $obj->addMedia($file)
+						    ->toMediaCollection($model::MEDIA_COLLECTION);
+					    dump($t);
+				    }
+				
+			      dd($state, $old, $model, $get('id'), $obj, $obj->getMedia($model::MEDIA_COLLECTION));
                             }),
 
                         Forms\Components\TextInput::make('name')
