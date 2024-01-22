@@ -29,6 +29,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Neon\Models\Scopes\ActiveScope;
@@ -76,7 +77,11 @@ class ProductResource extends Resource
                             ->downloadable()
                             ->previewable()
                             ->disk('public')
-                            ->enableReordering(),
+                            ->enableReordering()
+                            ->afterStateUpdated(function (?string $state, ?string $old, ?Model $model) {
+                              $model->save();
+                            }),
+
                         Forms\Components\TextInput::make('name')
                             ->label('Név')
                             ->afterStateUpdated(function ($get, $set, ?string $state) {
@@ -159,6 +164,7 @@ class ProductResource extends Resource
                         ]),
                     ])
             ->columns(3);
+            
     }
 
     public static function table(Table $table): Table
