@@ -78,7 +78,7 @@ class ProductResource extends Resource
                             ->previewable()
                             ->disk('public')
                             ->enableReordering()
-                            ->afterStateUpdated(function (?string $state, ?string $old, ?Model $model) {
+                            ->afterStateUpdated(function (?array $state, ?string $old, ?Model $model) {
                               $model->save();
                             }),
 
