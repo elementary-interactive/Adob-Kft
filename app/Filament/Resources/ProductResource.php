@@ -59,15 +59,15 @@ class ProductResource extends Resource
                 Section::make()
                     ->schema([
                         Group::make()
-                        ->schema([
-                            Forms\Components\TextInput::make('ean')
-                                ->label('Vonalkód')
-                                ->columnSpan(['s' => 1]),
-                            Forms\Components\TextInput::make('product_id')
-                                ->label('Cikkszám')
-                                ->columnSpan(['s' => 1]),
-                        ])
-                        ->columns(2),
+                            ->schema([
+                                Forms\Components\TextInput::make('ean')
+                                    ->label('Vonalkód')
+                                    ->columnSpan(['s' => 1]),
+                                Forms\Components\TextInput::make('product_id')
+                                    ->label('Cikkszám')
+                                    ->columnSpan(['s' => 1]),
+                            ])
+                            ->columns(2),
                         SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
                             ->collection(Product::MEDIA_COLLECTION)
@@ -80,16 +80,16 @@ class ProductResource extends Resource
                             ->disk('public')
                             ->enableReordering()
                             ->afterStateUpdated(function (Get $get, ?array $state, ?string $old, ?string $model) {
-      
-				    $obj = $model::find($get('id'));
-				    foreach($state as $file) {
-					    dump($file);
-					    $t = $obj->addMedia($file)
-						    ->toMediaCollection($model::MEDIA_COLLECTION);
-					    dump($t);
-				    }
-				
-			      dd($state, $old, $model, $get('id'), $obj, $obj->getMedia($model::MEDIA_COLLECTION));
+                                
+                                /** Getting the product object and attach media files.
+                                 * 
+                                 */
+                                $obj = $model::find($get('id'));
+
+                                foreach ($state as $file) {
+                                    $obj->addMedia($file)
+                                        ->toMediaCollection($model::MEDIA_COLLECTION);
+                                }
                             }),
 
                         Forms\Components\TextInput::make('name')
@@ -99,7 +99,7 @@ class ProductResource extends Resource
                                     $set('slug', Str::slug($state));
                                 }
                             })
-                            ->reactive()       
+                            ->reactive()
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('slug')
@@ -151,7 +151,7 @@ class ProductResource extends Resource
                                         'xl' => 3,
                                         '2xl' => 4,
                                     ]),
-                                ]),
+                            ]),
                         Group::make()
                             ->columns(2)
                             ->schema([
@@ -171,10 +171,9 @@ class ProductResource extends Resource
                         Forms\Components\Hidden::make('is_slug_changed_manually')
                             ->default(false)
                             ->dehydrated(false),
-                        ]),
-                    ])
+                    ]),
+            ])
             ->columns(3);
-            
     }
 
     public static function table(Table $table): Table
@@ -196,7 +195,7 @@ class ProductResource extends Resource
                     ->iconPosition(IconPosition::After)
                     ->copyable()
                     ->copyMessage('Termék URL a vágólapra másolva!'),
-                    // ->copyableState(fn (Product $record): string => route('product.show', ['slug' => $record->slug])),
+                // ->copyableState(fn (Product $record): string => route('product.show', ['slug' => $record->slug])),
                 Tables\Columns\ImageColumn::make('images')
                     ->label('Képek')
                     ->circular()
@@ -204,7 +203,7 @@ class ProductResource extends Resource
                     ->limit(3)
                     ->limitedRemainingText(isSeparate: true)
                     ->toggleable(),
-                    // ->extraImgAttributes(['loading' => 'lazy']),
+                // ->extraImgAttributes(['loading' => 'lazy']),
                 Tables\Columns\TextColumn::make('brand.name')
                     ->label('Márka'),
                 // Tables\Columns\TextColumn::make('product_number')
@@ -270,14 +269,14 @@ class ProductResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query->when($data['categories'], function ($query, $categories) {
-                            return $query->whereHas('categories', fn($query) => $query->whereIn('id', $categories));
+                            return $query->whereHas('categories', fn ($query) => $query->whereIn('id', $categories));
                         });
                     })
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['categories']) {
+                        if (!$data['categories']) {
                             return null;
                         }
-             
+
                         return 'Kategóriák: ' . implode(', ', Category::whereIn('id', $data['categories'])->get()->pluck('name')->toArray());
                     }),
             ])
@@ -289,9 +288,9 @@ class ProductResource extends Resource
                     ->openUrlInNewTab(),
                 Tables\Actions\ReplicateAction::make('replica')
                     ->beforeReplicaSaved(function (Product $replica): void {
-                        $replica->name          = \App\Models\Product::COPY_TAG.$replica->name;
-                        $replica->slug          = \App\Models\Product::COPY_TAG.$replica->slug;
-                        $replica->product_id    = \App\Models\Product::COPY_TAG.$replica->product_id;
+                        $replica->name          = \App\Models\Product::COPY_TAG . $replica->name;
+                        $replica->slug          = \App\Models\Product::COPY_TAG . $replica->slug;
+                        $replica->product_id    = \App\Models\Product::COPY_TAG . $replica->product_id;
                         $replica->status = BasicStatus::Inactive->value;
                         // Runs after the record has been replicated but before it is saved to the database.
                     })
