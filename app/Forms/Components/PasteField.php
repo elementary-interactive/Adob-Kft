@@ -8,4 +8,6 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 class PasteField extends SpatieMediaLibraryFileUpload
 {
     protected string $view = 'forms.components.paste-field';
+
+    
 }

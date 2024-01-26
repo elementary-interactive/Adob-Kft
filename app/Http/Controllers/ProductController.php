@@ -37,15 +37,11 @@ class ProductController extends Controller
         if ($request->hasFile('file')) {
             $product->addMediaFromRequest('file')
                 ->withResponsiveImages()
-                ->addMediaConversion('thumb')
-                ->addMediaConversion('medium')
                 ->toMediaCollection($product::MEDIA_COLLECTION);
         }
         if ($request->has('url')) {
             $product->addMediaFromUrl($request->input('url'))
                 ->withResponsiveImages()
-                ->addMediaConversion('thumb')
-                ->addMediaConversion('medium')
                 ->toMediaCollection($product::MEDIA_COLLECTION);
         }
 

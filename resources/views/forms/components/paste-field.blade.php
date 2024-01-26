@@ -341,7 +341,9 @@
                             }
                         }).then(response => {
                             // return await $wire.reorderFormUploadedFiles(@js($statePath), files);
-                            console.log(response, $wire);
+                            console.log(response);
+                            
+                            Livewire.all()[1].$wire.$refresh();
                         });
                     }
                 }
