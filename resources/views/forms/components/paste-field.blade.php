@@ -340,7 +340,7 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                             }
                         }).then(response => {
-                            // return await $wire.reorderFormUploadedFiles(@js($statePath), files);
+                            return await $wire.reorderFormUploadedFiles(@js($statePath), files);
                             console.log(response)
                         });
                     }
