@@ -25,12 +25,10 @@ class EditProduct extends EditRecord
                 ->color('gray')
                 ->icon('heroicon-o-chevron-double-left')
                 ->disabled(fn (Product $record): bool => ($record->prev() == null))
-                ->url(function(Product $record): string
-                {
+                ->url(function (Product $record): string {
                     $url = '';
 
-                    if ($record->prev())
-                    {
+                    if ($record->prev()) {
                         $url = route('filament.admin2.resources.products.edit', ['record' => $record->prev()]);
                     }
                     return $url;
@@ -40,12 +38,10 @@ class EditProduct extends EditRecord
                 ->color('gray')
                 ->icon('heroicon-o-chevron-double-right')
                 ->disabled(fn (Product $record): bool => ($record->next() == null))
-                ->url(function(Product $record): string
-                {
+                ->url(function (Product $record): string {
                     $url = '';
 
-                    if ($record->next())
-                    {
+                    if ($record->next()) {
                         $url = route('filament.admin2.resources.products.edit', ['record' => $record->next()]);
                     }
                     return $url;
@@ -76,6 +72,16 @@ class EditProduct extends EditRecord
             Actions\ForceDeleteAction::make(),
             Actions\RestoreAction::make(),
         ];
+    }
+
+    /**
+     * @param $propertyName
+     */
+    public function updated($propertyName): void
+    {
+        $data = $this->validateOnly($propertyName);
+        // $data = $data['data'];
+        // dd('it worked, do what you need to do.', $propertyName, $data);
     }
 
     protected function getRedirectUrl(): string

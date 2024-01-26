@@ -45,13 +45,25 @@ Route::get('download', [\App\Http\Controllers\DownloadController::class, 'downlo
     ->name('export.download')//-;
     ->middleware('signed');
 
+Route::post('/kepek', [\App\Http\Controllers\ProductController::class, 'addImage'])
+    ->name('product.images.upload')//-;
+    ->middleware('signed');
+
+Route::get('/kepek/feltoltes', function() {
+    return response()->json([
+        "url"   => URL::temporarySignedRoute('product.images.upload', now()->addMinutes(10))
+    ], 200);
+    // echo URL::temporarySignedRoute('product.images.upload', now()->addMinutes(10));
+});
 
 Route::get('tempcreate', function() {
-    echo URL::temporarySignedRoute('tempcreate.download', now()->addMinutes(5));
+    return response()->json([
+        "url"   => URL::temporarySignedRoute('tempcreate.download', now()->addMinutes(5))
+    ], 200);
 });
 
 Route::get('temread', function (Request $request) {
-    if (!$request->hasValidSignature()) {
+    if (!$request->hasValidSignature()) {       
         echo "nem valid";
     } else {
         echo "valid";

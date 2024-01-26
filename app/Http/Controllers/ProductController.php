@@ -27,6 +27,27 @@ class ProductController extends Controller
         $this->category_service = $category_service;
     }
 
+    public function addImage(Request $request)
+    {
+        /**
+         * @var Product $product
+         */
+        $product = Product::withoutGlobalScopes()->withoutTrashed()->find($request->input('product_id'));
+        
+        if ($request->hasFile('file'))
+        {
+            $product->addMediaFromRequest('file')
+                ->toMediaCollection($product::MEDIA_COLLECTION);
+        }
+        if ($request->has('url'))
+        {
+            $product->addMediaFromUrl($request->input('url'))
+                ->toMediaCollection($product::MEDIA_COLLECTION);
+        }
+
+        return response()->json($product->getMedia($product::MEDIA_COLLECTION)->toArray(), 200);
+    }
+
     public function show(LinkService $page_service, Request $request, string $slug)
     {
         /** Creating a static pseudo page.

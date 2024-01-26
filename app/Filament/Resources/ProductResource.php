@@ -68,7 +68,7 @@ class ProductResource extends Resource
                                     ->columnSpan(['s' => 1]),
                             ])
                             ->columns(2),
-                        SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
+                        \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
                             ->collection(Product::MEDIA_COLLECTION)
                             ->multiple()
@@ -79,6 +79,7 @@ class ProductResource extends Resource
                             ->previewable()
                             ->disk('public')
                             ->enableReordering()
+                            ->reactive()
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
                                 
                                 /** Getting the product object and attach media files. 
@@ -93,8 +94,10 @@ class ProductResource extends Resource
 
                                     }
                                 }
+                                
+                                $this->fillForm();
                             }),
-
+                        // \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION),
                         Forms\Components\TextInput::make('name')
                             ->label('Név')
                             ->afterStateUpdated(function ($get, $set, ?string $state) {
