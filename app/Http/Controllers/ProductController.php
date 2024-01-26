@@ -33,15 +33,19 @@ class ProductController extends Controller
          * @var Product $product
          */
         $product = Product::withoutGlobalScopes()->withoutTrashed()->find($request->input('product_id'));
-        
-        if ($request->hasFile('file'))
-        {
+
+        if ($request->hasFile('file')) {
             $product->addMediaFromRequest('file')
+                ->withResponsiveImages()
+                ->addMediaConversion('thumb')
+                ->addMediaConversion('medium')
                 ->toMediaCollection($product::MEDIA_COLLECTION);
         }
-        if ($request->has('url'))
-        {
+        if ($request->has('url')) {
             $product->addMediaFromUrl($request->input('url'))
+                ->withResponsiveImages()
+                ->addMediaConversion('thumb')
+                ->addMediaConversion('medium')
                 ->toMediaCollection($product::MEDIA_COLLECTION);
         }
 
@@ -59,12 +63,11 @@ class ProductController extends Controller
         $brand      = null;
         $category   = null;
         $path       = [];
-        
-        if (request()->session()->has('path'))
-        {
+
+        if (request()->session()->has('path')) {
             /** 
              * @var string
-            */
+             */
             $slugs = request()->session()->get('path');
         } else {
             $slugs = $this->category_service->getMainSlug($product);
@@ -110,7 +113,7 @@ class ProductController extends Controller
         $l = \DB::getQueryLog();
 
         dd($m, $l, $m[0]->getUrl('thumb'));
-        
+
         // /** Initalize category service.
         //  * 
         //  */
