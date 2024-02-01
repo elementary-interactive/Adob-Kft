@@ -34,12 +34,19 @@ class ProductController extends Controller
          */
         $product = Product::withoutGlobalScopes()->withoutTrashed()->find($request->input('product_id'));
 
-        if ($request->hasFile('file')) {
-            $product->addMediaFromRequest('file')
+
+
+        if ($request->hasFile('file'))
+        {
+            list( , $ext) = explode('/', $request->file('file')->getMimeType());
+            
+            $product->addMedia($request->file('file'))
+                ->usingFileName(Str::uuid().'.'.$ext)
                 ->withResponsiveImages()
                 ->toMediaCollection($product::MEDIA_COLLECTION);
         }
-        if ($request->has('url')) {
+        if ($request->has('url'))
+        {
             $product->addMediaFromUrl($request->input('url'))
                 ->withResponsiveImages()
                 ->toMediaCollection($product::MEDIA_COLLECTION);
