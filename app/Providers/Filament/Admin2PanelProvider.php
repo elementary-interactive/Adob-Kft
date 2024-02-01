@@ -31,7 +31,7 @@ class Admin2PanelProvider extends PanelProvider
             ->path('admin2')
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+f', 'ctrl+f'])
-            ->unsavedChangesAlerts()
+            // ->unsavedChangesAlerts()
             ->login()
             ->colors([
                 'primary' => Color::Cyan,
