@@ -68,8 +68,8 @@ class ProductResource extends Resource
                                     ->columnSpan(['s' => 1]),
                             ])
                             ->columns(2),
-                            // \App\Forms\Components\PasteField
-                            SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
+                          \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION)
+                            // SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
                             ->collection(Product::MEDIA_COLLECTION)
                             ->multiple()

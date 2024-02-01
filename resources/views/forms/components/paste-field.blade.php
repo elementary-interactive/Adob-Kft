@@ -343,7 +343,7 @@
                             // return await $wire.reorderFormUploadedFiles(@js($statePath), files);
                             console.log(response);
                             
-                            Livewire.all()[1].$wire.$refresh();
+                            // Livewire.all()[1].$wire.$refresh();
                         });
                     }
                 }
