@@ -44,7 +44,8 @@ class ADOBProductImportJob implements ShouldQueue
     protected ProductImport $import,
     protected bool $import_categories = false,
     protected bool $import_images = false,
-    protected array $header
+    protected array $header,
+    protected int $index
   ) {
     //     use Monolog\Logger;
     // use Logtail\Monolog\LogtailHandler;
@@ -252,7 +253,7 @@ class ADOBProductImportJob implements ShouldQueue
            */
           $product->categories()->attach($category, [
             'is_main' => ($category_index == 1),
-            'order'   => $counter + 1,
+            'order'   => $this->index,
           ]);
           $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' category attached >> ' . $category_id, [
             'import'  => $this->import->id

@@ -115,7 +115,8 @@ class ADOBProductImportBatch implements ShouldQueue
           columns: \App\Models\Columns\ADOBProductsImportColumns::class,
           import: $this->import,
           import_categories: true,
-          import_images: false
+          import_images: false,
+          index: $index
         ));
         $import_images[]  = (new \App\Jobs\ADOBProductImportImagesJob(array_combine($header, $row), \App\Models\Columns\ADOBProductsImportColumns::class, $this->import));
 
