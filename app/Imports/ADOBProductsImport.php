@@ -374,7 +374,7 @@ class ADOBProductsImport implements ToModel, WithValidation, WithHeadingRow, Wit
       $counter = $category->products()->count();
       $product->categories()->attach($category, [
         'is_main' => ($category_index == 1),
-        'order'   => $counter++,
+        'order'   => $counter + 1,
       ]);
     }
 

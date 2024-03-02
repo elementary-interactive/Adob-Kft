@@ -252,7 +252,7 @@ class ADOBProductImportJob implements ShouldQueue
            */
           $product->categories()->attach($category, [
             'is_main' => ($category_index == 1),
-            'order'   => $counter++,
+            'order'   => $counter + 1,
           ]);
           $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' category attached >> ' . $category_id, [
             'import'  => $this->import->id
