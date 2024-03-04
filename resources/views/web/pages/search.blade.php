@@ -41,7 +41,7 @@
                       ])
 
                       @include('web.pages.partials.pagination', [
-                        'pager' => $products,
+                        'pager' => $search_result,
                       ])
 
                     </div>
