@@ -1,0 +1,13 @@
+{
+  "navigation": {
+    "models": {
+      "attribute": "Változó",
+      "attributes": "Változók"
+    },
+    "resources": {
+      "admins": "Adminisztrátorok",
+      "variables": "Változók",
+      "sites": "Weboldalak"
+    }
+  }
+}

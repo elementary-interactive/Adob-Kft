@@ -21,14 +21,14 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class Admin2PanelProvider extends PanelProvider
+class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
             ->default()
-            ->id('admin2')
-            ->path('admin2')
+            ->id('admin')
+            ->path('admin')
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+f', 'ctrl+f'])
             ->unsavedChangesAlerts()
@@ -45,7 +45,7 @@ class Admin2PanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                \App\Filament\Pages\Dashboard::class,
+                \App\Admin\Pages\Dashboard::class,
             ])
             ->plugins([
                 StickyHeaderPlugin::make(),
@@ -68,7 +68,7 @@ class Admin2PanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->viteTheme('resources/css/filament/admin2/theme.css')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->authGuard('admin') // Using admin guard.
             ->sidebarFullyCollapsibleOnDesktop();
     }
