@@ -13,6 +13,8 @@ class SearchController extends Controller
 {
     use ValidatesRequests;
 
+    public $paginate    = 15;
+
     public function search(LinkService $page_service, Request $request)
     {
         $page       = $page_service->static('search');
@@ -39,7 +41,7 @@ class SearchController extends Controller
             ->orWhereHas('brand', function($query) use ($search_term) {
                 $query->where('name', 'LIKE', "%{$search_term}%");
             })
-            ->get();
+            ->paginate($this->paginate);
          
         return View::first(
             $page_service->getViews(Arr::first(app('site')->current()->domains)),
