@@ -128,7 +128,7 @@ class CategoryService
 
   public function getProducts(Brand $brand = null)
   {
-    $products = $this->category->products()->orderBy('name', 'asc'); //->orderByPivot("order");
+    $products = $this->category->products()->orderByPivot('order', 'asc')->orderBy('slug', 'asc');
 
     if ($brand)
     {
