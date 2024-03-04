@@ -17,7 +17,7 @@ class ViewProductImport extends ViewRecord
                 ->label('Vissza')
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
-                ->url(fn (): string => route('filament.admin.resources.product-imports.index')),
+                ->url(fn (): string => route('filament.neon-admin.resources.product-imports.index')),
         ];
     }
 }

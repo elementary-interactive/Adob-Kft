@@ -19,7 +19,7 @@ class EditProduct extends EditRecord
                 ->label('Vissza')
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
-                ->url(fn (): string => route('filament.admin.resources.products.index')),
+                ->url(fn (): string => route('filament.neon-admin.resources.products.index')),
             Actions\Action::make('prev')
                 ->label(false)
                 ->color('gray')
@@ -29,7 +29,7 @@ class EditProduct extends EditRecord
                     $url = '';
 
                     if ($record->prev()) {
-                        $url = route('filament.admin.resources.products.edit', ['record' => $record->prev()]);
+                        $url = route('filament.neon-admin.resources.products.edit', ['record' => $record->prev()]);
                     }
                     return $url;
                 }),
@@ -42,7 +42,7 @@ class EditProduct extends EditRecord
                     $url = '';
 
                     if ($record->next()) {
-                        $url = route('filament.admin.resources.products.edit', ['record' => $record->next()]);
+                        $url = route('filament.neon-admin.resources.products.edit', ['record' => $record->next()]);
                     }
                     return $url;
                 }),
@@ -55,7 +55,7 @@ class EditProduct extends EditRecord
             Actions\Action::make('save')
                 ->label('Mentés')
                 ->action('save')
-                ->successRedirectUrl(fn (): string => route('filament.admin.resources.products.index')),
+                ->successRedirectUrl(fn (): string => route('filament.neon-admin.resources.products.index')),
             Actions\ReplicateAction::make()
                 ->beforeReplicaSaved(function (Product $replica): void {
                     $replica->name = Product::COPY_TAG . $replica->name;
@@ -64,7 +64,7 @@ class EditProduct extends EditRecord
                     $replica->status = BasicStatus::Inactive->value;
                     // Runs after the record has been replicated but before it is saved to the database.
                 })
-                ->successRedirectUrl(fn (Product $replica): string => route('filament.admin.resources.products.edit', [
+                ->successRedirectUrl(fn (Product $replica): string => route('filament.neon-admin.resources.products.edit', [
                     'record' => $replica,
                 ]))
                 ->successNotificationTitle('Termék sikeresen duplikálva.'),

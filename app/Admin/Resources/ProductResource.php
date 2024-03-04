@@ -28,6 +28,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -301,7 +302,7 @@ class ProductResource extends Resource
                         $replica->status = BasicStatus::Inactive->value;
                         // Runs after the record has been replicated but before it is saved to the database.
                     })
-                    ->successRedirectUrl(fn (Product $replica): string => route('filament.admin.resources.products.edit', [
+                    ->successRedirectUrl(fn (Product $replica): string => route('filament.neon-admin.resources.products.edit', [
                         'record' => $replica,
                     ]))
                     ->successNotificationTitle('Termék sikeresen duplikálva.'),
@@ -367,6 +368,11 @@ class ProductResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['product_number', 'product_id', 'name', 'slug', 'description', 'packaging', 'ean', 'brand.name'];
+        return ['product_number', 'product_id', 'name', 'slug', 'description', 'packaging', 'ean', 'brand.name', 'categories.name'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name;
     }
 }
