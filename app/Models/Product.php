@@ -116,12 +116,14 @@ class Product extends Model implements HasMedia
       ->optimize()
       // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
+      ->withResponsiveImages()
       ->queued();
 
     $this->addMediaConversion('medium')
       ->height(600)
       ->fit(Manipulations::FIT_MAX, 600, 600)
       ->optimize()
+      ->withResponsiveImages()
       // ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
       ->queued();
@@ -138,6 +140,7 @@ class Product extends Model implements HasMedia
       ->height(600)
       ->fit(Manipulations::FIT_MAX, 600, 600)
       ->optimize()
+      ->withResponsiveImages()
       // ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_MAIN)
       ->queued();
