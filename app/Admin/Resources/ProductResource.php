@@ -63,19 +63,35 @@ class ProductResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('ean')
                                     ->label('Vonalkód')
-                                    ->columnSpan(['s' => 2]),
+                                    ->columnSpan([
+                                        'sm' => 2,
+                                        'xl' => 4,
+                                        '2xl' => 6,
+                                    ]),
                                 Forms\Components\TextInput::make('product_id')
                                     ->label('Cikkszám')
-                                    ->columnSpan(['s' => 2]),
+                                    ->columnSpan([
+                                        'sm' => 2,
+                                        'xl' => 4,
+                                        '2xl' => 6,
+                                    ]),
                                 Select::make('status')
                                     ->label('Státusz')
                                     ->required()
                                     ->reactive()
                                     ->default(Status::New)
                                     ->options(Status::class)
-                                    ->columnSpan(['s' => 1]),
+                                    ->columnSpan([
+                                        'sm' => 1,
+                                        'xl' => 2,
+                                        '2xl' => 3,
+                                    ]),
                             ])
-                            ->columns(5),
+                            ->columns([
+                                'sm' => 5,
+                                'xl' => 10,
+                                '2xl' => 15,
+                            ]),
                         \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION)
                             // SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
