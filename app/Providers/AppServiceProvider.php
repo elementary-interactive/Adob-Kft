@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    
     /**
      * Register any application services.
      */
@@ -20,6 +21,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        try {
+            \DB::select("SET @@SQL_MODE = CONCAT(@@SQL_MODE, ',NO_BACKSLASH_ESCAPES')");
+        }
+        catch (\Exception $e)
+        {
+            
+        }
         Relation::morphMap([
             'admin'                 => \Neon\Admin\Models\Admin::class,
             // 'admin'                => Neon\Admin\Models\Admin::class,
