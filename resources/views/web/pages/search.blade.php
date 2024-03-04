@@ -40,6 +40,10 @@
                         'search_term' => $search_term
                       ])
 
+                      @include('web.pages.partials.pagination', [
+                        'pager' => $products,
+                      ])
+
                     </div>
                   </div>
                   @else

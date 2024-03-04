@@ -22,7 +22,7 @@
         
         @include('web.pages.partials.productlist', ['search_term' => null])
 
-        @include('web.pages.partials.pagination')
+        {{-- @include('web.pages.partials.pagination') --}}
 
       </div>
     </div>
