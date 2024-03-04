@@ -73,6 +73,10 @@ Route::get('temread', function (Request $request) {
     ->middleware('signed');
 
 
+Route::get('kriksz-kraksz', function() {
+    dd(app('site')->current());
+});
+
 // Route::get('lofasz/{id}', function($id) {
 //     $batch  = Bus::findBatch($id);
 //     // dump($batch->failedJobIds);
