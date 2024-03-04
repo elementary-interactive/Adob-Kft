@@ -150,18 +150,16 @@ class CategoryService
 
       $category = Category::roots()
         ->where('slug', Arr::pull($slugs, 0))
-        ->first()
-        ->getDescendantsAndSelf();
+        ->first();
 
-      $path[] = $category->first();
+      $path[] = $category;
      
       foreach ($slugs as $slug_item)
       {
-        $category = $category->where('slug', $slug_item)
-          ->first()
-          ->getDescendantsAndSelf();
+        $category = $category->children()->where('slug', $slug_item)
+          ->first();
 
-        $path[] = $category->first();
+        $path[] = $category;
       }
     }
 
