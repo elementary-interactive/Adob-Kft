@@ -38,9 +38,9 @@
 
     <div class="container-fluid product-container">
         <div class="row">
-            <div class="col-12 col-xl-6">
-                <section id="main-carousel" class="splide"
-                    aria-label="The carousel with thumbnails. Selecting a thumbnail will change the Beautiful Gallery carousel.">
+            <div class="col-12 col-xl-6 col-md-6 col-xs-6">
+                @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count())
+                <section id="main-carousel" class="splide" data-splide='{"arrows": {{ $product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1 }}}'>
                     <div class="splide__track">
                         <ul class="splide__list">
                             @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
@@ -54,6 +54,7 @@
                         </ul>
                     </div>
                 </section>
+                @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
                 <ul id="thumbnails" class="thumbnails">
                     @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                         <li class="thumbnail">
@@ -64,8 +65,10 @@
                         </li>
                     @endforelse
                 </ul>
+                @endif
+                @endif
             </div>
-            <div class="col-12 col-xl-6 product-infos">
+            <div class="col-12 col-xl-6 col-md-6 col-xs-6 product-infos">
                 <h2 class="blue">{{ $product->name }}</h2>
                 <div class="row">
                     <div class="col-md-12">
@@ -112,3 +115,42 @@
     </div>
 
 @endsection
+
+@push('scripts')
+
+// splide - slider
+
+var splide = new Splide('#main-carousel', {
+    pagination: false,
+    rewind: true,
+    gap: 30,
+});
+
+var thumbnails = document.getElementsByClassName('thumbnail');
+var current;
+
+for (var i = 0; i < thumbnails.length; i++) {
+    initThumbnail(thumbnails[i], i);
+}
+
+function initThumbnail(thumbnail, index) {
+    thumbnail.addEventListener('click', function () {
+        splide.go(index);
+    });
+}
+
+splide.on('mounted move', function () {
+    var thumbnail = thumbnails[splide.index];
+
+    if (thumbnail) {
+        if (current) {
+            current.classList.remove('is-active');
+        }
+
+        thumbnail.classList.add('is-active');
+        current = thumbnail;
+    }
+});
+
+splide.mount();
+@endpush
