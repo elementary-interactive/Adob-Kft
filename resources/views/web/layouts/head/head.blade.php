@@ -23,10 +23,11 @@ href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0
 rel="stylesheet">
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/@mdi/light-font@0.2.63/css/materialdesignicons-light.min.css">
-
+<link href="
+https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
+" rel="stylesheet">
 @vite([
   'resources/scss/app.scss',
-  'resources/js/splide.min.js',
   'resources/js/app.js',
   'resources/js/site.js'
 ])

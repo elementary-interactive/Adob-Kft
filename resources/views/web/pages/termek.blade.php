@@ -38,37 +38,37 @@
 
     <div class="container-fluid product-container">
         <div class="row">
-            <div class="col-12 col-xl-6 col-md-6 col-xs-6">
+            <div class="col-12 col-xl-6 col-md-6 col-sm-6">
                 @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count())
-                <section id="main-carousel" class="splide" data-splide='{"arrows": {{ $product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1 }}}'>
-                    <div class="splide__track">
-                        <ul class="splide__list">
-                            @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
-                                <li class="splide__slide">
-                                    <img src="{{ $media->getUrl('medium') }}" height="600" alt="">
-                                </li>
-                            @empty
-                                <li class="splide__slide">
-                                </li>
-                            @endforelse
-                        </ul>
-                    </div>
-                </section>
-                @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
-                <ul id="thumbnails" class="thumbnails">
-                    @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
-                        <li class="thumbnail">
-                            <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
-                        </li>
-                    @empty
-                        <li class="thumbnail">
-                        </li>
-                    @endforelse
-                </ul>
-                @endif
+                    <section id="main-carousel" class="splide">
+                        <div class="splide__track">
+                            <ul class="splide__list">
+                                @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
+                                    <li class="splide__slide">
+                                        <img src="{{ $media->getUrl('medium') }}" height="600" alt="">
+                                    </li>
+                                @empty
+                                    <li class="splide__slide">
+                                    </li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </section>
+                    @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
+                    <ul id="thumbnails" class="thumbnails">
+                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
+                            <li class="thumbnail">
+                                <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
+                            </li>
+                        @empty
+                            <li class="thumbnail">
+                            </li>
+                        @endforelse
+                    </ul>
+                    @endif
                 @endif
             </div>
-            <div class="col-12 col-xl-6 col-md-6 col-xs-6 product-infos">
+            <div class="col-12 col-xl-6 col-md-6 col-sm-6 product-infos">
                 <h2 class="blue">{{ $product->name }}</h2>
                 <div class="row">
                     <div class="col-md-12">
@@ -118,10 +118,14 @@
 
 @push('scripts')
 
-// splide - slider
+<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js">
+    </script>
+
+<script type="text/javascript">
 
 var splide = new Splide('#main-carousel', {
     pagination: false,
+    arrows: {{ $product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1 ? 'true' : 'false' }},
     rewind: true,
     gap: 30,
 });
@@ -153,4 +157,5 @@ splide.on('mounted move', function () {
 });
 
 splide.mount();
+</script>
 @endpush
