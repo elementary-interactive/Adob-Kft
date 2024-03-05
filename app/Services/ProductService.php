@@ -51,7 +51,11 @@ class ProductService
         }
       }
       $prev = $products->slice(0, $order)->last();
-      $next = $products->slice($order, 2)->last();
+      
+      if ($products->slice($order, 2)->count() > 1)
+      {
+        $next = $products->slice($order, 2)->last();
+      }
     }
 
     return [
