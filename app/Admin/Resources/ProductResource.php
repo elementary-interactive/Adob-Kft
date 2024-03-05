@@ -345,7 +345,8 @@ class ProductResource extends Resource
                 ]),
             ])
             ->paginated([25, 50, 100, 'all'])
-            ->defaultPaginationPageOption(25);
+            ->defaultPaginationPageOption(25)
+            ->defaultSort('created_at', 'desc');
     }
 
     public function panel(Panel $panel): Panel
