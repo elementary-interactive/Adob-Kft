@@ -87,13 +87,9 @@
                             <dt>Márka</dt>
                             <dd>{{ $product->brand?->name }}</dd>
                         </dl>
-                        <dl style="float: none;">
+                        <dl>
                             <dt>Cikkszám</dt>
                             <dd>{{ $product->product_id }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>EAN</dt>
-                            <dd>{{ $product->ean }}</dd>
                         </dl>
                         <dl>
                             @if ($product->price)
@@ -104,6 +100,10 @@
                                     @endif
                                 </dd>
                             @endif
+                        </dl>
+                        <dl>
+                            <dt>EAN</dt>
+                            <dd>{{ $product->ean }}</dd>
                         </dl>
                     </div>
                 </div>
