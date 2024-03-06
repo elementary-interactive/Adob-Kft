@@ -87,24 +87,24 @@
                             <dt>Márka</dt>
                             <dd>{{ $product->brand?->name }}</dd>
                         </dl>
-                        <dl>
+                        <dl style="float: none;">
                             <dt>Cikkszám</dt>
                             <dd>{{ $product->product_id }}</dd>
                         </dl>
                         <dl>
-                            <dt>EAN</dt>
-                            <dd>{{ $product->ean }}</dd>
-                        </dl>
-                        @if ($product->price)
-                            <dl>
+                            @if ($product->price)
                                 <dt>Ár</dt>
                                 <dd>{{ $product->price }},- Ft
                                     @if ($product->on_sale)
                                         &mdash; Jelenleg akciós!
                                     @endif
                                 </dd>
-                            </dl>
-                        @endif
+                            @endif
+                        </dl>
+                        <dl>
+                            <dt>EAN</dt>
+                            <dd>{{ $product->ean }}</dd>
+                        </dl>
 
                     </div>
                 </div>
