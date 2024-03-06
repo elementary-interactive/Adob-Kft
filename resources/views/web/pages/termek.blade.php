@@ -38,8 +38,30 @@
 
     <div class="container-fluid product-container">
         <div class="row">
+            <div class="pagination">
+                @if ($product_slug_prev)
+                <a href="{{ route('product.show', ['slug' => $product_slug_prev]) }}" class="prev"><i class="icon-left-open"></i></a>
+                @endif
+                @if ($product_slug_next)
+                <a href="{{ route('product.show', ['slug' => $product_slug_next]) }}" class="next"><i class="icon-right-open"></i></a>
+                @endif
+            </div>
+        </div>
+        <div class="row">
             <div class="col-12 col-xl-6 col-md-6 col-sm-6">
                 @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count())
+                    @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
+                    <ul id="thumbnails" class="thumbnails">
+                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
+                            <li class="thumbnail">
+                                <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
+                            </li>
+                        @empty
+                            <li class="thumbnail">
+                            </li>
+                        @endforelse
+                    </ul>
+                    @endif
                     <section id="main-carousel" class="splide">
                         <div class="splide__track">
                             <ul class="splide__list">
@@ -55,18 +77,6 @@
                             </ul>
                         </div>
                     </section>
-                    @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
-                    <ul id="thumbnails" class="thumbnails">
-                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
-                            <li class="thumbnail">
-                                <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
-                            </li>
-                        @empty
-                            <li class="thumbnail">
-                            </li>
-                        @endforelse
-                    </ul>
-                    @endif
                 @endif
             </div>
             <div class="col-12 col-xl-6 col-md-6 col-sm-6 product-infos">
@@ -101,16 +111,6 @@
                 <div class="caption">
                     <p class="text-justify">{!! $product->description !!}<br />{!! $product->packaging !!}</p>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="pagination">
-                @if ($product_slug_prev)
-                <a href="{{ route('product.show', ['slug' => $product_slug_prev]) }}" class="prev"><i class="icon-left-open"></i></a>
-                @endif
-                @if ($product_slug_next)
-                <a href="{{ route('product.show', ['slug' => $product_slug_next]) }}" class="next"><i class="icon-right-open"></i></a>
-                @endif
             </div>
         </div>
     </div>

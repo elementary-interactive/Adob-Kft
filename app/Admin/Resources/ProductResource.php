@@ -119,7 +119,7 @@ class ProductResource extends Resource
                                     }
                                 }
 
-                                $get('../edit-product')->fillForm();
+                                $get('../edit-product')?->fillForm();
                             }),
                         // \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION),
                         Forms\Components\TextInput::make('name')
