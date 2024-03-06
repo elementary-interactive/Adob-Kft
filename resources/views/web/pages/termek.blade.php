@@ -92,6 +92,10 @@
                             <dd>{{ $product->product_id }}</dd>
                         </dl>
                         <dl>
+                            <dt>EAN</dt>
+                            <dd>{{ $product->ean }}</dd>
+                        </dl>
+                        <dl>
                             @if ($product->price)
                                 <dt>Ár</dt>
                                 <dd>{{ $product->price }},- Ft
@@ -101,11 +105,6 @@
                                 </dd>
                             @endif
                         </dl>
-                        <dl>
-                            <dt>EAN</dt>
-                            <dd>{{ $product->ean }}</dd>
-                        </dl>
-
                     </div>
                 </div>
                 <div class="caption">
