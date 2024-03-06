@@ -43,14 +43,11 @@ class CategoryService
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
       $roots = [];
       $categories = Category::onlyBrand($brand)->get();
-      foreach ($categories as $category)
-      {
+      foreach ($categories as $category) {
         $ancestors = $category->getAncestors();
 
-        foreach ($ancestors as $ancestor)
-        {
-          if ($ancestor->isRoot() && !in_array($ancestor, $roots))
-          {
+        foreach ($ancestors as $ancestor) {
+          if ($ancestor->isRoot() && !in_array($ancestor, $roots)) {
             $roots[] = $ancestor;
           }
         }
@@ -68,20 +65,17 @@ class CategoryService
     $category = Category::roots()
       ->where('slug', Arr::pull($slugs, 0))
       ->first();
-    
-    if (!$category)
-    {
+
+    if (!$category) {
       abort(404);
     }
 
-    foreach ($slugs as $slug_item)
-    {
+    foreach ($slugs as $slug_item) {
       $category = $category->children()
         ->where('slug', $slug_item)
         ->first();
-    
-      if (!$category)
-      {
+
+      if (!$category) {
         abort(404);
       }
     }
@@ -104,23 +98,19 @@ class CategoryService
   {
     $children = $this->category->immediateDescendants()->get();
 
-    if ($brand)
-    {
-        $children = [];
-        $categories = Category::onlyBrand($brand)->get();
-        foreach ($categories as $category)
-        {
-          $ancestors = $category->getAncestorsAndSelf()->sortBy('name');
-  
-          foreach ($ancestors as $ancestor)
-          {
-            if ($ancestor->parent_id == $this->category->id && !in_array($ancestor, $children))
-            {
-              $children[] = $ancestor;
-            }
+    if ($brand) {
+      $children = [];
+      $categories = Category::onlyBrand($brand)->get();
+      foreach ($categories as $category) {
+        $ancestors = $category->getAncestorsAndSelf()->sortBy('name');
+
+        foreach ($ancestors as $ancestor) {
+          if ($ancestor->parent_id == $this->category->id && !in_array($ancestor, $children)) {
+            $children[] = $ancestor;
           }
         }
-        $children = collect($children);
+      }
+      $children = collect($children);
     }
 
     return $children->sortBy('name');
@@ -130,8 +120,7 @@ class CategoryService
   {
     $products = $this->category->products()->orderByPivot('order', 'asc')->orderBy('slug', 'asc');
 
-    if ($brand)
-    {
+    if ($brand) {
       $products->onlyBrand($brand);
     }
 
@@ -142,10 +131,9 @@ class CategoryService
   {
     $path   = array();
 
-    if ($slug)
-    {
+    if ($slug) {
       request()->session()->flash('path', $slug);
-    
+
       $slugs  = Str::of($slug)->explode('/');
 
       $category = Category::roots()
@@ -153,9 +141,8 @@ class CategoryService
         ->first();
 
       $path[] = $category;
-     
-      foreach ($slugs as $slug_item)
-      {
+
+      foreach ($slugs as $slug_item) {
         $category = $category->children()->where('slug', $slug_item)
           ->first();
 
@@ -170,10 +157,8 @@ class CategoryService
   {
     $slugs = [];
     $categories = $product->categories()->where('is_main', true)->first()?->getAncestorsAndSelf();
-    if ($categories)
-    {
-      foreach ($categories as $category)
-      {
+    if ($categories) {
+      foreach ($categories as $category) {
         $slugs[] = $category->slug;
       }
     }
@@ -185,12 +170,11 @@ class CategoryService
   {
     $category = $this->findBySlug($slug);
 
-    if (!$category->whereHas('products', function($query) use ($product) {
-      $query->where('id', '=', $product->id);
-    })->count()) {
+    if (!$category->products()->where("category_product.product_id", "=", $product->id)->exists())
+    {
       $slug = $this->getMainSlug($product);
     }
-    
+
     return $slug;
   }
 }
