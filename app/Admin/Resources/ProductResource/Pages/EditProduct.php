@@ -58,9 +58,9 @@ class EditProduct extends EditRecord
                 ->successRedirectUrl(fn (): string => route('filament.neon-admin.resources.products.index')),
             Actions\ReplicateAction::make()
                 ->beforeReplicaSaved(function (Product $replica): void {
-                    $replica->name = Product::COPY_TAG . $replica->name;
-                    $replica->slug = Product::COPY_TAG . $replica->slug;
-                    $replica->product_id = Product::COPY_TAG . $replica->product_id;
+                    $replica->name = $replica->name.Product::COPY_TAG;
+                    $replica->slug = $replica->slug.Product::COPY_TAG;
+                    $replica->product_id = $replica->product_id.Product::COPY_TAG;
                     $replica->status = BasicStatus::Inactive->value;
                     // Runs after the record has been replicated but before it is saved to the database.
                 })

@@ -312,9 +312,9 @@ class ProductResource extends Resource
                     ->openUrlInNewTab(),
                 Tables\Actions\ReplicateAction::make('replica')
                     ->beforeReplicaSaved(function (Product $replica): void {
-                        $replica->name          = \App\Models\Product::COPY_TAG . $replica->name;
-                        $replica->slug          = \App\Models\Product::COPY_TAG . $replica->slug;
-                        $replica->product_id    = \App\Models\Product::COPY_TAG . $replica->product_id;
+                        $replica->name          = $replica->name . \App\Models\Product::COPY_TAG;
+                        $replica->slug          = $replica->slug . \App\Models\Product::COPY_TAG;
+                        $replica->product_id    = $replica->product_id . \App\Models\Product::COPY_TAG;
                         $replica->status = BasicStatus::Inactive->value;
                         // Runs after the record has been replicated but before it is saved to the database.
                     })
