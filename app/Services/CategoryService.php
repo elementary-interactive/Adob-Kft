@@ -180,4 +180,17 @@ class CategoryService
 
     return Arr::join($slugs, '/');
   }
+
+  public function getMainSlugIfNotValid(Product $product, string $slug): string
+  {
+    $category = $this->findBySlug($slug);
+
+    if (!$category->whereHas('products', function($query) use ($product) {
+      $query->where('id', '=', $product->id);
+    })->count()) {
+      $slug = $this->getMainSlug($product);
+    }
+    
+    return $slug;
+  }
 }

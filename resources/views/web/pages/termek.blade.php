@@ -38,7 +38,7 @@
 
     <div class="container-fluid product-container">
         <div class="row">
-            <div class="pagination">
+            <div class="pagination top">
                 @if ($product_slug_prev)
                 <a href="{{ route('product.show', ['slug' => $product_slug_prev]) }}" class="prev"><i class="icon-left-open"></i></a>
                 @endif

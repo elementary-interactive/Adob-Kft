@@ -67,11 +67,12 @@ class ProductController extends Controller
         $category   = null;
         $path       = [];
 
-        if (request()->session()->has('path')) {
+        if (request()->session()->has('path'))
+        {
             /** 
              * @var string
              */
-            $slugs = request()->session()->get('path');
+            $slugs = $this->category_service->getMainSlugIfNotValid($product, request()->session()->get('path'));
         } else {
             $slugs = $this->category_service->getMainSlug($product);
         }
