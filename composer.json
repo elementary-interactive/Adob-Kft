@@ -26,7 +26,7 @@
         "neon/menu": "3.0.0-alpha-11",
         "neon/model-base": "1.0.0",
         "neon/model-publishable": "1.0.0",
-        "neon/site": "3.0.0-alpha-6",
+        "neon/site": "3.0.0-alpha-7",
         "neon/ui": "0.1.0-alpha-1",
         "sentry/sentry-laravel": "^3.8",
         "solution-forest/filament-tree": "^2.0",
