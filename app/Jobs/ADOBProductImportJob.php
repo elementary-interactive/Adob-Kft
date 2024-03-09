@@ -153,13 +153,21 @@ class ADOBProductImportJob implements ShouldQueue
      * @var Brand $brand The product's brand.
      */
     $brand = Brand::where('slug', '=', Str::slug($this->record[$this->columns::BRAND->value]))->first();
-    $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product associate to brand: ' . $brand->name, [
-      'import'  => $this->import->id
-    ]);
 
-    // Connect brand to product.
-    $product->brand()->associate($brand);
-    // Associating is not saving, so we handle brands here, and then, when prodcut's other parts are also done, save to database.
+    if ($brand)
+    {
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product associate to brand: ' . $brand->name, [
+        'import'  => $this->import->id
+      ]);
+
+      // Connect brand to product.
+      $product->brand()->associate($brand);
+      // Associating is not saving, so we handle brands here, and then, when prodcut's other parts are also done, save to database.
+    } else  {
+      $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product can\'t associate to brand: Brand not found. (' . Str::slug($this->record[$this->columns::BRAND->value]) . ')', [
+        'import'  => $this->import->id
+      ]);
+    }
 
     // dump($product);
     if ($product->exists) {
