@@ -115,6 +115,6 @@ class ADOBBrandImportJob implements ShouldQueue, ShouldBeUnique
       ->title('Importálás folyamata...')
       ->body('Márkák sikeresen importálva')
       ->info()
-      ->sendToDatabase($this->import->imported_by);
+      ->sendToDatabase($this->import->imported_by ?: auth()->user());
   }
 }
