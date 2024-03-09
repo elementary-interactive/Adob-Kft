@@ -92,7 +92,7 @@ class ADOBProductImportJob implements ShouldQueue
     return [
       $this->columns::PRODUCT_ID->value               => 'required', //- |unique:products,product_id',
       $this->columns::PRODUCT_NAME->value             => 'required',
-      // $this->columns::BRAND->value                    => '',
+      $this->columns::BRAND->value                    => 'required',
       // $this->columns::PRICE->value                    => '',
       // $this->columns::DESCRIPTION->value              => '',
       // $this->columns::PACKAGING->value                => '',
