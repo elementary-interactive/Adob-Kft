@@ -35,7 +35,8 @@ class ProductImport extends Model
     'records_counter',
     'data',
     'file',
-    'batch_id'
+    'batch_id',
+    'imported_by_id',
   ];
 
   /** Cast attribute to array...

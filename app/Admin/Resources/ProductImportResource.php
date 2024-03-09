@@ -285,7 +285,7 @@ class ProductImportResource extends Resource
                         $new = ProductImport::create([
                             'data'  => $record['data'],
                             'file'  => $record['file'],
-                            'imported_by_id'    => $record['imported_by_id'],
+                            'imported_by_id'    => auth()->user()->id,
                             'satus' => 'waiting'
                         ]);
                         ADOBProductImportBatch::dispatch($new);
