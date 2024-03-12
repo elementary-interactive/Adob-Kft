@@ -99,7 +99,7 @@ export default function ADOBMediaHandler({
             this.pond = FilePond.create(this.$refs.input, {
                 acceptedFileTypes,
                 allowImageExifOrientation: shouldOrientImageFromExif,
-                allowPaste: allowPaste,
+                allowPaste: false,
                 allowRemove: isDeletable,
                 allowReorder: isReorderable,
                 allowImagePreview: isPreviewable,
