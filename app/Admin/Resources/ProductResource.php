@@ -345,7 +345,7 @@ class ProductResource extends Resource
                 ]),
             ])
             ->paginated([25, 50, 100, 'all'])
-            ->defaultPaginationPageOption(25)
+            ->defaultPaginationPageOption(100)
             ->defaultSort('created_at', 'desc');
     }
 
