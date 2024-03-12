@@ -62,18 +62,18 @@ return [
     'warning'   => Color::Orange,
   ],
 
-  /** Set font. You can set font-family, and also the provider, if it's needed.
-   * 
-   * 'font'  => [
-   *   'font-family' => 'Inter',
-   *   'provider'    => GoogleFontProvider::class
-   * ]
-   * @see https://filamentphp.com/docs/3.x/panels/themes#changing-the-font
-   */
-  'font'      => [
-    'font-family' => 'Inter',
-    'provider'    => \Filament\FontProviders\GoogleFontProvider::class
-  ],
+  // /** Set font. You can set font-family, and also the provider, if it's needed.
+  //  * 
+  //  * 'font'  => [
+  //  *   'font-family' => 'Inter',
+  //  *   'provider'    => GoogleFontProvider::class
+  //  * ]
+  //  * @see https://filamentphp.com/docs/3.x/panels/themes#changing-the-font
+  //  */
+  // 'font'      => [
+  //   'font-family' => 'Inter',
+  //   'provider'    => \Filament\FontProviders\GoogleFontProvider::class
+  // ],
 
   'plugins'   => [
     StickyHeaderPlugin::make(),
