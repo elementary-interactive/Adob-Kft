@@ -103,7 +103,7 @@ class ProductResource extends Resource
                             ->downloadable()
                             ->previewable()
                             ->disk('public')
-                            ->enableReordering()
+                            ->reorderable()
                             ->reactive()
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
 
@@ -116,6 +116,7 @@ class ProductResource extends Resource
                                         $obj->addMedia($file)
                                             ->toMediaCollection($model::MEDIA_COLLECTION);
                                     } catch (\Exception $e) {
+                                        dd($e);
                                     }
                                 }
 
