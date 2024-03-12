@@ -52,7 +52,7 @@
                 @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count())
                     @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
                     <ul id="thumbnails" class="thumbnails">
-                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
+                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->reverse() as $media)
                             <li class="thumbnail">
                                 <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
                             </li>
