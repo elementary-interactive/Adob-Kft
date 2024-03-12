@@ -21,7 +21,7 @@ class EditProduct extends EditRecord
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
                 ->url(function (Product $record, Component $livewire): string {
-                    dd($record, $record->isDirty(), $livewire);
+                    // dd($record, $record->isDirty(), $livewire);
                     return route('filament.neon-admin.resources.products.index');
                 }),
             Actions\Action::make('prev')
