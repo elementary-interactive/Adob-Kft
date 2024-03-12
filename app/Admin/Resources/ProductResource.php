@@ -105,7 +105,7 @@ class ProductResource extends Resource
                             ->disk('public')
                             ->reorderable()
                             ->reactive()
-                            ->allowPaste()
+                            ->allowPaste(true)
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
 
                                 /** Getting the product object and attach media files. 

@@ -258,7 +258,7 @@ class ADOBMediaHandler extends FileUpload
         return $this;
     }
 
-    public function allowPaste(bool | Closure | null $allowPaste): static
+    public function allowPaste(bool | Closure | null $allowPaste = true): static
     {
         $this->allowPaste = $allowPaste;
 
