@@ -140,7 +140,7 @@
                         ], escape: false)
                 }}
             />
-            <x-filament::button data-field="$field" style="margin-top: 1rem;" x-on:click.stop.prevent="paste(this)">
+            <x-filament::button data-field="$field" style="margin-top: 1rem;" x-on:click.stop.prevent="editor.paste(this)">
                 Beillesztés a vágólapról...</x-filament::button>
         </div>
 
