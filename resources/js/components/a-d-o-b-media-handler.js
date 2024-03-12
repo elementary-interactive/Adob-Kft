@@ -1,4 +1,4 @@
-import * as FilePond from 'filepond'
+import * as FilePond from 'filepond'x
 import Cropper from 'cropperjs'
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
