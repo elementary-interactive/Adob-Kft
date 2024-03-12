@@ -98,6 +98,11 @@
                             },
                         )
                     },
+                    paste: (e) => {
+                        alert('DEBUG');
+                        console.log(this);
+                        console.log(e);
+                    }
                 })"
         wire:ignore
         x-ignore
@@ -140,7 +145,7 @@
                         ], escape: false)
                 }}
             />
-            <x-filament::button data-field="$field" style="margin-top: 1rem;" x-on:click.stop.prevent="editor.paste(this)">
+            <x-filament::button data-field="$field" style="margin-top: 1rem;" x-on:click.stop.prevent="paste(this)">
                 Beillesztés a vágólapról...</x-filament::button>
         </div>
 
