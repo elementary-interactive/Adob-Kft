@@ -78,5 +78,11 @@ return [
 
   'plugins'   => [
     StickyHeaderPlugin::make(),
-  ]
+  ],
+
+  /** If needed to alert on living form after changes, should set this to true.
+   * 
+   * @see https://filamentphp.com/docs/3.x/panels/configuration#unsaved-changes-alerts
+   */
+  'unsaved-changes-alert' => true,
 ];
