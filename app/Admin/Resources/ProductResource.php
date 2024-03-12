@@ -113,6 +113,7 @@ class ProductResource extends Resource
                                  */
                                 $obj = $model::find($get('id'));
 
+                                dd($state);
                                 foreach ($state as $file) {
                                     try {
                                         $obj->addMedia($file)
