@@ -83,5 +83,5 @@ return [
    * 
    * @see https://filamentphp.com/docs/3.x/panels/configuration#unsaved-changes-alerts
    */
-  'unsaved-changes-alert' => true,
+  'unsaved-changes-alert' => false,
 ];
