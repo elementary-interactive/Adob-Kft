@@ -98,7 +98,7 @@
                             },
                         )
                     },
-                    paste: (e) => {
+                    paste: async (e) => {
                         alert('DEBUG');
                         console.log(this);
                         console.log(e);

@@ -116,8 +116,9 @@ class ProductResource extends Resource
                                 foreach ($state as $file) {
                                     try {
                                         if (gettype($file) == \Livewire\Features\SupportFileUploads\TemporaryUploadedFile::class) {
-                                            $obj->addMedia($file)
+                                            $x = $obj->addMedia($file)
                                                 ->toMediaCollection($model::MEDIA_COLLECTION);
+                                            dump($x, $model, $obj);
                                         }
                                     } catch (\Exception $e) {
                                         dd($e);
