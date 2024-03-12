@@ -140,6 +140,8 @@
                         ], escape: false)
                 }}
             />
+            <x-filament::button data-field="$field" style="margin-top: 1rem;" x-on:click.stop.prevent="paste(this)">
+                Beillesztés a vágólapról...</x-filament::button>
         </div>
 
         @if ($hasImageEditor && (! $isDisabled))

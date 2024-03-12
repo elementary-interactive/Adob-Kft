@@ -307,6 +307,12 @@ export default function ADOBMediaHandler({
             this.pond.on('processfilerevert', handleFileProcessing)
         },
 
+        paste: async function(p) {
+          alert('Hello');
+
+          console.log(p);
+        },
+
         destroy: function () {
             this.destroyEditor()
 

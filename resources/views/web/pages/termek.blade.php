@@ -52,7 +52,7 @@
                 @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count())
                     @if ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->count() > 1)
                     <ul id="thumbnails" class="thumbnails">
-                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->reverse() as $media)
+                        @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                             <li class="thumbnail">
                                 <img src="{{ $media->getUrl('thumb') }}" height="100" alt="">
                             </li>
@@ -65,7 +65,7 @@
                     <section id="main-carousel" class="splide">
                         <div class="splide__track">
                             <ul class="splide__list">
-                                @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->reverse() as $media)
+                                @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                                     <li class="splide__slide">
                                         {{-- <img src="{{ $media->getUrl('medium') }}" height="600" alt=""> --}}
                                         {{ $media }}
