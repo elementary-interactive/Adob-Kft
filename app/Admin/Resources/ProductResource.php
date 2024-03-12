@@ -92,7 +92,7 @@ class ProductResource extends Resource
                                 'xl' => 10,
                                 '2xl' => 15,
                             ]),
-                        \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION)
+                        \App\Forms\Components\ADOBMediaHandler::make(Product::MEDIA_COLLECTION)
                             // SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
                             ->collection(Product::MEDIA_COLLECTION)
@@ -105,6 +105,7 @@ class ProductResource extends Resource
                             ->disk('public')
                             ->reorderable()
                             ->reactive()
+                            ->allowPaste()
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
 
                                 /** Getting the product object and attach media files. 
