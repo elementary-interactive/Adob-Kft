@@ -1,6 +1,5 @@
 <?php
 
-use Filament\FontProviders\GoogleFontProvider;
 use Filament\Support\Colors\Color;
 use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
 
@@ -73,7 +72,7 @@ return [
    */
   'font'      => [
     'font-family' => 'Inter',
-    'provider'    => GoogleFontProvider::class
+    'provider'    => \Filament\FontProviders\GoogleFontProvider::class
   ],
 
   'plugins'   => [
