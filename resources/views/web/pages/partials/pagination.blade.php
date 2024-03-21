@@ -60,13 +60,15 @@
     @if ($pager->total() > $pager->perPage())
         <a href="{{ $pager->nextPageUrl() }}" class="next"><i class="icon-right-open"></i></a>
     @endif
+</div>
+<div class="pagination">
     <form method="GET" action="{{ url()->current() }}">
-      <input type="hidden" name="query" value="{{ request()->get('query') }}">
+        <input type="hidden" name="query" value="{{ request()->get('query') }}">
         <div class="row" style="line-height: 4rem;">
-        <div class="col-auto" style="margin-left: 4rem;">
+            <div class="col-auto" style="margin-left: 4rem;">
                 <label class="d-inline-block">Megjelenített termékek: </label>
-        </div>
-        <div class="col-auto" style="max-width: 16rem !important; min-height: 4rem !important;">
+            </div>
+            <div class="col-auto" style="max-width: 16rem !important; min-height: 4rem !important;">
                 <select class="form-control d-inline-block" id="perPage" name="perPage"
                     onchange="this.form.submit();">
                     <option value="25" @if (request()->get('perPage', 25) == 25) selected @endif>25</option>
