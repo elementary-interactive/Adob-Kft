@@ -26,8 +26,7 @@ class SearchController extends Controller
       'perPage' => 'nullable|numeric'
     ]);
 
-    if ($request->has('perPage'))
-    {
+    if ($request->has('perPage')) {
       $this->paginate = $request->input('perPage');
     }
 
@@ -58,13 +57,20 @@ class SearchController extends Controller
       ->paginate($this->paginate)
       ->withQueryString();
 
-    return View::first(
-      $page_service->getViews(Arr::first(app('site')->current()->domains)),
-      [
-        'page'              => $page,
-        'search_result'     => $search_result,
-        'search_term'       => $search_term
-      ]
-    );
+    if ($search_result->count() == 1) {
+      return redirect()->route('product.show', [
+        'slug'              => $search_result->first()->slug,
+      ]);
+    } else {
+
+      return View::first(
+        $page_service->getViews(Arr::first(app('site')->current()->domains)),
+        [
+          'page'              => $page,
+          'search_result'     => $search_result,
+          'search_term'       => $search_term
+        ]
+      );
+    }
   }
 }
