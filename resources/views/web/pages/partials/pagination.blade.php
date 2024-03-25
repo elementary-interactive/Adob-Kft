@@ -5,13 +5,13 @@
     {{-- @dump($pager->currentPage(), $pager->lastPage()) --}}
     @if ($pager->lastPage() > 5)
         @if ($pager->currentPage() >= 5)
-            <a href="{{ $pager->url(1) }}">1</a>
+            <a href="{{ $pager->url(1) }}" class="d-sm-none">1</a>
             @if ($pager->currentPage() > 15)
                 @for ($p = 1; $p < ceil(($pager->currentPage() - 2) / 10); $p++)
-                    <a href="{{ $pager->url($p * 10) }}">{{ $p * 10 }}</a>
+                    <a href="{{ $pager->url($p * 10) }}" class="d-sm-none">{{ $p * 10 }}</a>
                 @endfor
             @endif
-            <span style="line-height: 4rem;">
+            <span class="d-sm-none" style="line-height: 4rem;">
                 ...
             </span>
             @if ($pager->currentPage() < $pager->lastPage() - 3)
@@ -19,11 +19,11 @@
                     <a href="{{ $pager->url($p) }}"
                         @if ($p == $pager->currentPage()) class="active" @endif>{{ $p }}</a>
                 @endfor
-                <span style="line-height: 4rem;">
+                <span class="d-sm-none" style="line-height: 4rem;">
                     ...
                 </span>
                 @for ($p = ceil(($pager->currentPage() + 3) / 10); $p <= $pager->lastPage() / 10; $p++)
-                    <a href="{{ $pager->url($p * 10) }}">{{ $p * 10 }}</a>
+                    <a href="{{ $pager->url($p * 10) }}" class="d-sm-none">{{ $p * 10 }}</a>
                 @endfor
             @else
                 @for ($p = $pager->lastPage() - 5; $p <= $pager->lastPage(); $p++)
@@ -36,12 +36,13 @@
                 <a href="{{ $pager->url($p) }}"
                     @if ($p == $pager->currentPage()) class="active" @endif>{{ $p }}</a>
             @endfor
-            <span style="line-height: 4rem;">
+            <span class="d-sm-none" style="line-height: 4rem;">
                 ...
             </span>
             @for ($p = ceil(($pager->currentPage() + 3) / 10); $p <= $pager->lastPage() / 10; $p++)
-                <a href="{{ $pager->url($p * 10) }}">{{ $p * 10 }}</a>
+                <a href="{{ $pager->url($p * 10) }}" class="d-sm-none">{{ $p * 10 }}</a>
             @endfor
+            </span>
         @endif
 
         {{-- @for ($p = 1; $p <= $pager->lastPage(); $p++)
