@@ -38,13 +38,13 @@ class CategoryService
      * 
      */
     $roots = Category::roots()
-      ->orderBy('name', 'asc')
+      ->orderBy('slug', 'asc')
       ->get();
 
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
       $roots = [];
       $categories = Category::onlyBrand($brand)
-        ->orderBy('name', 'asc')
+        ->orderBy('slug', 'asc')
         ->get();
       foreach ($categories as $category) {
         $ancestors = $category->getAncestors();
