@@ -124,13 +124,16 @@ class CategoryService
 
   public function getProducts(Brand $brand = null)
   {
-    $products = $this->category->products()->orderBy('slug', 'asc');
+    $products = $this->category->products();
 
     if ($brand) {
       $products->onlyBrand($brand);
     }
 
-    return $products->paginate($this->paginate);
+    return $products
+      ->orderBy('product_id', 'ASC')
+      ->paginate($this->paginate)
+      ->withQueryString();
   }
 
   public function path($slug = null)
