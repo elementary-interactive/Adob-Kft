@@ -38,11 +38,14 @@ class CategoryService
      * 
      */
     $roots = Category::roots()
+      ->orderBy('name', 'asc')
       ->get();
 
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
       $roots = [];
-      $categories = Category::onlyBrand($brand)->get();
+      $categories = Category::onlyBrand($brand)
+        ->orderBy('name', 'asc')
+        ->get();
       foreach ($categories as $category) {
         $ancestors = $category->getAncestors();
 
@@ -55,7 +58,7 @@ class CategoryService
       $roots = collect($roots);
     }
 
-    return $roots->sortBy('name');
+    return $roots; // ->sortBy('name');
   }
 
   public function findBySlug($slug): Category
@@ -64,6 +67,7 @@ class CategoryService
 
     $category = Category::roots()
       ->where('slug', Arr::pull($slugs, 0))
+      ->orderBy('name', 'asc')
       ->first();
 
     if (!$category) {
@@ -73,6 +77,7 @@ class CategoryService
     foreach ($slugs as $slug_item) {
       $category = $category->children()
         ->where('slug', $slug_item)
+        ->orderBy('name', 'asc')
         ->first();
 
       if (!$category) {
@@ -118,7 +123,7 @@ class CategoryService
 
   public function getProducts(Brand $brand = null)
   {
-    $products = $this->category->products()->orderByPivot('order', 'asc')->orderBy('slug', 'asc');
+    $products = $this->category->products()->orderBy('slug', 'asc');
 
     if ($brand) {
       $products->onlyBrand($brand);
