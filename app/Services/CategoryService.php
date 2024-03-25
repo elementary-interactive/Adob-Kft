@@ -38,13 +38,11 @@ class CategoryService
      * 
      */
     $roots = Category::roots()
-      ->orderBy('slug', 'asc')
       ->get();
 
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
       $roots = [];
       $categories = Category::onlyBrand($brand)
-        ->orderBy('slug', 'asc')
         ->get();
       foreach ($categories as $category) {
         $ancestors = $category->getAncestors();
@@ -58,7 +56,10 @@ class CategoryService
       $roots = collect($roots);
     }
 
-    return $roots; // ->sortBy('name');
+    /** We shall order the items here, because the plugin puts its own order to
+     * the query, so order by slug doesn't affect the results.
+     */
+    return $roots->sortBy('slug');
   }
 
   public function findBySlug($slug): Category
