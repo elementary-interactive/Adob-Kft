@@ -18,7 +18,7 @@
         @endforeach
     @endif
     <li>
-        @if ($products?->total())
+        @if (isset($products) && $products?->total())
         Összesen: {{ $products->total() }} termék.
         @endif
     </li>
