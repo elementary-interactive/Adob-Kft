@@ -114,8 +114,8 @@ class Product extends Model implements HasMedia
       ->height(100)
       ->fit(Manipulations::FIT_MAX, 100, 100)
       // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
-      ->performOnCollections(self::MEDIA_COLLECTION)
-      ->queued();
+      ->performOnCollections(self::MEDIA_COLLECTION);
+      // ->queued();
 
     $this->addMediaConversion('medium')
       ->height(600)
@@ -123,15 +123,15 @@ class Product extends Model implements HasMedia
       ->withResponsiveImages()
       // ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
-      ->withResponsiveImages()
-      ->queued();
+      ->withResponsiveImages();
+      // ->queued();
 
     $this->addMediaConversion('thumb')
       ->height(100)
       ->fit(Manipulations::FIT_MAX, 100, 100)
       // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
-      ->performOnCollections(self::MEDIA_MAIN)
-      ->queued();
+      ->performOnCollections(self::MEDIA_MAIN);
+      // ->queued();
 
     $this->addMediaConversion('medium')
       ->height(600)
@@ -139,8 +139,8 @@ class Product extends Model implements HasMedia
       ->withResponsiveImages()
       // ->setManipulations(['h' => 600, 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_MAIN)
-      ->withResponsiveImages()
-      ->queued();
+      ->withResponsiveImages();
+      // ->queued();
   }
 
   public function getImagesAttribute()
