@@ -115,27 +115,32 @@ class Product extends Model implements HasMedia
       ->fit(Manipulations::FIT_MAX, 100, 100)
       // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
       ->performOnCollections(self::MEDIA_COLLECTION)
-      ->withResponsiveImages();
+      ->queued();
 
     $this->addMediaConversion('medium')
       ->height(600)
       ->fit(Manipulations::FIT_MAX, 600, 600)
       ->withResponsiveImages()
       // ->setManipulations(['h' => 600, 'fit' => 'max'])
-      ->performOnCollections(self::MEDIA_COLLECTION);
+      ->performOnCollections(self::MEDIA_COLLECTION)
+      ->withResponsiveImages()
+      ->queued();
 
     $this->addMediaConversion('thumb')
       ->height(100)
       ->fit(Manipulations::FIT_MAX, 100, 100)
       // ->setManipulations(['h' => 100, 'fm' => 'png', 'fit' => 'max'])
-      ->performOnCollections(self::MEDIA_MAIN);
+      ->performOnCollections(self::MEDIA_MAIN)
+      ->queued();
 
     $this->addMediaConversion('medium')
       ->height(600)
       ->fit(Manipulations::FIT_MAX, 600, 600)
       ->withResponsiveImages()
       // ->setManipulations(['h' => 600, 'fit' => 'max'])
-      ->performOnCollections(self::MEDIA_MAIN);
+      ->performOnCollections(self::MEDIA_MAIN)
+      ->withResponsiveImages()
+      ->queued();
   }
 
   public function getImagesAttribute()
