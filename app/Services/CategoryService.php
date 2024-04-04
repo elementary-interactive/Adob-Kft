@@ -25,7 +25,7 @@ class CategoryService
    */
   public $products    = null;
 
-  public $paginate    = 15;
+  public $paginate    = 25;
 
   public function __construct()
   {
