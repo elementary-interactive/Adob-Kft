@@ -70,7 +70,7 @@ class BrandController extends Controller
          * 
          * @var int
          */
-        $this->category_service->paginate = site()->product_paginate;
+        $this->category_service->paginate = ($request->has('perPage')) ? $request->get('perPage') : site()->product_paginate;
 
         if ($slug)
         {

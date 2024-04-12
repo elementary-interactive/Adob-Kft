@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Filament\Support\Assets\AlpineComponent;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,6 +46,9 @@ class AppServiceProvider extends ServiceProvider
             'product'               => \App\Models\Product::class,
             'product_import'        => \App\Models\ProductImport::class,
             'user'                  => \App\Models\User::class,
-        ]);
+        ]);// 
+        
+        
+        AlpineComponent::make('a-d-o-b-media-handler', __DIR__ . '/resources/js/components/a-d-o-b-media-handler.js');
     }
 }

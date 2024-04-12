@@ -92,7 +92,7 @@ class ProductResource extends Resource
                                 'xl' => 10,
                                 '2xl' => 15,
                             ]),
-                        \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION)
+                        \App\Forms\Components\ADOBMediaHandler::make(Product::MEDIA_COLLECTION)
                             // SpatieMediaLibraryFileUpload::make(Product::MEDIA_COLLECTION)
                             ->label('Képek')
                             ->collection(Product::MEDIA_COLLECTION)
@@ -103,8 +103,10 @@ class ProductResource extends Resource
                             ->downloadable()
                             ->previewable()
                             ->disk('public')
-                            ->enableReordering()
+                            ->reorderable()
                             ->reactive()
+                            ->allowPaste(true)
+                            ->appendFiles(true)
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
 
                                 /** Getting the product object and attach media files. 
@@ -113,9 +115,13 @@ class ProductResource extends Resource
 
                                 foreach ($state as $file) {
                                     try {
-                                        $obj->addMedia($file)
-                                            ->toMediaCollection($model::MEDIA_COLLECTION);
+                                        if (gettype($file) == \Livewire\Features\SupportFileUploads\TemporaryUploadedFile::class) {
+                                            $x = $obj->addMedia($file)
+                                                ->toMediaCollection($model::MEDIA_COLLECTION);
+                                            dump($x, $model, $obj);
+                                        }
                                     } catch (\Exception $e) {
+                                        dd($e);
                                     }
                                 }
 

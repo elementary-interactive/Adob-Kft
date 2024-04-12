@@ -6,6 +6,7 @@ use App\Admin\Resources\ProductResource;
 use App\Models\Product;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Livewire\Component;
 use Neon\Models\Statuses\BasicStatus;
 
 class EditProduct extends EditRecord
@@ -19,7 +20,10 @@ class EditProduct extends EditRecord
                 ->label('Vissza')
                 ->color('gray')
                 ->icon('heroicon-o-arrow-small-left')
-                ->url(fn (): string => route('filament.neon-admin.resources.products.index')),
+                ->url(function (Product $record, Component $livewire): string {
+                    // dd($record, $record->isDirty(), $livewire);
+                    return route('filament.neon-admin.resources.products.index');
+                }),
             Actions\Action::make('prev')
                 ->label(false)
                 ->color('gray')

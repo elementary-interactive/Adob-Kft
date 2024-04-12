@@ -11,45 +11,66 @@ use Neon\Services\LinkService;
 
 class SearchController extends Controller
 {
-    use ValidatesRequests;
+  use ValidatesRequests;
 
-    public $paginate    = 15;
+  public $paginate    = 25;
 
-    public function search(LinkService $page_service, Request $request)
-    {
-        $page       = $page_service->static('search');
-        $page->title = 'Keresés';
+  public function search(LinkService $page_service, Request $request)
+  {
+    $page         = $page_service->static('search');
+    $page->title  = 'Keresés';
 
-        $this->validate($request, [
-            'query' => 'required|max:255'
-        ]);
+    $this->validate($request, [
+      'query'   => 'required|max:255',
+      'page'    => 'nullable|numeric',
+      'perPage' => 'nullable|numeric'
+    ]);
 
-        $search_term = $request->input('query');
-
-        $search_result = Product::with('categories')
-            ->with('brand')
-            ->where(function($query) use ($search_term) {
-                $query->where('product_id', 'LIKE', "%{$search_term}%")
-                    ->orWhere('name', 'LIKE', "%{$search_term}%")
-                    ->orWhere('description', 'LIKE', "%{$search_term}%")
-                    ->orWhere('packaging', 'LIKE', "%{$search_term}%")
-                    ->orWhere('ean', 'LIKE', "%{$search_term}%");
-            })
-            ->orWhereHas('categories', function($query) use ($search_term) {
-                $query->where('name', 'LIKE', "%{$search_term}%");
-            })
-            ->orWhereHas('brand', function($query) use ($search_term) {
-                $query->where('name', 'LIKE', "%{$search_term}%");
-            })
-            ->paginate($this->paginate);
-         
-        return View::first(
-            $page_service->getViews(Arr::first(app('site')->current()->domains)),
-            [
-                'page'              => $page,
-                'search_result'     => $search_result,
-                'search_term'       => $search_term
-            ]
-        );
+    if ($request->has('perPage')) {
+      $this->paginate = $request->input('perPage');
     }
+
+    /** 
+     * @var string $search_term The search keyword
+     */
+    $search_term   = $request->input('query');
+
+    /**
+     * @var Collection $search_result The result, as the name says.
+     */
+    $search_result = Product::with('categories')
+      ->with('brand')
+      ->where(function ($query) use ($search_term) {
+        $query->where('product_id', 'LIKE', "%{$search_term}%")
+          ->orWhere('name', 'LIKE', "%{$search_term}%")
+          ->orWhere('description', 'LIKE', "%{$search_term}%")
+          ->orWhere('packaging', 'LIKE', "%{$search_term}%")
+          ->orWhere('ean', 'LIKE', "%{$search_term}%");
+      })
+      ->orWhereHas('categories', function ($query) use ($search_term) {
+        $query->where('name', 'LIKE', "%{$search_term}%");
+      })
+      ->orWhereHas('brand', function ($query) use ($search_term) {
+        $query->where('name', 'LIKE', "%{$search_term}%");
+      })
+      ->orderBy('product_id', 'ASC')
+      ->paginate($this->paginate)
+      ->withQueryString();
+
+    if ($search_result->count() == 1) {
+      return redirect()->route('product.show', [
+        'slug'              => $search_result->first()->slug,
+      ]);
+    } else {
+
+      return View::first(
+        $page_service->getViews(Arr::first(app('site')->current()->domains)),
+        [
+          'page'              => $page,
+          'search_result'     => $search_result,
+          'search_term'       => $search_term
+        ]
+      );
+    }
+  }
 }

@@ -1,6 +1,5 @@
 <?php
 
-use Filament\FontProviders\GoogleFontProvider;
 use Filament\Support\Colors\Color;
 use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
 
@@ -63,20 +62,26 @@ return [
     'warning'   => Color::Orange,
   ],
 
-  /** Set font. You can set font-family, and also the provider, if it's needed.
-   * 
-   * 'font'  => [
-   *   'font-family' => 'Inter',
-   *   'provider'    => GoogleFontProvider::class
-   * ]
-   * @see https://filamentphp.com/docs/3.x/panels/themes#changing-the-font
-   */
-  'font'      => [
-    'font-family' => 'Inter',
-    'provider'    => GoogleFontProvider::class
-  ],
+  // /** Set font. You can set font-family, and also the provider, if it's needed.
+  //  * 
+  //  * 'font'  => [
+  //  *   'font-family' => 'Inter',
+  //  *   'provider'    => GoogleFontProvider::class
+  //  * ]
+  //  * @see https://filamentphp.com/docs/3.x/panels/themes#changing-the-font
+  //  */
+  // 'font'      => [
+  //   'font-family' => 'Inter',
+  //   'provider'    => \Filament\FontProviders\GoogleFontProvider::class
+  // ],
 
   'plugins'   => [
     StickyHeaderPlugin::make(),
-  ]
+  ],
+
+  /** If needed to alert on living form after changes, should set this to true.
+   * 
+   * @see https://filamentphp.com/docs/3.x/panels/configuration#unsaved-changes-alerts
+   */
+  'unsaved-changes-alert' => false,
 ];

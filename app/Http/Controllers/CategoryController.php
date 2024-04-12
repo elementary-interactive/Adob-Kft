@@ -42,7 +42,7 @@ class CategoryController extends Controller
          * 
          * @var int
          */
-        $this->category_service->paginate = site()->product_paginate;
+        $this->category_service->paginate = ($request->has('perPage')) ? $request->get('perPage') : 25;
 
         if ($slug)
         {

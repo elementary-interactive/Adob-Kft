@@ -65,10 +65,10 @@
                     <section id="main-carousel" class="splide">
                         <div class="splide__track">
                             <ul class="splide__list">
-                                @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION)->sort() as $media)
+                                @forelse ($product->getMedia(\App\Models\Product::MEDIA_COLLECTION) as $media)
                                     <li class="splide__slide">
-                                        {{-- <img src="{{ $media->getUrl('medium') }}" height="600" alt=""> --}}
-                                        {{ $media }}
+                                        <img src="{{ $media->getUrl('medium') }}" height="600" alt="">
+                                        {{-- {{ $media }} --}}
                                     </li>
                                 @empty
                                     <li class="splide__slide">

@@ -66,6 +66,7 @@ class ProductController extends Controller
         $brand      = null;
         $category   = null;
         $path       = [];
+        $siblings   = [];
 
         if (request()->session()->has('path'))
         {
@@ -76,10 +77,14 @@ class ProductController extends Controller
         } else {
             $slugs = $this->category_service->getMainSlug($product);
         }
-        $category   = $this->category_service->findBySlug($slugs);
-        $path       = $this->category_service->path($slugs);
+        
+        if ($slugs)
+        {
+            $category   = $this->category_service->findBySlug($slugs);
+            $path       = $this->category_service->path($slugs);
 
-        $siblings   = $this->product_service->siblings($path);
+            $siblings   = $this->product_service->siblings($path);
+        }
         // $product_prev = $this->product_service->prev($path);
         // /** Initalize category service.
         //  * 
@@ -91,10 +96,10 @@ class ProductController extends Controller
                 'page'              => $page,
                 'product'           => $product,
                 'brand'             => $brand,
-                'category'          => $category,
-                'path'              => $path,
-                'product_slug_prev' => $siblings['prev'],
-                'product_slug_next' => $siblings['next']
+                'category'          => $category ?: null,
+                'path'              => $path ?: [],
+                'product_slug_prev' => (array_key_exists('prev', $siblings)) ? $siblings['prev'] : null,
+                'product_slug_next' => (array_key_exists('next', $siblings)) ? $siblings['next'] : null,
             ]
         );
     }

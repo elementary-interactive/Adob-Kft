@@ -25,7 +25,7 @@ class CategoryService
    */
   public $products    = null;
 
-  public $paginate    = 15;
+  public $paginate    = 25;
 
   public function __construct()
   {
@@ -42,7 +42,8 @@ class CategoryService
 
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
       $roots = [];
-      $categories = Category::onlyBrand($brand)->get();
+      $categories = Category::onlyBrand($brand)
+        ->get();
       foreach ($categories as $category) {
         $ancestors = $category->getAncestors();
 
@@ -55,7 +56,10 @@ class CategoryService
       $roots = collect($roots);
     }
 
-    return $roots->sortBy('name');
+    /** We shall order the items here, because the plugin puts its own order to
+     * the query, so order by slug doesn't affect the results.
+     */
+    return $roots->sortBy('slug');
   }
 
   public function findBySlug($slug): Category
@@ -64,6 +68,7 @@ class CategoryService
 
     $category = Category::roots()
       ->where('slug', Arr::pull($slugs, 0))
+      ->orderBy('name', 'asc')
       ->first();
 
     if (!$category) {
@@ -73,6 +78,7 @@ class CategoryService
     foreach ($slugs as $slug_item) {
       $category = $category->children()
         ->where('slug', $slug_item)
+        ->orderBy('name', 'asc')
         ->first();
 
       if (!$category) {
@@ -118,13 +124,16 @@ class CategoryService
 
   public function getProducts(Brand $brand = null)
   {
-    $products = $this->category->products()->orderByPivot('order', 'asc')->orderBy('slug', 'asc');
+    $products = $this->category->products();
 
     if ($brand) {
       $products->onlyBrand($brand);
     }
 
-    return $products->paginate($this->paginate);
+    return $products
+      ->orderBy('product_id', 'ASC')
+      ->paginate($this->paginate)
+      ->withQueryString();
   }
 
   public function path($slug = null)
