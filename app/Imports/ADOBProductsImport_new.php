@@ -166,7 +166,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   public function rules(): array
   {
     return [
-      self::$columns::PRODUCT_ID->value               => 'required|unique:products,product_id',
+      self::$columns::PRODUCT_ID->value               => 'required', //|unique:products,product_id',
       self::$columns::PRODUCT_NAME->value             => '',
       self::$columns::BRAND->value                    => '',
       self::$columns::PRICE->value                    => '',
@@ -188,7 +188,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   {
     return [
       self::$columns::PRODUCT_ID->value . '.required'     => 'A termék azonosító megadása kötelező!',
-      self::$columns::PRODUCT_ID->value . '.unique'       => 'A termék azonosító egyedi kell legyen!',
+      // self::$columns::PRODUCT_ID->value . '.unique'       => 'A termék azonosító egyedi kell legyen!',
       self::$columns::EAN->value . 'numeric'              => 'Az EAN szám csak szám lehet.',
       self::$columns::MAIN_CATEGORY->value . '.required'  => 'A fő kategória megadása kötelező!',
     ];
