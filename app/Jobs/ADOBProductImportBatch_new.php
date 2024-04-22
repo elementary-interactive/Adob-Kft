@@ -57,8 +57,39 @@ class ADOBProductImportBatch_new implements ShouldQueue
    */
   public function handle()
   {
-    // try {
-      Excel::import(new ADOBProductsImport_new($this->import->imported_by, $this->import), $this->import->file, null, \Maatwebsite\Excel\Excel::XLSX);
+      // Excel::import(new ADOBProductsImport_new($this->import->imported_by, $this->import), $this->import->file, null, \Maatwebsite\Excel\Excel::XLSX);
+
+      $import = new ADOBProductsImport_new($this->import);
+      $import->import($this->import->file); // we are using the trait importable in the xxxImport which allow us to handle it from the controller directly
+
+      if ($import->failures()->isNotEmpty())
+      {
+        $this->import->fails_counter = $import->failures()->count();
+        foreach($import->failures() as $failure)
+        {
+          $this->import->addFail($failure);
+        }
+        $this->import->save();
+
+
+        Notification::make()
+          ->title('Importálás folyamata...')
+          ->body('Az importálás hibákat talált: ' . $import->failures()->__toString())
+          ->danger()
+          ->sendToDatabase($this->import->imported_by);
+      } else {
+        Notification::make()
+          ->title('Importálás folyamata...')
+          ->body('Az importálás sikeresen lefutott!')
+          ->success()
+          ->sendToDatabase($this->import->imported_by);
+      }
+        //     if($import->failures()->isNotEmpty()){
+        //         $failures = $import->failures();
+                
+        //         // return view('admin.formations.failures')->with('failures', $failures);
+        //     }
+        // // return back()->with('success','Formations importées avec succès');
     // } catch (\Exception $e) {
 
     //   /** Uups...

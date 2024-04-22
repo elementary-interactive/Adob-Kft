@@ -3,19 +3,19 @@
 namespace App\Models\Columns;
 
 enum ADOBProductsImportColumns: string {
-    case PRODUCT_ID                 = 'cikkszám';
-    case PRODUCT_NAME               = 'megnevezés';
-    case BRAND                      = 'márka';
-    case PRICE                      = 'webár';
-    case DESCRIPTION                = 'leírás';
-    case PACKAGING                  = 'csomagolás';
+    case PRODUCT_ID                 = 'cikkszam';
+    case PRODUCT_NAME               = 'megnevezes';
+    case BRAND                      = 'marka';
+    case PRICE                      = 'webar';
+    case DESCRIPTION                = 'leiras';
+    case PACKAGING                  = 'csomagolas';
     case EAN                        = 'ean';
-    case PRODUCT_NUMBER             = 'termékszám';
-    case ON_SALE                    = 'akciós';
-    case MAIN_CATEGORY              = 'main kat';
+    case PRODUCT_NUMBER             = 'termekszam';
+    case ON_SALE                    = 'akcios';
+    case MAIN_CATEGORY              = 'main_kat';
     case COMMAND                    = 'web';
     case SUB_CATEGORY               = 'alkat';
-    case IMAGES                     = 'képek';
+    case IMAGES                     = 'kepek';
 }
 
 /** 

@@ -105,7 +105,16 @@ class ProductImportResource extends Resource
         // }),
         Infolists\Components\TextEntry::make('job')
           ->label('Feladat / Hibaüzenet')
-          ->columnSpanFull(),
+          ->columnSpanFull()
+          ->getStateUsing(function (ProductImport $record) {
+            $result = '<ol>';
+            foreach ($record->data['fails'] as $fail) {
+              $result .= '<li>'.$fail;
+            }
+            $result .= '</ol>';
+            return $result;
+          })
+          ->html(),
         Infolists\Components\TextEntry::make('file')
           ->label('Állomány')
           ->icon('heroicon-o-arrow-down-on-square')

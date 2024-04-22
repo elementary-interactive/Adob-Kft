@@ -33,7 +33,7 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 
-class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, WithBatchInserts, ShouldQueue, WithEvents, WithValidation, WithHeadingRow, WithChunkReading
+class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, WithBatchInserts, ShouldQueue, WithEvents, WithHeadingRow, WithChunkReading, WithValidation
 {
   use Importable, RemembersRowNumber, SkipsErrors, SkipsFailures;
 
@@ -51,12 +51,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   /** @var ProductImport */
   public $tracker;
 
-  public function __construct(Admin $imported_by, $tracker)
+  public function __construct(ProductImport $tracker)
   {
     /** The importer user. who need to set up for notifications...
      * @var Admin
      */
-    $this->imported_by  = $imported_by;
+    $this->imported_by  = $tracker->imported_by;
 
     /** The tracker for counts.
      *
@@ -139,7 +139,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     $result = null;
 
-    dd($row);
+    // dd($row);
 
     try {
       if (self::to_save($row)) {
@@ -196,6 +196,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   private function error(string $message, string $icon = 'exclamation-circle')
   {
+    $this->tracker->addFail($message);
+
     Notification::make()
       ->title('Importálás folyamata...')
       ->body($message)
@@ -223,7 +225,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       $product->packaging       = $row[self::$columns::PACKAGING->value];
     }
     if (array_key_exists(self::$columns::DESCRIPTION->value, $row)) {
-      $product->description     = $row[self::$columns::DESCRIPTION->value];
+      $product->description     = nl2br(mb_convert_encoding($row[self::$columns::DESCRIPTION->value], 'UTF-8'));
     }
     if (array_key_exists(self::$columns::EAN->value, $row) && is_numeric($row[self::$columns::EAN->value])) {
       $product->ean             = $row[self::$columns::EAN->value];
