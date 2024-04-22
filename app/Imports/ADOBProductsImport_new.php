@@ -201,7 +201,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     Notification::make()
       ->title('Importálás folyamata...')
       ->body($message)
-      ->error()
+      ->danger()
       ->sendToDatabase($this->imported_by);
   }
 
