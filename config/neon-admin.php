@@ -1,7 +1,7 @@
 <?php
 
 use Filament\Support\Colors\Color;
-use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
+// use Awcodes\FilamentStickyHeader\StickyHeaderPlugin;
 
 return [
 
@@ -76,7 +76,7 @@ return [
   // ],
 
   'plugins'   => [
-    StickyHeaderPlugin::make(),
+    // StickyHeaderPlugin::make(),
   ],
 
   /** If needed to alert on living form after changes, should set this to true.

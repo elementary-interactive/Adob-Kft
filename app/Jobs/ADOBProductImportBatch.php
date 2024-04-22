@@ -34,7 +34,6 @@ class ADOBProductImportBatch implements ShouldQueue
     protected ProductImport $import
   ) {
 
-
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }

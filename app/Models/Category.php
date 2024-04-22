@@ -13,6 +13,7 @@ use Neon\Models\Statuses\BasicStatus;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use App\Jobs\CountBrandCategoryProducts;
+use Illuminate\Database\Eloquent\Collection;
 
 class Category extends Node
 {
@@ -156,5 +157,31 @@ class Category extends Node
     // }
 
     return $counts;
+  }
+
+  /**
+   * @param array
+   */
+  public static function getNestedFlat(): array
+  {
+    $result = [];
+    $x = self::getNestedList('name', 'id');
+    foreach ($x as $id => $name)
+    {
+      $y = Category::find($id)->getAncestorsAndSelf();
+      foreach($y as $item) 
+      {
+        if (!array_key_exists($id, $result))
+        {
+          $result[$id] = '';
+        }
+        if (strlen($result[$id])) 
+        {
+          $result[$id] .= ' / ';
+        }
+        $result[$id] .= $item->name;
+      }
+    }
+    return $result;
   }
 }

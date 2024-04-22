@@ -158,29 +158,42 @@ class ProductResource extends Resource
                                 Forms\Components\Select::make('brand_id')
                                     ->label('Márka')
                                     ->required()
+                                    ->native(false)
                                     ->relationship('brand', 'name')
                                     ->columnSpan([
                                         'sm' => 2,
                                         'xl' => 3,
                                         '2xl' => 4,
                                     ]),
-                                SelectTree::make('categories')
+                                Forms\Components\Select::make('category_id')
                                     ->label('Kategóriák')
                                     ->required()
-                                    ->relationship('categories', 'name', 'parent_id', function ($query) {
-                                        return $query;
-                                    })
-                                    ->withCount()
-                                    ->independent(true)
-                                    ->expandSelected(true)
-                                    ->enableBranchNode()
-                                    // ->alwaysOpen(true)
-                                    ->searchable()
+                                    ->multiple()
+                                    ->native(false)
+                                    ->relationship('categories', 'name')
+                                    ->options(fn (): array => Category::getNestedFlat()) //('name', 'id', '—', ' '))
                                     ->columnSpan([
                                         'sm' => 2,
                                         'xl' => 3,
                                         '2xl' => 4,
                                     ]),
+                                // SelectTree::make('categories')
+                                //     ->label('Kategóriák')
+                                //     ->required()
+                                //     ->relationship('categories', 'name', 'parent_id', function ($query) {
+                                //         return $query;
+                                //     })
+                                //     ->withCount()
+                                //     ->independent(true)
+                                //     ->expandSelected(true)
+                                //     ->enableBranchNode()
+                                //     // ->alwaysOpen(true)
+                                //     ->searchable()
+                                //     ->columnSpan([
+                                //         'sm' => 2,
+                                //         'xl' => 3,
+                                //         '2xl' => 4,
+                                //     ]),
                             ]),
                         Group::make()
                             ->columns(2)
@@ -228,16 +241,17 @@ class ProductResource extends Resource
                 // ->copyableState(fn (Product $record): string => route('product.show', ['slug' => $record->slug])),
                 Tables\Columns\ImageColumn::make('images')
                     ->label('Képek')
-                    ->circular()
+                    // ->circular()
                     ->stacked()
                     ->limit(3)
                     ->limitedRemainingText(isSeparate: true)
                     ->toggleable(),
-                // ->extraImgAttributes(['loading' => 'lazy']),
                 Tables\Columns\TextColumn::make('brand.name')
                     ->label('Márka'),
-                // Tables\Columns\TextColumn::make('product_number')
-                //     ->searchable(),
+                Tables\Columns\TextColumn::make('product_number')
+                    ->searchable()
+                    ->label('Termék száma')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Név')
                     ->searchable()
@@ -266,15 +280,25 @@ class ProductResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('images_count')
+                    ->label('Képek száma')
+                    ->numeric()
+                    ->getStateUsing(function (Model $record): int {
+                        return $record->getMedia(Product::MEDIA_COLLECTION)->count();
+                    })
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Létrehozva')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Utoljára frissítve')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('deleted_at')
+                    ->label('Törlés dátuma')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -351,7 +375,7 @@ class ProductResource extends Resource
                 ]),
             ])
             ->paginated([25, 50, 100, 'all'])
-            ->defaultPaginationPageOption(100)
+            ->defaultPaginationPageOption(25)
             ->defaultSort('created_at', 'desc');
     }
 
