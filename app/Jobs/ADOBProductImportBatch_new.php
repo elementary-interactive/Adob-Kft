@@ -57,7 +57,18 @@ class ADOBProductImportBatch_new implements ShouldQueue
    */
   public function handle()
   {
-    Excel::import(new ADOBProductsImport_new($this->import->imported_by, $this->import), $this->import->file, null, \Maatwebsite\Excel\Excel::XLSX);
+    // try {
+      Excel::import(new ADOBProductsImport_new($this->import->imported_by, $this->import), $this->import->file, null, \Maatwebsite\Excel\Excel::XLSX);
+    // } catch (\Exception $e) {
+
+    //   /** Uups...
+    //    */
+    //   Notification::make()
+    //     ->title('Importálás folyamata...')
+    //     ->body('Hiba: ' . $e->getMessage())
+    //     ->danger()
+    //     ->sendToDatabase($this->import->imported_by);
+    // }
 
 
 

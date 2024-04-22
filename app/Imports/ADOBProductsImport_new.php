@@ -33,7 +33,7 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 
-class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, WithBatchInserts, ShouldQueue, WithEvents, WithValidation, WithHeadingRow //, WithChunkReading
+class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, WithBatchInserts, ShouldQueue, WithEvents, WithValidation, WithHeadingRow, WithChunkReading
 {
   use Importable, RemembersRowNumber, SkipsErrors, SkipsFailures;
 
@@ -127,10 +127,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    * @see https://docs.laravel-excel.com/3.1/imports/chunk-reading.html
    * 
    */
-  // public function chunkSize(): int
-  // {
-  //   return 10;
-  // }
+  public function chunkSize(): int
+  {
+    return 1000;
+  }
 
   public function model(array $row)
   {
