@@ -246,14 +246,13 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       'name'        => $row[self::$columns::BRAND->value],
       'is_featured' => false
     ]);
-    if ($brand->exists) {
-      $this->tracker->increaseBrandModified();
-    } else {
+    if (!$brand->exists) {
       $this->tracker->increaseBrandInserted();
     }
-    DB::transaction(function () use ($brand) {
+
+    // DB::transaction(function () use ($brand) {
       $brand->save();
-    }, 5);
+    // }, 5);
 
 
     // Connect brand to product.
@@ -270,9 +269,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       $is_new = true;
       $this->tracker->increaseProductInserted();
     }
-    DB::transaction(function () use ($product) {
+    // DB::transaction(function () use ($product) {
       $product->save();
-    }, 5);
+    // }, 5);
 
     /** Upload categories...
      */
@@ -393,7 +392,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
               $sub_category->save();
               $sub_category->makeChildOf($category);
             } else {
-              $this->tracker->increaseCategoryModified();
+              // $this->tracker->increaseCategoryModified();
             }
 
             $category = $sub_category;
