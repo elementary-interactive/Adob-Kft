@@ -8,7 +8,6 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
         "ext-intl": "*",
         "awcodes/filament-sticky-header": "^2.0",
         "codewithdennis/filament-select-tree": "^3.1",
@@ -21,7 +20,7 @@
         "logtail/monolog-logtail": "^3.0",
         "maatwebsite/excel": "^3.1",
         "neon/model-uuid": "^1.0",
-        "neon/admin-ui": "3.0.0-alpha-23",
+        "neon/admin-ui": "3.0.0-alpha-26",
         "neon/attributable": "3.0.0-alpha-5",
         "neon/menu": "3.0.0-alpha-12",
         "neon/model-base": "1.0.0",
@@ -30,7 +29,7 @@
         "neon/ui": "0.1.0-alpha-1",
         "sentry/sentry-laravel": "^3.8",
         "solution-forest/filament-tree": "^2.0",
-        "spatie/laravel-medialibrary": "^10.0.0",
+        "spatie/laravel-medialibrary": "^10.0",
         "symfony/intl": "^6.3",
         "toponepercent/baum": "3.1.0"
     },
