@@ -240,11 +240,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     /** 
      * @var Brand $brand The product's brand.
      */
-    $brand = Brand::firstOrNew([
+    $brand = Brand::firstOrCreate([
       'slug'        => Str::slug($row[self::$columns::BRAND->value]),
-    ], [ //- Fill up data.
       'name'        => $row[self::$columns::BRAND->value],
-      'is_featured' => false
     ]);
     if (!$brand->exists) {
       $this->tracker->increaseBrandInserted();
