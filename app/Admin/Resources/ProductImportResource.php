@@ -108,8 +108,8 @@ class ProductImportResource extends Resource
           ->columnSpanFull()
           ->getStateUsing(function (ProductImport $record) {
             $result = '';
-            
-            if (array_key_exists('fails', $record->data))
+
+            if (is_array($record->data) && array_key_exists('fails', $record->data))
             {
               $result = '<ol>';
               foreach ($record->data['fails'] as $fail) {
