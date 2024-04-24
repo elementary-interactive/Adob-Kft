@@ -244,7 +244,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       'slug'        => Str::slug($row[self::$columns::BRAND->value]),
       'name'        => $row[self::$columns::BRAND->value],
       'status'      => BasicStatus::Active->value
-    ]);
+    ])->withoutGlobalScopes();
     dump($brand);
     if (!$brand->exists) {
       $this->tracker->increaseBrandInserted();
