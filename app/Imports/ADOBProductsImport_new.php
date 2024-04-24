@@ -349,7 +349,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function attach_categories(Product $product, array $row): array
   {
-    dump($product->product_id);
+    dump($product->product_id, $row);
     $columns  = array_keys($row);
 
     $result   = [];
@@ -357,7 +357,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
-      dump($main_category_column);
+      dump($main_category_column, $row[$main_category_column]);
       if ($row[$main_category_column]) {
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
