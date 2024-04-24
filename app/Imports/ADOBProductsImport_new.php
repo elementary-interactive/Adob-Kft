@@ -349,10 +349,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function attach_categories(Product $product, array $row): array
   {
-    dump($product->product_id);
     $columns  = array_keys($row);
-
-    $result   = [];
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
@@ -366,9 +363,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           'name'        => $row[$main_category_column],
           'description' => $row[$main_category_column]
         ]);
-
-        $result[$categories_index] = $main_category;
-        
+ 
         $category = null;
 
         for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
@@ -396,23 +391,13 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           }
         }
 
-        $result[$categories_index] = $category;
-        echo "--------------------------------";
-        dump($result);
+        $x = $product->categories()->attach($category, [
+          'is_main' => ($categories_index == 1),
+          'order'   => 0,
+        ]);
+        dump($x);
       }
     }
-
-    dump($result);
-
-    foreach ($result as $category_index => $category) {
-      // $counter = $category->products()->count();
-      $product->categories()->attach($category, [
-        'is_main' => ($category_index == 1),
-        'order'   => 0,
-      ]);
-    }
-
-    return $result;
   }
 
   public static function to_save(array $row): bool
