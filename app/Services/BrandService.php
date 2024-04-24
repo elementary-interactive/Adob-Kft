@@ -41,29 +41,28 @@ class BrandService
   {
     $this->brand = Brand::find($id)
       ->first();
-   
+
     return $this->brand;
   }
-  
+
   public function findBySlug($slug): Brand
   {
     /** Getting category... */
     $this->brand = Brand::where('slug', $slug)
       ->firstOrFail();
 
-      request()->session()->flash('brand', $this->brand->id);
+    request()->session()->flash('brand', $this->brand->id);
 
     return $this->brand;
   }
 
-  public function getProducts() 
+  public function getProducts()
   {
-      $products = $this->brand->products();
-  
-      return $products
-        ->orderBy('product_id', 'ASC')
-        ->paginate($this->paginate)
-        ->withQueryString();
-    }
+    $products = $this->brand->products();
+
+    return $products
+      ->orderBy('product_id', 'ASC')
+      ->paginate($this->paginate)
+      ->withQueryString();
   }
 }
