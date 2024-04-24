@@ -70,6 +70,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       BeforeImport::class => function (BeforeImport $event)
       {
         $totalRows = $event->getReader()->getTotalRows();
+        dump($totalRows);
         $this->tracker->records_counter = $totalRows[array_key_first($totalRows)];
 
         Notification::make()
@@ -349,7 +350,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function attach_categories(Product $product, array $row): array
   {
-    dump($product->product_id, $row);
+    dump($product->product_id);
     $columns  = array_keys($row);
 
     $result   = [];
@@ -366,6 +367,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           'name'        => $row[$main_category_column],
           'description' => $row[$main_category_column]
         ]);
+
+        dump($main_category);
 
         $category = null;
 
@@ -393,6 +396,11 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
             $category = $sub_category;
           }
+        }
+
+        if (is_null($category))
+        {
+          $category = $main_category;
         }
         $result[$categories_index] = $category;
       }
