@@ -67,7 +67,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   public function registerEvents(): array
   {
     return [
-      BeforeImport::class => function (BeforeImport $event) {
+      BeforeImport::class => function (BeforeImport $event)
+      {
         $totalRows = $event->getReader()->getTotalRows();
         $this->tracker->records_counter = $totalRows[array_key_first($totalRows)];
 
@@ -78,17 +79,16 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           ->sendToDatabase($this->imported_by);
       },
 
-      ImportFailed::class => function (ImportFailed $event) {
+      ImportFailed::class => function (ImportFailed $event)
+      {
         $this->tracker->addFail($event->getException()->getMessage());
         $this->tracker->status = 'failed';
         $this->tracker->save();
         $this->error($event->getException()->getMessage());
       },
 
-      AfterImport::class => function(AfterImport $event) {
-
-        dump($event);
-
+      AfterImport::class => function(AfterImport $event)
+      {
         $this->tracker->status = 'finished';
         $this->tracker->finished_at = now();
         $this->tracker->save();
@@ -153,9 +153,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         $result = $this->delete_product($row);
       }
     } catch (\Exception $e) {
-      $this->error($e->getMessage());
+      // $this->error($e->getMessage());
     } catch (\Throwable $e) {
-      $this->error($e->getMessage());
+      // $this->error($e->getMessage());
     }
 
     // $result->setRelation('team', new Team(['name' => $row[1]]));
@@ -259,19 +259,15 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->brand()->associate($brand);
 
     if ($product->exists) {
-      $is_new = false;
       $this->tracker->increaseProductModified();
+
+      /** Detach from all categories, will re-attach new ones.s
+       */
+      $product->categories()->detach();
     } else {
-      $is_new = true;
       $this->tracker->increaseProductInserted();
     }
     $product->save();
-
-    /** Upload categories...
-     */
-    if (!$is_new) { //- If modifying product we detach from all categories.
-      $product->categories()->detach();
-    }
 
     /** Check is there category & adding to categories.
      * 
@@ -353,6 +349,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function attach_categories(Product $product, array $row): array
   {
+    dump($product->product_id);
     $columns  = array_keys($row);
 
     $result   = [];
@@ -360,6 +357,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
+      dump($main_category_column);
       if ($row[$main_category_column]) {
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
@@ -400,11 +398,13 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       }
     }
 
+    dump($result);
+
     foreach ($result as $category_index => $category) {
-      $counter = $category->products()->count();
+      // $counter = $category->products()->count();
       $product->categories()->attach($category, [
         'is_main' => ($category_index == 1),
-        'order'   => $counter + 1,
+        'order'   => 0,
       ]);
     }
 
