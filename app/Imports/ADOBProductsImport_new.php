@@ -380,6 +380,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           dump($sub_category_column, $row);
 
           if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column])) {
+            dump('Here we go!!!');
+            
             $sub_category = Category::firstOrNew([
               'slug'        => Str::slug($row[$sub_category_column]),
               'parent_id'   => $category->id,
@@ -387,18 +389,19 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
               'name'        => $row[$sub_category_column]
             ]);
 
+            dump($sub_category);
+
             if (!$sub_category->exists) {
               $this->tracker->increaseCategoryInserted();
               $sub_category->save();
               $sub_category->makeChildOf($category);
-            } else {
-              // $this->tracker->increaseCategoryModified();
             }
 
             $category = $sub_category;
           }
         }
-
+        echo "--------------------------------";
+        dump($category);
         if (is_null($category))
         {
           $category = $main_category;
