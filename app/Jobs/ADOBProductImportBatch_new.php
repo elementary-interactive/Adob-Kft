@@ -62,28 +62,28 @@ class ADOBProductImportBatch_new implements ShouldQueue
       $import = new ADOBProductsImport_new($this->import);
       $import->import($this->import->file); // we are using the trait importable in the xxxImport which allow us to handle it from the controller directly
 
-      if ($import->failures()->isNotEmpty())
-      {
-        $this->import->fails_counter = $import->failures()->count();
-        foreach($import->failures() as $failure)
-        {
-          $this->import->addFail($failure);
-        }
-        $this->import->save();
+      // if ($import->failures()->isNotEmpty())
+      // {
+      //   $this->import->fails_counter = $import->failures()->count();
+      //   foreach($import->failures() as $failure)
+      //   {
+      //     $this->import->addFail($failure);
+      //   }
+      //   $this->import->save();
 
 
-        Notification::make()
-          ->title('Importálás folyamata...')
-          ->body('Az importálás hibákat talált: ' . $import->failures()->__toString())
-          ->danger()
-          ->sendToDatabase($this->import->imported_by);
-      } else {
-        Notification::make()
-          ->title('Importálás folyamata...')
-          ->body('Az importálás sikeresen lefutott!')
-          ->success()
-          ->sendToDatabase($this->import->imported_by);
-      }
+      //   Notification::make()
+      //     ->title('Importálás folyamata...')
+      //     ->body('Az importálás hibákat talált: ' . $import->failures()->__toString())
+      //     ->danger()
+      //     ->sendToDatabase($this->import->imported_by);
+      // } else {
+      //   Notification::make()
+      //     ->title('Importálás folyamata...')
+      //     ->body('Az importálás sikeresen lefutott!')
+      //     ->success()
+      //     ->sendToDatabase($this->import->imported_by);
+      // }
         //     if($import->failures()->isNotEmpty()){
         //         $failures = $import->failures();
                 
