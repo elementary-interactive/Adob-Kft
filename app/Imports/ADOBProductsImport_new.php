@@ -70,8 +70,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       BeforeImport::class => function (BeforeImport $event)
       {
         $totalRows = $event->getReader()->getTotalRows();
-        dump($totalRows);
-        $this->tracker->records_counter = $totalRows[array_key_first($totalRows)];
+        $this->tracker->records_counter = $totalRows[array_key_first($totalRows)] - 1; // Because of the header...
 
         Notification::make()
           ->title('Importálás folyamata...')
@@ -377,6 +376,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
             $category = $main_category;
           }
           $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}/", $columns));
+
+          dump($sub_category_column, $row);
 
           if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column])) {
             $sub_category = Category::firstOrNew([
