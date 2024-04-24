@@ -240,13 +240,13 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     /** 
      * @var Brand $brand The product's brand.
      */
-    $brand = Brand::withoutGlobalScopes()
-      ->firstOrCreate([
-        'slug'        => Str::slug($row[self::$columns::BRAND->value]),
+    $brand = Brand::firstOrNew([
+        'slug'        => Str::slug($row[self::$columns::BRAND->value])
+      ],[
         'name'        => $row[self::$columns::BRAND->value],
         'status'      => BasicStatus::Active->value
       ]);
-    dump($brand);
+
     if (!$brand->exists) {
       $this->tracker->increaseBrandInserted();
       $brand->save();
@@ -255,10 +255,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     // Connect brand to product.
     $product->brand()->associate($brand);
 
-    // dump($product);
-
-    $this->save_images($product, $row);
-
     if ($product->exists) {
       $is_new = false;
       $this->tracker->increaseProductModified();
@@ -266,9 +262,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       $is_new = true;
       $this->tracker->increaseProductInserted();
     }
-    // DB::transaction(function () use ($product) {
     $product->save();
-    // }, 5);
 
     /** Upload categories...
      */
@@ -281,6 +275,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      * This method will also insert or modify categories.
      */
     $this->attach_categories($product, $row);
+    
+    /** Store images to the product.
+     */
+    $this->save_images($product, $row);
 
     return $product;
   }
@@ -362,7 +360,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       if ($row[$main_category_column]) {
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
-          'parent_id'   => null
+          'parent_id'   => null,
+          'status'      => BasicStatus::Active->value
         ], [
           'name'        => $row[$main_category_column],
           'description' => $row[$main_category_column]
@@ -379,7 +378,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column])) {
             $sub_category = Category::firstOrNew([
               'slug'        => Str::slug($row[$sub_category_column]),
-              'parent_id'   => $category->id
+              'parent_id'   => $category->id,
+              'status'      => BasicStatus::Active->value
             ], [
               'name'        => $row[$sub_category_column]
             ]);
