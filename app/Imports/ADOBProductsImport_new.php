@@ -391,11 +391,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           }
         }
 
-        $x = $product->categories()->attach($category, [
+        $product->categories()->attach($category, [
           'is_main' => ($categories_index == 1),
           'order'   => 0,
         ]);
-        dump($x);
       }
     }
   }
