@@ -86,6 +86,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       },
 
       AfterImport::class => function(AfterImport $event) {
+
+        dump($event);
+
         $this->tracker->status = 'finished';
         $this->tracker->finished_at = now();
         $this->tracker->save();
