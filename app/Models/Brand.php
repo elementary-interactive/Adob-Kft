@@ -39,6 +39,10 @@ class Brand extends Model
     'created_at', 'updated_at', 'deleted_at',
   ];
 
+  protected $attributes = [
+    'is_featured' => false
+  ];
+
   public function products(): HasMany
   {
     return $this->hasMany(\App\Models\Product::class);
