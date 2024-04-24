@@ -361,7 +361,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
           'parent_id'   => null,
-          'status'      => BasicStatus::Active->value
         ], [
           'name'        => $row[$main_category_column],
           'description' => $row[$main_category_column]
@@ -379,7 +378,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
             $sub_category = Category::firstOrNew([
               'slug'        => Str::slug($row[$sub_category_column]),
               'parent_id'   => $category->id,
-              'status'      => BasicStatus::Active->value
             ], [
               'name'        => $row[$sub_category_column]
             ]);
