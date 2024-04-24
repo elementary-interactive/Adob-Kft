@@ -107,11 +107,16 @@ class ProductImportResource extends Resource
           ->label('Feladat / Hibaüzenet')
           ->columnSpanFull()
           ->getStateUsing(function (ProductImport $record) {
-            $result = '<ol>';
-            foreach ($record->data['fails'] as $fail) {
-              $result .= '<li>'.$fail;
+            $result = '';
+            
+            if (array_key_exists('fails', $record->data))
+            {
+              $result = '<ol>';
+              foreach ($record->data['fails'] as $fail) {
+                $result .= '<li>'.$fail;
+              }
+              $result .= '</ol>';
             }
-            $result .= '</ol>';
             return $result;
           })
           ->html(),
