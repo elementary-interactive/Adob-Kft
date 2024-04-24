@@ -14,7 +14,9 @@ class BrandService
   /** The selected brand if found.
    * @var Brand|null
    */
-  public $brand   = null;
+  public $brand     = null;
+
+  public $paginate  = 25;
 
   public function __construct()
   {
@@ -52,5 +54,16 @@ class BrandService
       request()->session()->flash('brand', $this->brand->id);
 
     return $this->brand;
+  }
+
+  public function getProducts() 
+  {
+      $products = $this->brand->products();
+  
+      return $products
+        ->orderBy('product_id', 'ASC')
+        ->paginate($this->paginate)
+        ->withQueryString();
+    }
   }
 }

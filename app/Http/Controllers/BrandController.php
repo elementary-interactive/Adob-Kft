@@ -67,10 +67,9 @@ class BrandController extends Controller
         $brand      = $this->brand_service->findBySlug($brand);
 
         /** Getting site config's paginate value.
-         * 
-         * @var int
          */
-        $this->category_service->paginate = ($request->has('perPage')) ? $request->get('perPage') : site()->product_paginate;
+        $this->category_service->paginate   = ($request->has('perPage')) ? $request->get('perPage') : site()->product_paginate;
+        $this->brand_service->paginate      = ($request->has('perPage')) ? $request->get('perPage') : site()->product_paginate;
 
         if ($slug)
         {
@@ -81,6 +80,8 @@ class BrandController extends Controller
                 $products   = $this->category_service->getProducts($brand);
                 $categories = $this->category_service->getChildren($brand);
             }
+        } else {
+            $products   = $this->brand_service->getProducts();
         }
 
         if (!$categories)
