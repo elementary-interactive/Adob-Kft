@@ -96,45 +96,45 @@ class ListProducts extends ListRecords
         //   }
         // }),
       // ->slideOver(),
-      Actions\Action::make('ADOB_export')
-        ->label('Exportálás')
-        ->icon('heroicon-o-arrow-up-tray')
-        ->action(function (): void {
+      // Actions\Action::make('ADOB_export')
+      //   ->label('Exportálás')
+      //   ->icon('heroicon-o-arrow-up-tray')
+      //   ->action(function (): void {
 
-          /** The name of the file to export data into...
-           * @var string
-           */
-          $file = 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
+      //     /** The name of the file to export data into...
+      //      * @var string
+      //      */
+      //     $file = 'ADOB_termek-export-' . date('Y-m-d H_i_s') . '.xlsx';
 
-          $response = Excel::store((new ADOBProductsExport(auth()->user(), null)), 'exports/' . $file, config('filesystem.default', 'local'), \Maatwebsite\Excel\Excel::XLSX);
+      //     $response = Excel::store((new ADOBProductsExport(auth()->user(), null)), 'exports/' . $file, config('filesystem.default', 'local'), \Maatwebsite\Excel\Excel::XLSX);
 
-          if (!$response) { //- instanceof BinaryFileResponse || $response->isInvalid()) {
-            Notification::make()
-              ->title('Exportálás sikertelen')
-              ->warning()
-              ->sendToDatabase(auth()->user());
-            //   return Action::danger(__('Resource could not be exported.'));
-          } else {
-            Notification::make()
-              ->title('Exportálás sikerült!')
-              ->body('Az exportálás elkészült, az alábbi gombra kattintva letölthető!')
-              ->success()
-              ->actions([
-                Notifications\Actions\Action::make('view')
-                  ->label('Megnyit')
-                  ->button()
-                  ->url(URL::temporarySignedRoute('export.download', now()->addDays(7), [
-                    'path'     => encrypt('exports/' . $file),
-                    'filename' => encrypt($file),
-                  ]))
-              ])
-              ->sendToDatabase(auth()->user());
-            // return redirect()->to(URL::temporarySignedRoute('export.download', now()->addDays(7), [
-            //     'path'     => encrypt('exports/'.$file),
-            //     'filename' => encrypt($file),
-            // ]));
-          }
-        }),
+      //     if (!$response) { //- instanceof BinaryFileResponse || $response->isInvalid()) {
+      //       Notification::make()
+      //         ->title('Exportálás sikertelen')
+      //         ->warning()
+      //         ->sendToDatabase(auth()->user());
+      //       //   return Action::danger(__('Resource could not be exported.'));
+      //     } else {
+      //       Notification::make()
+      //         ->title('Exportálás sikerült!')
+      //         ->body('Az exportálás elkészült, az alábbi gombra kattintva letölthető!')
+      //         ->success()
+      //         ->actions([
+      //           Notifications\Actions\Action::make('view')
+      //             ->label('Megnyit')
+      //             ->button()
+      //             ->url(URL::temporarySignedRoute('export.download', now()->addDays(7), [
+      //               'path'     => encrypt('exports/' . $file),
+      //               'filename' => encrypt($file),
+      //             ]))
+      //         ])
+      //         ->sendToDatabase(auth()->user());
+      //       // return redirect()->to(URL::temporarySignedRoute('export.download', now()->addDays(7), [
+      //       //     'path'     => encrypt('exports/'.$file),
+      //       //     'filename' => encrypt($file),
+      //       // ]));
+      //     }
+      //   }),
     ];
   }
 

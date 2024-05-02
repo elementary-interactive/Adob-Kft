@@ -2,11 +2,11 @@
 
 namespace App\Admin\Resources;
 
-use App\Admin\Resources\ProductImportResource\Pages;
-use App\Admin\Resources\ProductImportResource\RelationManagers;
-use App\Jobs\ADOBProductImportBatch;
-use App\Jobs\ADOBProductImportBatch_new;
-use App\Models\ProductImport;
+use App\Admin\Resources\ProductExportResource\Pages;
+use App\Admin\Resources\ProductExportResource\RelationManagers;
+use App\Jobs\ADOBProductExportBatch;
+use App\Jobs\ADOBProductExportBatch_new;
+use App\Models\ProductExport;
 use App\Tables\Columns\ProgressColumn;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -23,17 +23,17 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
-class ProductImportResource extends Resource
+class ProductExportResource extends Resource
 {
-  protected static ?string $model = ProductImport::class;
+  protected static ?string $model = ProductExport::class;
 
-  protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
+  protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';
 
-  protected static ?string $navigationLabel = 'Termék importok';
+  protected static ?string $navigationLabel = 'Termék exportok';
 
-  protected static ?string $modelLabel = 'Termék import';
+  protected static ?string $modelLabel = 'Termék export';
 
-  protected static ?string $pluralModelLabel = 'Termék importok';
+  protected static ?string $pluralModelLabel = 'Termék exportok';
 
   protected static ?string $navigationGroup = 'Importok / Exportok';
 
@@ -46,8 +46,8 @@ class ProductImportResource extends Resource
         Infolists\Components\TextEntry::make('created_at')
           ->label('Kezdete')
           ->dateTime('Y M j H:i:s'),
-        Infolists\Components\TextEntry::make('imported_by.name')
-          ->label('Importálta'),
+        Infolists\Components\TextEntry::make('exported_by.name')
+          ->label('Exportálta'),
         Infolists\Components\TextEntry::make('finished_at')
           ->label('Vége')
           ->dateTime('Y M j H:i:s'),
@@ -72,24 +72,6 @@ class ProductImportResource extends Resource
               ->label('Rekordok száma')
               ->weight(FontWeight::Bold)
               ->numeric(),
-            Infolists\Components\TextEntry::make('products_inserted')
-              ->label('Termék rekodok száma')
-              ->getStateUsing(function (ProductImport $record) {
-                return $record->products_inserted + $record->products_modified;
-              })
-              ->numeric(),
-            Infolists\Components\TextEntry::make('brands_inserted')
-              ->label('Márkák száma')
-              ->getStateUsing(function (ProductImport $record) {
-                return $record->brands_inserted + $record->brands_modified;
-              })
-              ->numeric(),
-            Infolists\Components\TextEntry::make('categories_inserted')
-              ->label('Kategóriák száma')
-              ->getStateUsing(function (ProductImport $record) {
-                return $record->categories_inserted + $record->categories_modified;
-              })
-              ->numeric(),
             Infolists\Components\TextEntry::make('fails_counter')
               ->color('danger')
               ->label('Hibák száma')
@@ -106,7 +88,7 @@ class ProductImportResource extends Resource
         Infolists\Components\TextEntry::make('job')
           ->label('Feladat / Hibaüzenet')
           ->columnSpanFull()
-          ->getStateUsing(function (ProductImport $record) {
+          ->getStateUsing(function (ProductExport $record) {
             $result = '';
 
             if (is_array($record->data) && array_key_exists('fails', $record->data))
@@ -124,7 +106,7 @@ class ProductImportResource extends Resource
           ->label('Állomány')
           ->icon('heroicon-o-arrow-down-on-square')
           ->iconPosition(IconPosition::Before)
-          ->getStateUsing(function (ProductImport $record) {
+          ->getStateUsing(function (ProductExport $record) {
             return '<a href="' . Storage::url($record->file) . '" target="_blank">' . $record->file . '</a>';
           })
           ->html()
@@ -137,8 +119,8 @@ class ProductImportResource extends Resource
   //     ->schema([
   //         Forms\Components\Group::make()
   //             ->schema([
-  //                 Forms\Components\Select::make('imported_by_id')
-  //                 ->relationship('imported_by', 'name'),
+  //                 Forms\Components\Select::make('exported_by_id')
+  //                 ->relationship('exported_by', 'name'),
   //             Forms\Components\TextInput::make('records_counter')
   //                 ->label('Rekordok száma')
   //                 ->required()
@@ -254,21 +236,21 @@ class ProductImportResource extends Resource
             default => 'gray'
           })
           ->searchable(),
-        Tables\Columns\TextColumn::make('imported_by.name')
+        Tables\Columns\TextColumn::make('exported_by.name')
           ->label('Indította')
           ->searchable(),
         ProgressColumn::make('progress')
           ->label('Folyamat')
-          ->getStateUsing(function (ProductImport $record) {
+          ->getStateUsing(function (ProductExport $record) {
             // dd($record->products_modified, intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100));
             return ($record->records_counter > 0) ? intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100) : 0;
           }),
         Tables\Columns\TextColumn::make('job')
           ->label('')
-          ->getStateUsing(function (ProductImport $record) {
+          ->getStateUsing(function (ProductExport $record) {
             return $record->records_counter . '/' . ($record->products_inserted + $record->products_modified) . ' termék, ' . ($record->categories_inserted + $record->categories_modified) . ' kategória, ' . ($record->brands_inserted + $record->brands_modified) . ' márka';
           })
-          ->description(fn (ProductImport $record): string => Str::limit($record->job, 50) ?: ''),
+          ->description(fn (ProductExport $record): string => Str::limit($record->job, 50) ?: ''),
         Tables\Columns\TextColumn::make('file')
           ->label('Állomány')
           ->icon('heroicon-o-arrow-down-on-square')
@@ -295,14 +277,14 @@ class ProductImportResource extends Resource
           ->icon('heroicon-o-arrow-path')
           ->requiresConfirmation()
           ->color('warning')
-          ->action(function (ProductImport $record) {
-            $new = ProductImport::create([
+          ->action(function (ProductExport $record) {
+            $new = ProductExport::create([
               // 'data'  => $record['data'],
               'file'           => $record['file'],
-              'imported_by_id' => auth()->user()->id,
+              'exported_by_id' => auth()->user()->id,
               'satus'          => 'waiting'
             ]);
-            ADOBProductImportBatch_new::dispatch($new);
+            ADOBProductExportBatch_new::dispatch($new);
           }),
         Tables\Actions\ViewAction::make(),
       ])
@@ -325,10 +307,10 @@ class ProductImportResource extends Resource
   public static function getPages(): array
   {
     return [
-      'index' => Pages\ListProductImports::route('/'),
-      'create' => Pages\CreateProductImport::route('/create'),
-      'view' => Pages\ViewProductImport::route('/{record}'),
-      'edit' => Pages\EditProductImport::route('/{record}/edit'),
+      'index' => Pages\ListProductExports::route('/'),
+      'create' => Pages\CreateProductExport::route('/create'),
+      'view' => Pages\ViewProductExport::route('/{record}'),
+      'edit' => Pages\EditProductExport::route('/{record}/edit'),
     ];
   }
 }
