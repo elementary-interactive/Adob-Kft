@@ -193,7 +193,7 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
 
         Notification::make()
           ->title('Exportálás folyamata...')
-          ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A keresett állomány itt tölthető le: <a href="'.Storage::url((storage_path($this->tracker->file)).'">'.$this->tracker->file.'</a>')
+          ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A keresett állomány itt tölthető le: <a href="'.Storage::url($this->tracker->file).'">'.$this->tracker->file.'</a>')
           ->success()
           ->sendToDatabase($this->tracker->exported_by);
       }
