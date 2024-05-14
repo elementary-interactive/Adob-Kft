@@ -9,7 +9,7 @@ enum ADOBProductsExportColumns: string
     case BRAND_NAME                 = 'terméknév';
     case PRODUCT_EAN                = 'ean';
     case PRODUCT_PRICE              = 'ár';
-    case PRODUCT_MAIN_CATEGORY      = 'kategóriák';
+    case PRODUCT_MAIN_CATEGORY      = 'kategória';
     case PRODUCT_CATEGORIES         = 'kategóriák';
     case PRODUCT_URL                = 'link';
     case IMAGE_COUNT                = 'Kép darabszám';

@@ -16,6 +16,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Neon\Admin\Models\Admin;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -23,15 +24,18 @@ use Illuminate\Validation\Rule;
 use Laravel\Nova\Notifications\NovaNotification;
 use Laravel\Nova\Notifications\NovaChannel;
 use Laravel\Nova\URL;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Neon\Models\Statuses\BasicStatus;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
-
+use Filament\Notifications\Notification;
+use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Events\BeforeExport;
 
 class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEvents //, ShouldQueue
 {
-  use Importable;
+  use Exportable;
 
   const HEADING_ROW = 1;
 
@@ -131,8 +135,8 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
         $product->brand()->first()?->name, // BRAND_NAME
         $product->ean, // PRODUCT_EAN
         $product->price, // PRODUCT_PRICE
-        $paths[0], // PRODUCT_MAIN_CATEGORY
-        implode(', ', array_slice($paths, 1), // PRODUCT_CATEGORIES
+        (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
+        implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
         route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
         $media->count(), // IMAGE_COUNT
         implode(';', $sizes), // IMAGE_SIZES
@@ -148,115 +152,50 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
 
   private function error(string $message, string $icon = 'exclamation-circle')
   {
-    $this->imported_by->notify(
-      NovaNotification::make()
-        ->message($message)
-        // ->action('Download', URL::remote('https://example.com/report.pdf'))
-        ->icon($icon)
-        ->type('error')
-    );
+    $this->tracker->addFail($message);
+
+    Notification::make()
+      ->title('Importálás folyamata...')
+      ->body($message)
+      ->danger()
+      ->sendToDatabase($this->imported_by);
   }
 
-  /**
-   * @param $row
-   * @param bool $is_aggregate
-   * @param null $is_active
-   * @return Product
-   */
-  private function saveProduct($row, $is_active = null): Product
-  {
-    $is_new = null;
-
-    $product = Product::firstOrNew([
-      'product_id' => $row[self::$columns::PRODUCT_ID->value]
-    ]);
-
-    $product->name            = $row[self::$columns::PRODUCT_NAME->value];
-    $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-');
-    if (array_key_exists(self::$columns::PACKAGING->value, $row)) {
-      $product->packaging       = $row[self::$columns::PACKAGING->value];
-    }
-    if (array_key_exists(self::$columns::DESCRIPTION->value, $row)) {
-      $product->description     = $row[self::$columns::DESCRIPTION->value];
-    }
-    if (array_key_exists(self::$columns::EAN->value, $row) && is_numeric($row[self::$columns::EAN->value])) {
-      $product->ean             = $row[self::$columns::EAN->value];
-    }
-    if (array_key_exists(self::$columns::PRODUCT_NUMBER->value, $row)) {
-      $product->product_number  = $row[self::$columns::PRODUCT_NUMBER->value];
-    }
-    $product->price           = $row[self::$columns::PRICE->value];
-    $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
-    $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
-
-    /** 
-     * @var Brand $brand The product's brand.
-     */
-    $brand = Brand::firstOrNew([
-      'slug'        => Str::slug($row[self::$columns::BRAND->value]),
-    ], [ //- Fill up data.
-      'name'        => $row[self::$columns::BRAND->value],
-      'is_featured' => false
-    ]);
-    if ($brand->exists) {
-      $this->tracker->increaseBrandModified();
-    } else {
-      $this->tracker->increaseBrandInserted();
-    }
-    $brand->save();
-
-    // Connect brand to product.
-    $product->brand()->associate($brand);
-
-    if ($product->exists) {
-      $this->tracker->increaseProductModified();
-      $is_new = false;
-    } else {
-      $is_new = true;
-      $this->tracker->increaseProductInserted();
-    }
-
-    $product->save();
-
-    /** Upload categories...
-     */
-    if (!$is_new) { //- If modifying product we detach from all categories.
-      $product->categories()->detach();
-    }
-
-    /** Check is there category & adding to categories.
-     * 
-     * This method will also insert or modify categories.
-     */
-    $this->attach_categories($product, $row);
-
-    return $product;
-  }
-
+  
   public function registerEvents(): array
   {
-    $me = $this;
-
     return [
-      ImportFailed::class => function (ImportFailed $event) use ($me) {
-        $me->tracker->addFail($event->getException()->getMessage());
-        $me->tracker->status = 'failed';
-        $me->tracker->save();
+      BeforeExport::class => function (BeforeExport $event)
+      {
+        $this->tracker->status = 'running';
+        $this->tracker->save();
 
-        $me->error($event->getException()->getMessage());
+        Notification::make()
+          ->title('Exportálás folyamata...')
+          ->body(' Termékek exportálása...')
+          ->info()
+          ->sendToDatabase($this->tracker->exported_by);
       },
-      AfterImport::class => function (AfterImport $event) use ($me) {
-        $me->tracker->status = 'finished';
-        $me->tracker->finished_at = now();
-        $me->tracker->save();
 
-        $me->imported_by->notify(
-          NovaNotification::make()
-            ->message('Importálás vége!')
-            // ->action('Download', URL::remote('https://example.com/report.pdf'))
-            ->icon('check-circle')
-            ->type('success')
-        );
+      // ExportFaile::class => function (ImportFailed $event)
+      // {
+      //   $this->tracker->addFail($event->getException()->getMessage());
+      //   $this->tracker->status = 'failed';
+      //   $this->tracker->save();
+      //   $this->error($event->getException()->getMessage());
+      // },
+
+      AfterSheet::class => function(AfterSheet $event)
+      {
+        $this->tracker->status = 'finished';
+        $this->tracker->finished_at = now();
+        $this->tracker->save();
+
+        Notification::make()
+          ->title('Exportálás folyamata...')
+          ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A keresett állomány itt tölthető le: <a href="'.Storage::url((storage_path($this->tracker->file)).'">'.$this->tracker->file.'</a>')
+          ->success()
+          ->sendToDatabase($this->tracker->exported_by);
       }
     ];
   }

@@ -58,8 +58,6 @@ class ADOBProductExportBatch_new implements ShouldQueue
   public function handle()
   {
       // Excel::export(new ADOBProductsExport_new($this->export->exported_by, $this->export), $this->export->file, null, \Maatwebsite\Excel\Excel::XLSX);
-
-      $export = new ADOBProductsExport_new($this->export);
-      $export->export($this->export->file); // we are using the trait exportable in the xxxExport which allow us to handle it from the controller directly
+      (new ADOBProductsExport_new($this->export))->store($this->export->file); // we are using the trait exportable in the xxxExport which allow us to handle it from the controller directly
   }
 }

@@ -253,9 +253,9 @@ class ProductExportResource extends Resource
           ->description(fn (ProductExport $record): string => Str::limit($record->job, 50) ?: ''),
         Tables\Columns\TextColumn::make('file')
           ->label('Állomány')
-          ->icon('heroicon-o-arrow-down-on-square')
+          ->icon('heroicon-o-arrow-up-on-square')
           ->iconPosition(IconPosition::Before)
-          ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . Storage::url($state) . '" target="_blank">' . substr($state, 13) . '</a>'))
+          ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . Storage::url($state) . '" target="_blank">' . $state . '</a>'))
           ->html()
           // ->size(Tables\Columns\TextColumn\TextColumnSize::Small)
           ->searchable(),

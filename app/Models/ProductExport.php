@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use function Illuminate\Events\queueable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,7 +40,6 @@ class ProductExport extends Model
     'data'          => 'json',
     'file'          => 'string',
     'job'           => 'string',
-    'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
     'deleted_at'    => 'datetime',
@@ -59,21 +59,40 @@ class ProductExport extends Model
     'job'                 => '',
   ];
 
+  // /**
+  //  * The "booted" method of the model.
+  //  */
+  // protected static function booted(): void
+  // {
+  //   static::created(queueable(function (Model $self) {
+  //     $self->file = 'ADOBProductsExport_' . $self->created_at->format('Ymd_His');
+  //   }));
+  // }
+
+  public function getFileAttribute(): string
+  {
+    if (is_null($this->attributes['file']))
+    {
+      $this->attributes['file'] = 'ADOBProductsExport_' . $this->created_at->format('Ymd_His').'.xlsx';
+    }
+
+    return $this->attributes['file'];
+
+  }
+
   public function addFail($message)
   {
     $data = json_decode($this->attributes['data']);
-    if (!is_array($data))
-    {
+    if (!is_array($data)) {
       $data = [];
     }
-    if (!array_key_exists('fails', $data))
-    {
+    if (!array_key_exists('fails', $data)) {
       $data['fails'] = [];
     }
     $data['fails'][] = $message;
 
     $this->attributes['data'] = json_encode($data);
-    
+
     $this->attributes['fails_counter']++;
     $this->save();
   }
@@ -82,5 +101,4 @@ class ProductExport extends Model
   {
     return $this->belongsTo(Admin::class);
   }
- 
 }

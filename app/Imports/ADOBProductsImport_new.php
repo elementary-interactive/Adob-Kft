@@ -76,7 +76,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           ->title('Importálás folyamata...')
           ->body($this->tracker->records_counter.'db rekord importálása...')
           ->info()
-          ->sendToDatabase($this->imported_by);
+          ->sendToDatabase($this->tracker->imported_by);
       },
 
       ImportFailed::class => function (ImportFailed $event)
@@ -97,7 +97,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           ->title('Importálás folyamata...')
           ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A termékek mostmár elérhetők a weben. A képek importálása még folyamatban.')
           ->success()
-          ->sendToDatabase($this->imported_by);
+          ->sendToDatabase($this->tracker->imported_by);
       }
     ];
   }
