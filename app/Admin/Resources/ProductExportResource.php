@@ -239,18 +239,6 @@ class ProductExportResource extends Resource
         Tables\Columns\TextColumn::make('exported_by.name')
           ->label('Indította')
           ->searchable(),
-        ProgressColumn::make('progress')
-          ->label('Folyamat')
-          ->getStateUsing(function (ProductExport $record) {
-            // dd($record->products_modified, intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100));
-            return ($record->records_counter > 0) ? intval((($record->products_inserted + $record->products_modified) / $record->records_counter) * 100) : 0;
-          }),
-        Tables\Columns\TextColumn::make('job')
-          ->label('')
-          ->getStateUsing(function (ProductExport $record) {
-            return $record->records_counter . '/' . ($record->products_inserted + $record->products_modified) . ' termék, ' . ($record->categories_inserted + $record->categories_modified) . ' kategória, ' . ($record->brands_inserted + $record->brands_modified) . ' márka';
-          })
-          ->description(fn (ProductExport $record): string => Str::limit($record->job, 50) ?: ''),
         Tables\Columns\TextColumn::make('file')
           ->label('Állomány')
           ->icon('heroicon-o-arrow-up-on-square')
