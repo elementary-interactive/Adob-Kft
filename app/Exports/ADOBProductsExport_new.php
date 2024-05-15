@@ -139,7 +139,7 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
         route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
         $media->count(), // IMAGE_COUNT
         implode(';', $sizes), // IMAGE_SIZES
-        size_format($size_sum), // IMAGE_SIZE_SUM
+        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
         ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
         implode('; ', $urls), // IMAGE_LINKS
         strip_tags($product->description), // PRODUCT_DESCRIPTION
