@@ -282,7 +282,7 @@ class ProductExportResource extends Resource
         ]),
       ])
       ->defaultSort('created_at', 'desc')
-      ->poll('10s');;
+      ->poll('5s');
   }
 
   public static function getRelations(): array
