@@ -103,9 +103,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   }
 
   /** Handle heading row.
-   * 
+   *
    * @see https://docs.laravel-excel.com/3.1/imports/heading-row.html
-   * 
+   *
    * @return int Row's index number.
    */
   public function headingRow(): int
@@ -128,7 +128,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   /**
    * @see https://docs.laravel-excel.com/3.1/imports/chunk-reading.html
-   * 
+   *
    */
   public function chunkSize(): int
   {
@@ -240,7 +240,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
-    /** 
+    /**
      * @var Brand $brand The product's brand.
      */
     $brand = Brand::firstOrNew([
@@ -270,11 +270,19 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->save();
 
     /** Check is there category & adding to categories.
-     * 
+     *
      * This method will also insert or modify categories.
      */
     $this->attach_categories($product, $row);
-    
+
+    /** Remove all images from the product.
+     * If user added new pictures, that will be executed after this so this way user can replace all the images.
+     */
+    if ($row[self::$columns::IMAGES_DELETE->value] == 'y')
+    {
+      $this->delete_images($product, $row);
+    }
+
     /** Store images to the product.
      */
     $this->save_images($product, $row);
@@ -284,7 +292,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   /**
    * @param $row
-   * 
+   *
    * @return Product
    */
   private function delete_product($row)
@@ -293,6 +301,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->delete();
 
     return $product;
+  }
+
+  private function delete_images($product, $row)
+  {
+    $product->clearMediaCollection(Product::MEDIA_COLLECTION);
+    $product->clearMediaCollection(Product::MEDIA_MAIN);
   }
 
   private function save_images($product, $row)
@@ -319,7 +333,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       }
       // dump($images);
       foreach ($images as $string) {
-        dump($string);
+        // dump($string);
         if (Str::startsWith($string, 'data:image/')) { //- base64 image
           $product
             ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
@@ -333,7 +347,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
             ->preservingOriginal()
             ->toMediaCollection(Product::MEDIA_COLLECTION);
           $media->save();
-          dump($product, $media);
+          // dump($product, $media);
         }
       }
     }
@@ -341,10 +355,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   /** Parse and save categories. Returns with nodes where to product should be
    * attached.
-   * 
+   *
    * @param Product $product
    * @param array $row The row data.
-   * 
+   *
    * @return array $categories
    */
   private function attach_categories(Product $product, array $row): array
@@ -363,7 +377,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           'name'        => $row[$main_category_column],
           'description' => $row[$main_category_column]
         ]);
- 
+
         $category = null;
 
         for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
@@ -373,7 +387,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}/", $columns));
 
           if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column]))
-          {            
+          {
             $sub_category = Category::firstOrNew([
               'slug'        => Str::slug($row[$sub_category_column]),
               'parent_id'   => $category->id,

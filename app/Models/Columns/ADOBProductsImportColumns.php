@@ -16,7 +16,9 @@ enum ADOBProductsImportColumns: string {
     case COMMAND                    = 'web';
     case SUB_CATEGORY               = 'alkat';
     case IMAGES                     = 'kepek';
+    case IMAGES_DELETE              = 'kepek_torol';
 }
+
 
 /** 
  * @deprecated
