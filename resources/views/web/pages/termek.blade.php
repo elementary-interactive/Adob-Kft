@@ -82,7 +82,7 @@
                 <div class="col-md-12">
                     <ul>
                         @foreach ($product->documents as $doc)
-                            <li><a href="{{ storage_url($doc) }}" target="_blank">{{ $doc }}</a></li>
+                            <li><a href="{{ Storage::url($doc) }}" target="_blank">{{ $doc }}</a></li>
                         @endforeach
                     </ul>
                 </div>
