@@ -78,6 +78,15 @@
                         </div>
                     </section>
                 @endif
+                @if (count($product->documents))
+                <div class="col-md-12">
+                    <ul>
+                        @foreach ($product->documents as $doc)
+                            <li><a href="{{ storage_url($doc) }}" target="_blank">{{ $doc }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </div>
             <div class="col-12 col-xl-6 col-md-6 col-sm-6 product-infos">
                 <h2 class="blue">{{ $product->name }}</h2>

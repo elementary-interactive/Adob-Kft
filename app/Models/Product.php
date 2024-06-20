@@ -56,7 +56,8 @@ class Product extends Model implements HasMedia
     'og_data'   => 'array',
     'meta_data' => 'array',
     'price'     => 'integer',
-    'is_active' => 'boolean'
+    'is_active' => 'boolean',
+    'documents' => 'array',
   ];
 
   /** The model's default values for attributes.

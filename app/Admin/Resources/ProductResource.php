@@ -2,6 +2,8 @@
 
 namespace App\Admin\Resources;
 
+
+use Camya\Filament\Forms\Components\TitleWithSlugInput;
 use App\Admin\Resources\ProductResource\Pages;
 use App\Admin\Resources\ProductResource\RelationManagers;
 use App\Models\Brand;
@@ -128,23 +130,13 @@ class ProductResource extends Resource
                                 $get('../edit-product')?->fillForm();
                             }),
                         // \App\Forms\Components\PasteField::make(Product::MEDIA_COLLECTION),
-                        Forms\Components\TextInput::make('name')
-                            ->label('Név')
-                            ->afterStateUpdated(function ($get, $set, ?string $state) {
-                                if (!$get('is_slug_changed_manually') && filled($state)) {
-                                    $set('slug', Str::slug($state));
-                                }
-                            })
-                            ->reactive()
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('slug')
-                            ->label('URL')
-                            ->afterStateUpdated(function ($set) {
-                                $set('is_slug_changed_manually', true);
-                            })
-                            ->required()
-                            ->maxLength(255),
+                        TitleWithSlugInput::make(
+                            fieldTitle: 'name',
+                            titleLabel: 'Név',
+                            fieldSlug: 'slug',
+                            slugLabel: 'URL',
+                            urlHostVisible: false
+                        ),
                         Forms\Components\RichEditor::make('description')
                             ->label('Leírás')
                             ->columnSpanFull(),
@@ -195,6 +187,11 @@ class ProductResource extends Resource
                                 //         '2xl' => 4,
                                 //     ]),
                             ]),
+                        Forms\Components\FileUpload::make('documents')
+                            ->multiple()
+                            ->previewable(false)
+                            ->preserveFilenames()
+                            ->acceptedFileTypes(['application/pdf']),
                         Group::make()
                             ->columns(2)
                             ->schema([

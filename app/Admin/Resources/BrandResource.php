@@ -2,6 +2,7 @@
 
 namespace App\Admin\Resources;
 
+use Camya\Filament\Forms\Components\TitleWithSlugInput;
 use App\Admin\Resources\BrandResource\Pages;
 use App\Admin\Resources\BrandResource\RelationManagers;
 use App\Models\Brand;
@@ -46,20 +47,13 @@ class BrandResource extends Resource
                 // Forms\Components\TextInput::make('slug')
                 //     ->required()
                 //     ->maxLength(255),
-                Forms\Components\TextInput::make('name')
-                    ->afterStateUpdated(function ($get, $set, ?string $state) {
-                        if (!$get('is_slug_changed_manually') && filled($state)) {
-                            $set('slug', Str::slug($state));
-                        }
-                    })
-                    ->reactive()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('slug')
-                    ->afterStateUpdated(function (Closure $set) {
-                        $set('is_slug_changed_manually', true);
-                    })
-                    ->required(),
+                TitleWithSlugInput::make(
+                    fieldTitle: 'name',
+                    titleLabel: 'Név',
+                    fieldSlug: 'slug',
+                    slugLabel: 'URL',
+                    urlHostVisible: false
+                ),
                 Forms\Components\Toggle::make('is_featured')
                     ->label('Kiemelt?')
                     ->required(),
