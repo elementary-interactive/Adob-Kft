@@ -78,7 +78,7 @@
                         </div>
                     </section>
                 @endif
-                @if ($product->documents && count($product->documents))
+                @if ($product->documents && is_array($product->documents) && count($product->documents))
                 <div class="col-md-12">
                     <ul>
                         @foreach ($product->documents as $doc)
