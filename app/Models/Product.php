@@ -38,7 +38,7 @@ class Product extends Model implements HasMedia
    */
   protected $fillable = [
     'product_id', 'product_number', 'name', 'slug', 'packaging', 'description',
-    'ean', 'price', 'on_sale', 'status'
+    'ean', 'price', 'on_sale', 'status', 'documents'
   ];
 
   /** The attributes that should be handled as date or datetime.

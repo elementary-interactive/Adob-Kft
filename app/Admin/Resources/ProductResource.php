@@ -188,10 +188,12 @@ class ProductResource extends Resource
                                 //     ]),
                             ]),
                         Forms\Components\FileUpload::make('documents')
+                            ->label('Kapcsolódó dokumentumok')
                             ->multiple()
                             ->previewable(false)
                             ->preserveFilenames()
-                            ->acceptedFileTypes(['application/pdf']),
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->helperText('PDF fájlok feltöltése.'),
                         Group::make()
                             ->columns(2)
                             ->schema([
