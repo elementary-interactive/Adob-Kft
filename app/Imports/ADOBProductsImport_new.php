@@ -252,7 +252,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     if (array_key_exists(self::$columns::PRICE->value, $row)) {
       $product->price           = $row[self::$columns::PRICE->value];
     }
-    
+
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
@@ -359,7 +359,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         }
 
         if (Str::startsWith($string, 'http')) { //- http image
-          dump('http image');
+          // dump('http image');
           $media = $product
             ->addMediaFromUrl($string)
             ->preservingOriginal()
@@ -433,7 +433,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public static function to_save(array $row): bool
   {
-    dump(strtolower($row[self::$columns::COMMAND->value]) === 'y' || strtolower($row[self::$columns::COMMAND->value]) === 'i');
     return (strtolower($row[self::$columns::COMMAND->value]) === 'y' || strtolower($row[self::$columns::COMMAND->value]) === 'i');
   }
 
