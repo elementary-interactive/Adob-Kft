@@ -81,9 +81,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
       ImportFailed::class => function (ImportFailed $event)
       {
-        $this->tracker->addFail($event->getException()->getMessage());
-        $this->tracker->status = 'failed';
-        $this->tracker->save();
         $this->error($event->getException()->getMessage());
       },
 
@@ -200,6 +197,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   private function error(string $message, string $icon = 'exclamation-circle')
   {
     $this->tracker->addFail($message);
+    $this->tracker->status = 'failed';
+    $this->tracker->save();
 
     Notification::make()
       ->title('Importálás folyamata...')
@@ -415,6 +414,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public static function to_save(array $row): bool
   {
+    dump(strtolower($row[self::$columns::COMMAND->value]) === 'y' || strtolower($row[self::$columns::COMMAND->value]) === 'i');
     return (strtolower($row[self::$columns::COMMAND->value]) === 'y' || strtolower($row[self::$columns::COMMAND->value]) === 'i');
   }
 
