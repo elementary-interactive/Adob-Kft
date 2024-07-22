@@ -54,6 +54,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   /** @var int */
   private $rows = 0;
 
+  /** @var int */
+  private $rows_insserted = 0;
+
 
   public function __construct(ProductImport $tracker)
   {
@@ -96,6 +99,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       AfterImport::class => function(AfterImport $event)
       {
         $this->tracker->status = 'finished';
+        $this->tracker->products_inserted = $this->rows_insserted;
         $this->tracker->finished_at = now();
         $this->tracker->save();
 
@@ -283,7 +287,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
        */
       $product->categories()->detach();
     } else {
-      $this->tracker->increaseProductInserted();
+      // $this->tracker->increaseProductInserted();
+      $this->rows_insserted++;
     }
     $product->save();
 
