@@ -362,7 +362,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    *
    * @return array $categories
    */
-  private function attach_categories(Product $product, array $row): array
+  private function attach_categories(Product $product, array $row)
   {
     $columns  = array_keys($row);
 
