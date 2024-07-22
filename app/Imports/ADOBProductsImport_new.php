@@ -232,8 +232,11 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       'product_id' => $row[self::$columns::PRODUCT_ID->value]
     ]);
 
-    $product->name            = $row[self::$columns::PRODUCT_NAME->value];
-    $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-');
+    if (array_key_exists(self::$columns::PRODUCT_NAME->value, $row) && $row[self::$columns::PRODUCT_NAME->value]) {
+      $product->name            = $row[self::$columns::PRODUCT_NAME->value];
+      $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-');
+    }
+
     if (array_key_exists(self::$columns::PACKAGING->value, $row)) {
       $product->packaging       = $row[self::$columns::PACKAGING->value];
     }
@@ -246,7 +249,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     if (array_key_exists(self::$columns::PRODUCT_NUMBER->value, $row)) {
       $product->product_number  = $row[self::$columns::PRODUCT_NUMBER->value];
     }
-    $product->price           = $row[self::$columns::PRICE->value];
+    if (array_key_exists(self::$columns::PRICE->value, $row)) {
+      $product->price           = $row[self::$columns::PRICE->value];
+    }
+    
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
