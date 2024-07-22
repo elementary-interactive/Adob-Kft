@@ -239,19 +239,21 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
-    /**
-     * @var Brand $brand The product's brand.
-     */
-    $brand = Brand::firstOrNew([
-        'slug'        => Str::slug($row[self::$columns::BRAND->value])
-      ],[
-        'name'        => $row[self::$columns::BRAND->value],
-        'status'      => BasicStatus::Active->value
-      ]);
+    if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
+      /**
+       * @var Brand $brand The product's brand.
+       */
+      $brand = Brand::firstOrNew([
+          'slug'        => Str::slug($row[self::$columns::BRAND->value])
+        ],[
+          'name'        => $row[self::$columns::BRAND->value],
+          'status'      => BasicStatus::Active->value
+        ]);
 
-    if (!$brand->exists) {
-      $this->tracker->increaseBrandInserted();
-      $brand->save();
+      if (!$brand->exists) {
+        $this->tracker->increaseBrandInserted();
+        $brand->save();
+      }
     }
 
     // Connect brand to product.
