@@ -51,6 +51,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   /** @var ProductImport */
   public $tracker;
 
+  /** @var int */
+  private $rows = 0;
+
+
   public function __construct(ProductImport $tracker)
   {
     /** The importer user. who need to set up for notifications...
@@ -134,6 +138,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function model(array $row)
   {
+    $this->rows++;
+
     $this->tracker->status = 'running';
     $this->tracker->save();
 
@@ -150,9 +156,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         $result = $this->delete_product($row);
       }
     } catch (\Exception $e) {
-      $this->error($e->getMessage());
+      $this->error($this->rows.'. - '.$e->getMessage());
     } catch (\Throwable $e) {
-      $this->error($e->getMessage());
+      $this->error($this->rows.'. - '.$e->getMessage());
     }
 
     // $result->setRelation('team', new Team(['name' => $row[1]]));
