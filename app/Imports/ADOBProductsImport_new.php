@@ -254,10 +254,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         $this->tracker->increaseBrandInserted();
         $brand->save();
       }
-    }
 
-    // Connect brand to product.
-    $product->brand()->associate($brand);
+      // Connect brand to product.
+      $product->brand()->associate($brand);
+    }
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();

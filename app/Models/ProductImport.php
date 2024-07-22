@@ -83,7 +83,7 @@ class ProductImport extends Model
     {
       $data['fails'] = [];
     }
-    $data['fails'][] = $message;
+    $data['fails'][now()] = $message;
 
     $this->attributes['data'] = json_encode($data);
     
