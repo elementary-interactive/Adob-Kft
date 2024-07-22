@@ -2,7 +2,8 @@
 
 namespace App\Models\Columns;
 
-enum ADOBProductsImportColumns: string {
+enum ADOBProductsImportColumns: string
+{
     case PRODUCT_ID                 = 'cikkszam';
     case PRODUCT_NAME               = 'megnevezes';
     case BRAND                      = 'marka';
@@ -24,5 +25,4 @@ enum ADOBProductsImportColumns: string {
  * @deprecated
  * case DESCRIPTION_UPDATE         = 'webleir';
  * case DESCRIPTION_TO_CATEGORY    = 'webkatleir';
-*/
-    
+ */

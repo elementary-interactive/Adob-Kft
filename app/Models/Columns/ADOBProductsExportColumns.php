@@ -5,10 +5,10 @@ namespace App\Models\Columns;
 enum ADOBProductsExportColumns: string
 {
     case PRODUCT_ID                 = 'cikkszam';
-    case PRODUCT_NAME               = 'márka';
-    case BRAND_NAME                 = 'terméknév';
+    case PRODUCT_NAME               = 'terméknév';
+    case BRAND_NAME                 = 'márka';
     case PRODUCT_EAN                = 'ean';
-    case PRODUCT_PRICE              = 'ár';
+    case PRODUCT_PRICE              = 'webár';
     case PRODUCT_MAIN_CATEGORY      = 'fő kategória';
     case PRODUCT_CATEGORIES         = 'kategóriák';
     case PRODUCT_URL                = 'link';
