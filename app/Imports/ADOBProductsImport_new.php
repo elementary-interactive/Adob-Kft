@@ -150,9 +150,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         $result = $this->delete_product($row);
       }
     } catch (\Exception $e) {
-      // $this->error($e->getMessage());
+      $this->error($e->getMessage());
     } catch (\Throwable $e) {
-      // $this->error($e->getMessage());
+      $this->error($e->getMessage());
     }
 
     // $result->setRelation('team', new Team(['name' => $row[1]]));
