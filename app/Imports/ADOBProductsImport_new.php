@@ -285,7 +285,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     /** Remove all images from the product.
      * If user added new pictures, that will be executed after this so this way user can replace all the images.
      */
-    if ($row[self::$columns::IMAGES_DELETE->value] == 'y')
+    if (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')
     {
       $this->delete_images($product, $row);
     }
