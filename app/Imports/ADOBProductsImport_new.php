@@ -85,7 +85,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
       ImportFailed::class => function (ImportFailed $event)
       {
-        $this->error($event->getException()->getMessage());
+        $failures = $event->getException()->failures();
+
+        foreach ($failures as $fail)
+        {
+          $this->error($fail->row().' "'.$fail->attribute().'": '.impode(', ', $fail->errors()));
+        }
       },
 
       AfterImport::class => function(AfterImport $event)
