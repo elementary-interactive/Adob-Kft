@@ -89,7 +89,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
         foreach ($failures as $fail)
         {
-          $this->error($fail->row().' "'.$fail->attribute().'": '.impode(', ', $fail->errors()));
+          $this->error($fail->row().' "'.$fail->attribute().'": '.implode(', ', $fail->errors()));
         }
       },
 
