@@ -190,7 +190,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       self::$columns::EAN->value                      => 'numeric|nullable',
       self::$columns::PRODUCT_NUMBER->value           => '',
       self::$columns::ON_SALE->value                  => '',
-      self::$columns::MAIN_CATEGORY->value            => 'required_if:'.self::$columns::COMMAND->value.',!=,"d"|nullable',
+      self::$columns::MAIN_CATEGORY->value            => 'required_unless:'.self::$columns::COMMAND->value.',"d"|nullable',
       self::$columns::COMMAND->value                  => '',
       self::$columns::SUB_CATEGORY->value             => '',
     ];
