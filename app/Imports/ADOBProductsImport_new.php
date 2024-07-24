@@ -145,7 +145,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     return 1000;
   }
 
-  public function model(array $row)
+  public function model(array $row): Product
   {
     $this->rows++;
 
@@ -164,6 +164,19 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       if (self::to_delete($row)) {
         $result = $this->delete_product($row);
       }
+
+     /** Remove all images from the product.
+      * If user added new pictures, that will be executed after this so this way user can replace all the images.
+      */
+      if (self::to_delete_images($row) || (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')) {
+        $this->delete_images($result, $row);
+      }
+
+      
+      /** Store images to the product.
+       */
+      $this->save_images($result, $row);
+
     } catch (\Exception $e) {
       // $this->error($this->rows.'. - '.$e->getMessage());
     } catch (\Throwable $e) {
@@ -297,14 +310,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      * This method will also insert or modify categories.
      */
     $this->attach_categories($product, $row);
-
-    /** Remove all images from the product.
-     * If user added new pictures, that will be executed after this so this way user can replace all the images.
-     */
-    if (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')
-    {
-      $this->delete_images($product, $row);
-    }
 
     /** Store images to the product.
      */
@@ -449,5 +454,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   public static function to_delete(array $row): bool
   {
     return (strtolower($row[self::$columns::COMMAND->value]) === 'd');
+  }
+  
+  public static function to_delete_images(array $row): bool
+  {
+    return (strtolower($row[self::$columns::COMMAND->value]) === 'p');
   }
 }
