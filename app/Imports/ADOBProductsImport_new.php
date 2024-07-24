@@ -145,7 +145,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     return 1000;
   }
 
-  public function model(array $row): Product
+  public function model(array $row): Product|null
   {
     $this->rows++;
 
@@ -164,18 +164,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       if (self::to_delete($row)) {
         $result = $this->delete_product($row);
       }
-
-     /** Remove all images from the product.
-      * If user added new pictures, that will be executed after this so this way user can replace all the images.
-      */
-      if (self::to_delete_images($row) || (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')) {
-        $this->delete_images($result, $row);
-      }
-
-      
-      /** Store images to the product.
-       */
-      $this->save_images($result, $row);
 
     } catch (\Exception $e) {
       // $this->error($this->rows.'. - '.$e->getMessage());
@@ -311,10 +299,20 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      */
     $this->attach_categories($product, $row);
 
+    
+     /** Remove all images from the product.
+    * If user added new pictures, that will be executed after this so this way user can replace all the images.
+    */
+    if (self::to_delete_images($row) || (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')) {
+      $this->delete_images($product, $row);
+    }
+
+    dump($product);
+    dump('_--_--_');
     /** Store images to the product.
      */
     $this->save_images($product, $row);
-
+    dump('_--_--_');
     return $product;
   }
 
