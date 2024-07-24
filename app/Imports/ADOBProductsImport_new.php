@@ -238,7 +238,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     if (array_key_exists(self::$columns::PRODUCT_NAME->value, $row) && $row[self::$columns::PRODUCT_NAME->value]) {
       $product->name            = $row[self::$columns::PRODUCT_NAME->value];
-      $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-').'_'.Str::slug($row[self::$columns::PRODUCT_ID]);
+      $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-').'_'.Str::slug($row[self::$columns::PRODUCT_ID->value]);
     }
 
     if (array_key_exists(self::$columns::PACKAGING->value, $row)) {
@@ -340,7 +340,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       // }
 
       $__images = explode(';', $row[self::$columns::IMAGES->value]);
-      // dump($__images);
+      dump($__images);
       $images   = array();
       $index    = 0;
 
