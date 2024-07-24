@@ -238,7 +238,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     if (array_key_exists(self::$columns::PRODUCT_NAME->value, $row) && $row[self::$columns::PRODUCT_NAME->value]) {
       $product->name            = $row[self::$columns::PRODUCT_NAME->value];
-      $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-');
+      $product->slug            = Str::slug($row[self::$columns::PRODUCT_NAME->value], '-').'_'.Str::slug($row[self::$columns::PRODUCT_ID]);
     }
 
     if (array_key_exists(self::$columns::PACKAGING->value, $row)) {
