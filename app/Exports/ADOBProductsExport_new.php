@@ -32,7 +32,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Throwable;
 
-class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents, ShouldQueue
+class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents, ShouldQueue, WithChunkReading
 {
   use Exportable;
 
@@ -92,6 +92,11 @@ class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents
   public function headingRow(): int
   {
     return self::HEADING_ROW;
+  }
+
+  public function chunkSize(): int
+  {
+      return 1000;
   }
 
   public function headings(): array
