@@ -71,7 +71,7 @@ class ProductExport extends Model
 
   public function getFileAttribute(): string
   {
-    if (is_null($this->attributes['file']))
+    if (!array_key_exists('file', $this->attributes) || is_null($this->attributes['file']))
     {
       $this->attributes['file'] = 'ADOBProductsExport_' . $this->created_at->format('Ymd_His').'.xlsx';
     }

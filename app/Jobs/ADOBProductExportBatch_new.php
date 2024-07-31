@@ -26,7 +26,7 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ADOBProductExportBatch_new implements ShouldQueue
+class ADOBProductExportBatch_new
 {
   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -40,17 +40,17 @@ class ADOBProductExportBatch_new implements ShouldQueue
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
-  /**
-   * Get the middleware the job should pass through.
-   *
-   * @return array<int, object>
-   */
-  public function middleware(): array
-  {
-    return [
-      new WithoutOverlapping($this->export->id)
-    ];
-  }
+  // /**
+  //  * Get the middleware the job should pass through.
+  //  *
+  //  * @return array<int, object>
+  //  */
+  // public function middleware(): array
+  // {
+  //   return [
+  //     new WithoutOverlapping($this->export->id)
+  //   ];
+  // }
 
   /**
    * Execute the job.

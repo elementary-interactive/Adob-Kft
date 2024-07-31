@@ -8,9 +8,8 @@ use App\Models\Category;
 use App\Models\CategoryProduct;
 use App\Models\Columns;
 use App\Models\ProductExport;
-use App\Models\ProductImport;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -23,16 +22,17 @@ use Illuminate\Validation\Rule;
 use Laravel\Nova\Notifications\NovaNotification;
 use Laravel\Nova\Notifications\NovaChannel;
 use Laravel\Nova\URL;
-use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Neon\Models\Statuses\BasicStatus;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\ExportFailed;
+use Maatwebsite\Excel\Events\AfterExport;
 use Filament\Notifications\Notification;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
+use Throwable;
 
-class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEvents //, ShouldQueue
+class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents, ShouldQueue
 {
   use Exportable;
 
@@ -58,7 +58,7 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
 
   static $columns = \App\Models\Columns\ADOBProductsExportColumns::class;
 
-  public $imported_by;
+  public $exported_by;
 
   public $headerRow;
 
@@ -66,11 +66,17 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
 
   public function __construct(ProductExport $tracker)
   {
-    /** The importer user. who need to set up for notifications... */
-    $this->imported_by  = $tracker->imported_by;
+    /** The exporter user. who need to set up for notifications... */
+    $this->exported_by  = $tracker->exported_by;
     /** The tracker for counts. */
     $this->tracker      = $tracker;
   }
+
+      
+  // public function middleware()
+  // {
+  //     return [new RateLimited];
+  // }
 
   // public function __destruct()
   // {
@@ -79,7 +85,7 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
 
   /** Handle heading row.
    * 
-   * @see https://docs.laravel-excel.com/3.1/imports/heading-row.html
+   * @see https://docs.laravel-excel.com/3.1/exports/heading-row.html
    * 
    * @return int Row's index number.
    */
@@ -88,6 +94,10 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
     return self::HEADING_ROW;
   }
 
+  public function headings(): array
+  {
+    return array_column(self::$columns::cases(), 'value');
+  }
   /**
    * @return \Illuminate\Support\Collection
    */
@@ -149,15 +159,20 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
     return collect($result);
   }
 
+  public function failed(Throwable $exception): void
+  {
+    $this->error($exception->getMessage());
+  }
+
   private function error(string $message, string $icon = 'exclamation-circle')
   {
     $this->tracker->addFail($message);
 
     Notification::make()
-      ->title('Importálás folyamata...')
+      ->title('Exportálás folyamata...')
       ->body($message)
       ->danger()
-      ->sendToDatabase($this->imported_by);
+      ->sendToDatabase($this->exported_by);
   }
 
   
@@ -176,7 +191,7 @@ class ADOBProductsExport_new implements FromCollection, WithHeadingRow, WithEven
           ->sendToDatabase($this->tracker->exported_by);
       },
 
-      // ExportFaile::class => function (ImportFailed $event)
+      // ExportFaile::class => function (ExportFailed $event)
       // {
       //   $this->tracker->addFail($event->getException()->getMessage());
       //   $this->tracker->status = 'failed';
