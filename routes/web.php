@@ -42,39 +42,56 @@ Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search']
     ->name('search');
 
 Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
-    ->name('export.download')//-;
+    ->name('export.download') //-;
     ->middleware('signed');
 
 Route::post('/kepek', [\App\Http\Controllers\ProductController::class, 'addImage'])
-    ->name('product.images.upload')//-;
+    ->name('product.images.upload') //-;
     ->middleware('signed');
 
-Route::get('/kepek/feltoltes', function() {
+Route::get('/kepek/feltoltes', function () {
     return response()->json([
         "url"   => URL::temporarySignedRoute('product.images.upload', now()->addMinutes(10))
     ], 200);
     // echo URL::temporarySignedRoute('product.images.upload', now()->addMinutes(10));
 });
 
-Route::get('tempcreate', function() {
+Route::get('tempcreate', function () {
     return response()->json([
         "url"   => URL::temporarySignedRoute('tempcreate.download', now()->addMinutes(5))
     ], 200);
 });
 
 Route::get('temread', function (Request $request) {
-    if (!$request->hasValidSignature()) {       
+    if (!$request->hasValidSignature()) {
         echo "nem valid";
     } else {
         echo "valid";
     }
 })
-    ->name('tempcreate.download')//-;
+    ->name('tempcreate.download') //-;
     ->middleware('signed');
 
 
-Route::get('kriksz-kraksz', function() {
+Route::get('kriksz-kraksz', function () {
     dd(app('site')->current());
+});
+
+Route::get('tempexport', function () {
+    try {
+        $new = \App\Models\ProductExport::create([
+            // 'data'  => $record['data'],
+            'file'           => 'temp' . date('YmdHis'),
+            'satus'          => 'waiting'
+        ]);
+        (new \App\Exports\ADOBProductsExport_new($new))->store($new->file);
+    } catch (\Exception $e) {
+        // $this->logger->info('Export error', (array) $e);
+        dump($e);
+    } catch (\Throwable $e) {
+        // $this->logger->info('Export error', (array) $e);
+        dump($e);
+    }
 });
 
 // Route::get('lofasz/{id}', function($id) {
