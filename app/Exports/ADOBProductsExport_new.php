@@ -96,7 +96,7 @@ class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents
 
   public function chunkSize(): int
   {
-      return 1000;
+      return 500;
   }
 
   public function headings(): array
