@@ -23,7 +23,7 @@ class ADOBProductExportBatch_new implements ShouldQueue
     protected ProductExport $export
   ) {
 
-    $this->logger = new Logger('adob_exporter');
+    $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
