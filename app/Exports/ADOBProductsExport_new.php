@@ -8,7 +8,7 @@ use App\Models\Category;
 use App\Models\CategoryProduct;
 use App\Models\Columns;
 use App\Models\ProductExport;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,7 +32,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Throwable;
 
-class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents, ShouldQueue, WithChunkReading
+class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, ShouldQueue, WithChunkReading
 {
   use Exportable;
 
@@ -70,6 +70,8 @@ class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents
     $this->exported_by  = $tracker->exported_by;
     /** The tracker for counts. */
     $this->tracker      = $tracker;
+
+    ini_set('memory_limit', '1G');
   }
 
       
@@ -103,65 +105,71 @@ class ADOBProductsExport_new implements FromCollection, WithHeadings, WithEvents
   {
     return array_column(self::$columns::cases(), 'value');
   }
+
   /**
    * @return \Illuminate\Support\Collection
    */
-  public function collection()
+  public function query()
   {
-    $result = [
-      'header' => array_column(self::$columns::cases(), 'value'),
-    ];
+    $x = Product::query();
 
-    $products = Product::withoutGlobalScopes([
-        \Neon\Models\Scopes\ActiveScope::class
-      ])
-      ->orderBy('product_id')
-      ->get();
+    dd($x);
 
-    foreach ($products as $product) {
-      /** @var Collection Getting media collection.
-       */
-      $media      = $product->getMedia(Product::MEDIA_COLLECTION);
-      $categories = $product->categories()->get();
+    // $result = [];
+    // // $result = [
+    // //   'header' => array_column(self::$columns::cases(), 'value'),
+    // // ];
 
-      $sizes    = []; //- Collecting sizes...
-      $size_sum = 0; //- Summarized size of items...
-      $urls     = []; //- Collecting URLs...
-      $paths    = []; //- Categories...
+    // $products = Product::withoutGlobalScopes([
+    //     \Neon\Models\Scopes\ActiveScope::class
+    //   ])
+    //   ->orderBy('product_id')
+    //   ->get();
 
-      foreach ($categories as $category) {
-        $path = [];
-        foreach ($category->getAncestorsAndSelf() as $path_item) {
-          array_unshift($path, $path_item->name);
-        }
-        $paths[] = implode('\\', $path);
-      }
+    // foreach ($products as $product) {
+    //   /** @var Collection Getting media collection.
+    //    */
+    //   $media      = $product->getMedia(Product::MEDIA_COLLECTION);
+    //   $categories = $product->categories()->get();
 
-      foreach ($media as $img) {
-        $urls[]     = $img->getUrl();
-        $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
-        $size_sum   += $img->size;
-      }
+    //   $sizes    = []; //- Collecting sizes...
+    //   $size_sum = 0; //- Summarized size of items...
+    //   $urls     = []; //- Collecting URLs...
+    //   $paths    = []; //- Categories...
 
-      $result[] = [
-        $product->product_id, // PRODUCT_ID
-        $product->name, // PRODUCT_NAME
-        $product->brand()->first()?->name, // BRAND_NAME
-        $product->ean, // PRODUCT_EAN
-        $product->price, // PRODUCT_PRICE
-        (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
-        implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
-        route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
-        $media->count(), // IMAGE_COUNT
-        implode(';', $sizes), // IMAGE_SIZES
-        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
-        ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
-        implode(';', $urls), // IMAGE_LINKS
-        strip_tags($product->description), // PRODUCT_DESCRIPTION
-      ];
-    }
+    //   // foreach ($categories as $category) {
+    //   //   $path = [];
+    //   //   foreach ($category->getAncestorsAndSelf() as $path_item) {
+    //   //     array_unshift($path, $path_item->name);
+    //   //   }
+    //   //   $paths[] = implode('\\', $path);
+    //   // }
 
-    return collect($result);
+    //   // foreach ($media as $img) {
+    //   //   $urls[]     = $img->getUrl();
+    //   //   $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
+    //   //   $size_sum   += $img->size;
+    //   // }
+
+    //   $result[] = [
+    //     $product->product_id, // PRODUCT_ID
+    //     $product->name, // PRODUCT_NAME
+    //     $product->brand()->first()?->name, // BRAND_NAME
+    //     $product->ean, // PRODUCT_EAN
+    //     $product->price, // PRODUCT_PRICE
+    //     (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
+    //     implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
+    //     route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
+    //     $media->count(), // IMAGE_COUNT
+    //     implode(';', $sizes), // IMAGE_SIZES
+    //     ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
+    //     ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
+    //     implode(';', $urls), // IMAGE_LINKS
+    //     strip_tags($product->description), // PRODUCT_DESCRIPTION
+    //   ];
+    // }
+
+    // return collect($result);
   }
 
   public function failed(Throwable $exception): void
