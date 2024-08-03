@@ -40,7 +40,7 @@ class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
   const MAX_SUB_CATEGORY_COUNT    = 5;
 
   static $columns = \App\Models\Columns\ADOBProductsImportColumns::class;
-  
+
   private $logger;
 
   public $timeout = 1200;
@@ -78,7 +78,7 @@ class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
     {
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
-      if ($this->row[$main_category_column]) {
+      if (array_key_exists($main_category_column, $this->row) && $this->row[$main_category_column]) {
         // echo ("oszlop létezik.\n\r");
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($this->row[$main_category_column]),
