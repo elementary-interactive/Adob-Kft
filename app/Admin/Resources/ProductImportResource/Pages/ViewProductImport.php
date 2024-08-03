@@ -3,10 +3,12 @@
 namespace App\Admin\Resources\ProductImportResource\Pages;
 
 use App\Admin\Resources\ProductImportResource;
+use App\Jobs\ADOBNotifyJob;
 use App\Jobs\ADOBProductImportBatch_new;
 use App\Models\ProductImport;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Bus;
 
 class ViewProductImport extends ViewRecord
 {
@@ -26,6 +28,10 @@ class ViewProductImport extends ViewRecord
         ->requiresConfirmation()
         ->color('warning')
         ->action(function (ProductImport $record) {
+          Bus::batch([
+            new ADOBNotifyJob()
+          ])
+            ->name('product_import');
           $new = ProductImport::create([
             // 'data'  => $record['data'],
             'file'           => $record['file'],

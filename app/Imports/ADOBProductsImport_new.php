@@ -25,6 +25,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\PersistRelations;
 use Maatwebsite\Excel\Concerns\RemembersRowNumber;
@@ -99,8 +100,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           ->success()
           ->sendToDatabase($this->tracker->imported_by);
 
-        $this->batch->add(new CountBrandCategoryProducts($this->tracker));
-        $this->batch->dispatch();
+          Bus::findBatch('product_import')?->add(new CountBrandCategoryProducts($this->tracker));
+          dd(Bus::findBatch('product_import')); //->dispatch();
       }
     ];
   }
@@ -293,7 +294,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      *
      * This method will also insert or modify categories.
      */
-    $this->batch->add(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
+    Bus::findBatch('product_import')?->add(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
@@ -306,7 +307,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     
     /** Store images to the product.
      */
-    $this->batch->add(new ADOBProductImportImagesJob($product, $row));
+    Bus::findBatch('product_import')?->add(new ADOBProductImportImagesJob($product, $row));
     
     return $product;
   }

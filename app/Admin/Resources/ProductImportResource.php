@@ -4,6 +4,7 @@ namespace App\Admin\Resources;
 
 use App\Admin\Resources\ProductImportResource\Pages;
 use App\Admin\Resources\ProductImportResource\RelationManagers;
+use App\Jobs\ADOBNotifyJob;
 use App\Jobs\ADOBProductImportBatch;
 use App\Jobs\ADOBProductImportBatch_new;
 use App\Models\ProductImport;
@@ -19,6 +20,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -296,6 +298,11 @@ class ProductImportResource extends Resource
           ->requiresConfirmation()
           ->color('warning')
           ->action(function (ProductImport $record) {
+            Bus::batch([
+              new ADOBNotifyJob()
+            ])
+              ->name('product_import');
+
             $new = ProductImport::create([
               // 'data'  => $record['data'],
               'file'           => $record['file'],

@@ -39,11 +39,7 @@ class ADOBProductImportBatch_new implements ShouldQueue
 
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
-
-
-    $this->batch = Bus::batch([
-      new ADOBNotifyJob($import->imported_by)
-    ]);
+    
   }
 
   /**

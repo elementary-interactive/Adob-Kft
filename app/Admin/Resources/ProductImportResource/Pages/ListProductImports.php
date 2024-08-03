@@ -3,6 +3,7 @@
 namespace App\Admin\Resources\ProductImportResource\Pages;
 
 use App\Admin\Resources\ProductImportResource;
+use App\Jobs\ADOBNotifyJob;
 use App\Jobs\ADOBProductImportBatch_new;
 use App\Models\ProductImport;
 use Filament\Actions;
@@ -10,6 +11,7 @@ use Filament\Forms;
 use Filament\Notifications;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -58,6 +60,11 @@ class ListProductImports extends ListRecords
                             ->danger()
                             ->sendToDatabase(auth()->user());
                     } else {
+                        Bus::batch([
+                            new ADOBNotifyJob()
+                          ])
+                            ->name('product_import');
+
                         $importer = new ProductImport([
                             'file'  => $data['file'],
                             'data'  => [
