@@ -47,13 +47,9 @@ class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
    * Create a new job instance.
    */
   public function __construct(
-    protected $records,
-    protected $records_has_header = true,
-    protected $columns,
-    protected ProductImport $import
+    private Product $product,
+    private array $row
   ) {
-
-
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
@@ -66,7 +62,7 @@ class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
    */
   public function middleware(): array
   {
-    return [new WithoutOverlapping($this->import->id)];
+    return [new WithoutOverlapping('category')];
   }
 
   /**
@@ -74,88 +70,55 @@ class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
    */
   public function handle(): void
   {
-    $this->save_categories();
-  }
+    $columns  = array_keys($this->row);
 
-  private function save_categories()
-  {
-    $result = [];
-    /** Get the header...
-     */
-    if ($this->records_has_header) {
-      $header = $this->import->data['file'][0];
-    }
+    for ($categories_index = 1; $categories_index <= 3; $categories_index++)
+    {
+      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
-    foreach ($this->records as $record_index => $record_data) {
-      if ($record_data != $header) {
-        /**  
-         * @var array $record Associative array of the given record.
-         */
-        $record = array_combine($header, $record_data);
+      if ($this->row[$main_category_column]) {
+        // echo ("oszlop létezik.\n\r");
+        $main_category = Category::firstOrCreate([
+          'slug'        => Str::slug($this->row[$main_category_column]),
+          'parent_id'   => null,
+        ], [
+          'name'        => $this->row[$main_category_column],
+          'description' => $this->row[$main_category_column]
+        ]);
 
-        if (isset($record[$this->columns::PRODUCT_ID->value]) && $record[$this->columns::PRODUCT_ID->value]) {
-
-          for ($categories_index = 1; $categories_index <= 3; $categories_index++) {
-            $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::MAIN_CATEGORY->value . "/", $header));
-
-            if ($record[$main_category_column]) {
-              $category = Category::firstOrCreate([
-                'slug'        => Str::slug($record[$main_category_column]),
-                'parent_id'   => null
-              ], [
-                'name'        => $record[$main_category_column],
-                'description' => $record[$main_category_column]
-              ]);
-
-              // $category = null;
-
-              for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
-                // if (is_null($category))
-                // {
-                //   $category = $main_category;
-                // }
-                $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . $this->columns::SUB_CATEGORY->value . "{$sub_category_count}/", $header));
-
-                if (isset($record[$sub_category_column]) && !is_null($record[$sub_category_column])) {
-                  $sub_category = Category::firstOrNew([
-                    'slug'        => Str::slug($record[$sub_category_column]),
-                    'parent_id'   => $category->id
-                  ], [
-                    'name'        => $record[$sub_category_column]
-                  ]);
-
-                  if (!$sub_category->exists) {
-                    $this->import->increaseCategoryInserted();
-                    $sub_category->save();
-                    $sub_category->makeChildOf($category);
-                  } else {
-                    $this->import->increaseCategoryModified();
-                  }
-
-                  $category = $sub_category;
-                }
-              }
-              $result[$categories_index] = $category->id;
-            }
+        $category = null;
+        // dump($main_category);
+        for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
+          if (is_null($category)) {
+            $category = $main_category;
           }
-          /** Save data into a separated part of the import data....
-           */
-          $this->import->addCategoryIds($record[$this->columns::PRODUCT_ID->value], $result);
+          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}/", $columns));
 
-          /** Logging... */
-          $this->logger->info('Category import done. ['.implode(', ', $result).']', [
-            'import'  =>  $this->import->id,
-            'record'  => $record
-          ]);
+          if (isset($this->row[$sub_category_column]) && !is_null($this->row[$sub_category_column]))
+          {
+            $sub_category = Category::firstOrNew([
+              'slug'        => Str::slug($this->row[$sub_category_column]),
+              'parent_id'   => $category->id,
+            ], [
+              'name'        => $this->row[$sub_category_column]
+            ]);
+
+            if (!$sub_category->exists) {
+              $this->tracker->increaseCategoryInserted();
+              
+              $sub_category->save();
+              $sub_category->makeChildOf($category);
+            }
+
+            $category = $sub_category;
+          }
         }
+
+        $this->product->categories()->attach($category, [
+          'is_main' => ($categories_index == 1),
+          'order'   => 0,
+        ]);
       }
     }
-
-    /** Notify importer. */
-    Notification::make()
-      ->title('Importálás folyamata...')
-      ->body('Kategóriák sikeresen importálva')
-      ->info()
-      ->sendToDatabase($this->import->imported_by);
   }
 }

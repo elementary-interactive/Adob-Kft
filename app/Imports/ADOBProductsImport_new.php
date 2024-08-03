@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Jobs\ADOBCategoryImportJob;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\CategoryProduct;
@@ -141,7 +142,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   public function chunkSize(): int
   {
-    return 1;
+    return 500;
   }
 
   public function model(array $row): Product|null
@@ -304,6 +305,7 @@ echo ("{$this->tracker->id} import row\n\r");
      * This method will also insert or modify categories.
      */
     // $this->attach_categories($product, $row);
+    ADOBCategoryImportJob::dispatch($product, $row);
     echo ("{$this->tracker->id} kategoriak csatolva\n\r");
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
