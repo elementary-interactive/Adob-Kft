@@ -125,7 +125,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function batchSize(): int
   {
-    return 1;
+    return 100;
   }
 
   /**
@@ -291,7 +291,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      *
      * This method will also insert or modify categories.
      */
-    ADOBProductCategoryImportJob::dispatch($product, $row);
+    ADOBProductCategoryImportJob::dispatch($product, $row, $this->tracker);
     
     $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 

@@ -33,7 +33,7 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
-class ADOBProductCategoryImportJob implements ShouldQueue, ShouldBeUnique
+class ADOBProductCategoryImportJob implements ShouldQueue//, ShouldBeUnique
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -50,7 +50,8 @@ class ADOBProductCategoryImportJob implements ShouldQueue, ShouldBeUnique
    */
   public function __construct(
     private Product $product,
-    private array $row
+    private array $row,
+    private ProductImport $tracker
   ) {
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
@@ -64,7 +65,7 @@ class ADOBProductCategoryImportJob implements ShouldQueue, ShouldBeUnique
    */
   public function middleware(): array
   {
-    return [new WithoutOverlapping('category')];
+    // return [new WithoutOverlapping('category')];
   }
 
   /**
