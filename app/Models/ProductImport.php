@@ -91,9 +91,9 @@ class ProductImport extends Model
       $model->categories_modified = Cache::get($model->id . '_categories_modified', 0);
       $model->products_inserted = Cache::get($model->id . '_products_inserted', 0);
       $model->products_modified = Cache::get($model->id . '_products_modified', 0);
+      $model->fails_counter = count($fails);
       $model->data = json_encode([
         'fails'         => $fails,
-        'fails_counter' => count($fails)
       ]);
     });
   }
