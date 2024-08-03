@@ -229,7 +229,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function save_product($row, $is_active = null): Product
   {
-    $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
+    // $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
 
     $product = Product::firstOrNew([
       'product_id' => $row[self::$columns::PRODUCT_ID->value]
@@ -259,7 +259,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
-    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
        * @var Brand $brand The product's brand.
@@ -279,29 +279,29 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
-    $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();
-      $this->logger->info("{$this->tracker->id} import product {$product->id} modified.", ['row' => $row, 'product' => $product]);
+      // $this->logger->info("{$this->tracker->id} import product {$product->id} modified.", ['row' => $row, 'product' => $product]);
 
       /** Detach from all categories, will re-attach new ones.s
        */
       $product->categories()->detach();
-      $this->logger->info("{$this->tracker->id} import product {$product->id} categories detached.", ['row' => $row, 'product' => $product]);
+      // $this->logger->info("{$this->tracker->id} import product {$product->id} categories detached.", ['row' => $row, 'product' => $product]);
     } else {
       // $this->tracker->increaseProductInserted();
       $this->rows_insserted++;
     }
     $product->save();
-    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
     /** Check is there category & adding to categories.
      *
      * This method will also insert or modify categories.
      */
     $this->attach_categories($product, $row);
-    $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
      /** Remove all images from the product.
     * If user added new pictures, that will be executed after this so this way user can replace all the images.
@@ -310,12 +310,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       $this->delete_images($product, $row);
     }
 
-    $this->logger->info("{$this->tracker->id} import product {$product->id} go for images...", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} go for images...", ['row' => $row, 'product' => $product]);
     /** Store images to the product.
      */
     $this->save_images($product, $row);
     
-    $this->logger->info("{$this->tracker->id} import product {$product->id} images added.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} images added.", ['row' => $row, 'product' => $product]);
     return $product;
   }
 
@@ -396,11 +396,13 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
-      $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
+      // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
+      echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.");
 
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
-      $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
+      // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
+      echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.");
       
       if ($row[$main_category_column]) {
         
