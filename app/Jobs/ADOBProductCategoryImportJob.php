@@ -58,15 +58,15 @@ class ADOBProductCategoryImportJob implements ShouldQueue//, ShouldBeUnique
   }
 
   
-  /**
-   * Get the middleware the job should pass through.
-   *
-   * @return array<int, object>
-   */
-  public function middleware(): array
-  {
-    // return [new WithoutOverlapping('category')];
-  }
+  // /**
+  //  * Get the middleware the job should pass through.
+  //  *
+  //  * @return array<int, object>
+  //  */
+  // public function middleware(): array
+  // {
+  //   // return [new WithoutOverlapping('category')];
+  // }
 
   /**
    * Execute the job.
