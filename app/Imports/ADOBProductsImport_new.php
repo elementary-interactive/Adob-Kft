@@ -12,7 +12,6 @@ use App\Models\Columns;
 use App\Models\Product;
 use App\Models\ProductImport;
 use App\Models\User;
-use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -27,20 +26,21 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\PersistRelations;
 use Maatwebsite\Excel\Concerns\RemembersRowNumber;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithUpserts;
 use Neon\Models\Statuses\BasicStatus;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Row;
 use Monolog\Logger;
 
-class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, WithBatchInserts, ShouldQueue, WithEvents, WithHeadingRow, WithChunkReading, WithValidation
+class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations, ShouldQueue, WithEvents, WithHeadingRow, WithChunkReading, WithValidation
 {
   use Importable, RemembersRowNumber, SkipsErrors, SkipsFailures;
 
@@ -125,10 +125,10 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     return 'product_id';
   }
 
-  public function batchSize(): int
-  {
-    return 100;
-  }
+  // public function batchSize(): int
+  // {
+  //   return 1;
+  // }
 
   /**
    * @see https://docs.laravel-excel.com/3.1/imports/chunk-reading.html
@@ -139,19 +139,17 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     return 500;
   }
 
-  public function model(array $row): Product|null
+  public function onRow(Row $row)
   {
-    $result = null;
-
-    // dd($row);
+    $row      = $row->toArray();
 
     try {
       if (self::to_save($row)) {
-        $result = $this->save_product($row, self::is_active($row));
+        $this->save_product($row, self::is_active($row));
       }
 
       if (self::to_delete($row)) {
-        $result = $this->delete_product($row);
+        $this->delete_product($row);
       }
 
     } catch (\Exception $e) {
@@ -159,10 +157,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     } catch (\Throwable $e) {
       // $this->error($this->rows.'. - '.$e->getMessage());
     }
-
-    // $result->setRelation('team', new Team(['name' => $row[1]]));
-
-    return $result;
   }
 
   /** Rules to check the record.
@@ -308,8 +302,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     /** Store images to the product.
      */
     Bus::findBatch('product_import')?->add(new ADOBProductImportImagesJob($product, $row));
-    
-    return $product;
   }
 
   /**
@@ -321,8 +313,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   {
     $product = Product::where('product_id', '=', $row[self::$columns::PRODUCT_ID->value])->first();
     $product->delete();
-
-    return $product;
   }
 
   private function delete_images($product, $row)
