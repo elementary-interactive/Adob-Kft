@@ -2,19 +2,25 @@
 
 namespace App\Jobs;
 
-ini_set('memory_limit', '4000M');
+// /**
+//  * Whhoooo!!! Be careful!!!
+//  **/
+ini_set('max_execution_time', 1200);
+// ini_set('memory_limit', '4000M');
+set_time_limit(1200);
 
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Columns\ADOBProductsImportColumns;
 use App\Models\Product;
 use App\Models\ProductImport;
 use Exception;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
@@ -27,43 +33,30 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
-class ADOBProductImportImagesJob implements ShouldQueue
+class ADOBProductImportImagesJob implements ShouldQueue, ShouldBeUnique
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+  const MAX_SUB_CATEGORY_COUNT    = 5;
+
+  static $columns = \App\Models\Columns\ADOBProductsImportColumns::class;
+
   private $logger;
+
+  public $timeout = 1200;
 
   /**
    * Create a new job instance.
    */
   public function __construct(
-    protected array $record,
-    protected string $columns, //- Columns enumeration
-    protected ProductImport $import
+    private Product $product,
+    private array $row
   ) {
-    //     use Monolog\Logger;
-    // use Logtail\Monolog\LogtailHandler;
-
     $this->logger = new Logger('adob_importer');
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
-  /**
-   * Execute the job.
-   */
-  public function handle(): void
-  {
-    $this->import->job = 'Képek feldolgozása...';
-    $this->import->save();
-    
-    $product = Product::where('product_id', $this->record[$this->columns::PRODUCT_ID->value])
-      ->first();
-
-    if ($product) {
-      $this->handle_images($product);
-    }
-  }
-
+  
   /**
    * Get the middleware the job should pass through.
    *
@@ -71,31 +64,25 @@ class ADOBProductImportImagesJob implements ShouldQueue
    */
   public function middleware(): array
   {
-    return [new WithoutOverlapping($this->import->id)];
+    return [new WithoutOverlapping('category')];
   }
 
-  public function record(): array
-  {
-    return (array) $this->record;
-  }
-  /** Parse Excel cells to discover images to store them for the products.
-   * @return void
+  /**
+   * Execute the job.
    */
-  private function handle_images(Product $product): void
+  public function handle(): void
   {
-    if (array_key_exists($this->columns::IMAGES->value, $this->record) && isset($this->record[$this->columns::IMAGES->value])) {
-      // if (strpos($this->record[$this->columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
-      //   \File::put(storage_path().'/'.Str::random(6).'.jpg', base64_decode(str_replace('data:image/jpeg;base64,', '', $this->record[$this->columns::IMAGES->value])));
+    if (array_key_exists(self::$columns::IMAGES->value, $this->row) && isset($this->row[self::$columns::IMAGES->value])) {
+      // if (strpos($this->row[self::$columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
+      //   \File::put(storage_path().'/'.Str::random(6).'.jpg', base64_decode(str_replace('data:image/jpeg;base64,', '', $this->row[self::$columns::IMAGES->value])));
       // }
 
-      $__images = explode(';', $this->record[$this->columns::IMAGES->value]);
-
-      // dump($__images);
-
-      $images   = array();
+      $image_sources = explode(';', $this->row[self::$columns::IMAGES->value]);
+      
+      $images   = [];
       $index    = 0;
 
-      foreach ($__images as $string) {
+      foreach ($image_sources as $string) {
         if (!array_key_exists($index, $images)) {
           $images[$index] = '';
         }
@@ -106,41 +93,21 @@ class ADOBProductImportImagesJob implements ShouldQueue
         }
       }
 
-      // dump($images);
-      if (!empty($images)) {
-        foreach ($product->getMedia(Product::MEDIA_COLLECTION) as $media) {
-          $media->delete();
+      foreach ($images as $string) {
+        if (Str::startsWith($string, 'data:image/')) { //- base64 image
+          $this->product
+            ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
+            ->toMediaCollection(Product::MEDIA_COLLECTION);
         }
 
-        foreach ($images as $string) {
-          if (Str::startsWith($string, 'data:image/')) { //- base64 image
-            $product
-              ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
-              ->toMediaCollection(Product::MEDIA_COLLECTION);
-          }
-
-          if (Str::startsWith($string, 'http')) { //- http image
-            $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product image check: ' . $string, [
-              'import'  =>  $this->import->id
-            ]);
-
-            try {
-              $media = $product
-                ->addMediaFromUrl($string)
-                ->preservingOriginal()
-                ->toMediaCollection(Product::MEDIA_COLLECTION);
-              $media->save();
-            } catch (\Exception $e) {
-              // dump($e->getMessage());
-              $this->logger->info($this->record[$this->columns::PRODUCT_ID->value] . ' product image error: ' . $string . ' (' . $e->getMessage() . ')', [
-                'import'  =>  $this->import->id
-              ]);
-            }
-          }
+        if (Str::startsWith($string, 'http')) { //- http image
+          $media = $this->product
+            ->addMediaFromUrl($string)
+            ->preservingOriginal()
+            ->toMediaCollection(Product::MEDIA_COLLECTION);
+          $media->save();
         }
       }
-      // } else {
-      //     throw new Exception($this->record[$this->columns::PRODUCT_ID->value].' nincs "'.$this->columns::IMAGES.'" oszlop!');
     }
   }
 }

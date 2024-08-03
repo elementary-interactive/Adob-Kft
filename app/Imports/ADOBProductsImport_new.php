@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Jobs\ADOBProductCategoryImportJob;
+use App\Jobs\ADOBProductImportImagesJob;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\CategoryProduct;
@@ -303,7 +304,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     
     /** Store images to the product.
      */
-    $this->save_images($product, $row);
+    ADOBProductImportImagesJob::dispatch($product, $row);
     
     return $product;
   }
@@ -327,50 +328,49 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->clearMediaCollection(Product::MEDIA_MAIN);
   }
 
-  private function save_images($product, $row): void
-  {
-    if (array_key_exists(self::$columns::IMAGES->value, $row) && isset($row[self::$columns::IMAGES->value])) {
-      // if (strpos($row[self::$columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
-      //   \File::put(storage_path().'/'.Str::random(6).'.jpg', base64_decode(str_replace('data:image/jpeg;base64,', '', $row[self::$columns::IMAGES->value])));
-      // }
+  // private function save_images($product, $row): void
+  // {
+  //   if (array_key_exists(self::$columns::IMAGES->value, $row) && isset($row[self::$columns::IMAGES->value])) {
+  //     // if (strpos($row[self::$columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
+  //     //   \File::put(storage_path().'/'.Str::random(6).'.jpg', base64_decode(str_replace('data:image/jpeg;base64,', '', $row[self::$columns::IMAGES->value])));
+  //     // }
 
-      $__images = explode(';', $row[self::$columns::IMAGES->value]);
-      echo ("Images\n\r");
-      dump($__images);
-      $images   = array();
-      $index    = 0;
+  //     $image_sources = explode(';', $row[self::$columns::IMAGES->value]);
+      
+  //     $images   = [];
+  //     $index    = 0;
 
-      foreach ($__images as $string) {
-        if (!array_key_exists($index, $images)) {
-          $images[$index] = '';
-        }
-        $images[$index] .= $string;
+  //     foreach ($image_sources as $string) {
+  //       if (!array_key_exists($index, $images)) {
+  //         $images[$index] = '';
+  //       }
+  //       $images[$index] .= $string;
 
-        if (!str_contains($string, 'data:image/')) {
-          $index++;
-        }
-      }
-      // dump($images);
-      foreach ($images as $string) {
-        // dump($string);
-        if (Str::startsWith($string, 'data:image/')) { //- base64 image
-          $product
-            ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
-            ->toMediaCollection(Product::MEDIA_COLLECTION);
-        }
+  //       if (!str_contains($string, 'data:image/')) {
+  //         $index++;
+  //       }
+  //     }
+  //     // dump($images);
+  //     foreach ($images as $string) {
+  //       // dump($string);
+  //       if (Str::startsWith($string, 'data:image/')) { //- base64 image
+  //         $product
+  //           ->addMediaFromBase64($string, ["image/jpeg", "image/png"])
+  //           ->toMediaCollection(Product::MEDIA_COLLECTION);
+  //       }
 
-        if (Str::startsWith($string, 'http')) { //- http image
-          // dump('http image');
-          $media = $product
-            ->addMediaFromUrl($string)
-            ->preservingOriginal()
-            ->toMediaCollection(Product::MEDIA_COLLECTION);
-          $media->save();
-          // dump($product, $media);
-        }
-      }
-    }
-  }
+  //       if (Str::startsWith($string, 'http')) { //- http image
+  //         // dump('http image');
+  //         $media = $product
+  //           ->addMediaFromUrl($string)
+  //           ->preservingOriginal()
+  //           ->toMediaCollection(Product::MEDIA_COLLECTION);
+  //         $media->save();
+  //         // dump($product, $media);
+  //       }
+  //     }
+  //   }
+  // }
 
   /** Parse and save categories. Returns with nodes where to product should be
    * attached.
