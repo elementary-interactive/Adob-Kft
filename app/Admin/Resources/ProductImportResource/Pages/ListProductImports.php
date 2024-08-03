@@ -60,11 +60,6 @@ class ListProductImports extends ListRecords
                             ->danger()
                             ->sendToDatabase(auth()->user());
                     } else {
-                        Bus::batch([
-                            new ADOBNotifyJob()
-                          ])
-                            ->name('product_import');
-
                         $importer = new ProductImport([
                             'file'  => $data['file'],
                             'data'  => [

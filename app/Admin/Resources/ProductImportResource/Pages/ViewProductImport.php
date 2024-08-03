@@ -28,10 +28,6 @@ class ViewProductImport extends ViewRecord
         ->requiresConfirmation()
         ->color('warning')
         ->action(function (ProductImport $record) {
-          Bus::batch([
-            new ADOBNotifyJob()
-          ])
-            ->name('product_import');
           $new = ProductImport::create([
             // 'data'  => $record['data'],
             'file'           => $record['file'],
