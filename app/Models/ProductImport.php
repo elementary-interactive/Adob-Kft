@@ -85,12 +85,12 @@ class ProductImport extends Model
     static::saving(function ($model) {
       $fails = json_decode(Cache::get($model->id . '_fails')) ?: [];
 
-      $model->brands_inserted = Cache::get($model->id . '_brands_inserted');
-      $model->brands_modified = Cache::get($model->id . '_brands_modified');
-      $model->categories_inserted = Cache::get($model->id . '_categories_inserted');
-      $model->categories_modified = Cache::get($model->id . '_categories_modified');
-      $model->products_inserted = Cache::get($model->id . '_products_inserted');
-      $model->products_modified = Cache::get($model->id . '_products_modified');
+      $model->brands_inserted = Cache::get($model->id . '_brands_inserted', 0);
+      $model->brands_modified = Cache::get($model->id . '_brands_modified', 0);
+      $model->categories_inserted = Cache::get($model->id . '_categories_inserted', 0);
+      $model->categories_modified = Cache::get($model->id . '_categories_modified', 0);
+      $model->products_inserted = Cache::get($model->id . '_products_inserted', 0);
+      $model->products_modified = Cache::get($model->id . '_products_modified', 0);
       $model->data = json_encode([
         'fails'         => $fails,
         'fails_counter' => count($fails)
