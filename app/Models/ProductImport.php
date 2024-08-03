@@ -83,6 +83,10 @@ class ProductImport extends Model
   {
     parent::boot();
 
+    static::created(function ($model) {
+      dd($model);
+    });
+
     static::saving(function ($model)
     {
       $fails = json_decode(Cache::get($model->key . '_fails')) ?: [];
@@ -100,21 +104,21 @@ class ProductImport extends Model
     });
   }
 
-  public function __construct()
-  {
-    parent::__construct();
-    
-    $this->key = (string) Str::uuid();
+  // public function __construct()
+  // {
+  //   // parent::__construct();
 
-    // Initialize the cache keys
-    Cache::add($this->key . '_brands_inserted', 0, now()->addHours(4));
-    Cache::add($this->key . '_brands_modified', 0, now()->addHours(4));
-    Cache::add($this->key . '_categories_inserted', 0, now()->addHours(4));
-    Cache::add($this->key . '_categories_modified', 0, now()->addHours(4));
-    Cache::add($this->key . '_products_inserted', 0, now()->addHours(4));
-    Cache::add($this->key . '_products_modified', 0, now()->addHours(4));
-    Cache::add($this->key . '_fails', json_encode([]), now()->addHours(4));
-  }
+  //   // $this->key = (string) Str::uuid();
+
+  //   // // Initialize the cache keys
+  //   // Cache::add($this->key . '_brands_inserted', 0, now()->addHours(4));
+  //   // Cache::add($this->key . '_brands_modified', 0, now()->addHours(4));
+  //   // Cache::add($this->key . '_categories_inserted', 0, now()->addHours(4));
+  //   // Cache::add($this->key . '_categories_modified', 0, now()->addHours(4));
+  //   // Cache::add($this->key . '_products_inserted', 0, now()->addHours(4));
+  //   // Cache::add($this->key . '_products_modified', 0, now()->addHours(4));
+  //   // Cache::add($this->key . '_fails', json_encode([]), now()->addHours(4));
+  // }
 
   public function addFail($message)
   {
