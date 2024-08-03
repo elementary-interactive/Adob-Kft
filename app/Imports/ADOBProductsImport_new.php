@@ -303,7 +303,7 @@ echo ("{$this->tracker->id} import row\n\r");
      *
      * This method will also insert or modify categories.
      */
-    $this->attach_categories($product, $row);
+    // $this->attach_categories($product, $row);
     echo ("{$this->tracker->id} kategoriak csatolva\n\r");
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
