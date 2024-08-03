@@ -218,7 +218,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function save_product($row, $is_active = null): Product
   {
-    $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
+    // $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
     $product = Product::firstOrNew([
       'product_id' => $row[self::$columns::PRODUCT_ID->value]
     ]);
@@ -247,7 +247,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
     
-    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
     
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
@@ -269,7 +269,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
-    $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();
@@ -285,7 +285,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      */
     $product->save();
     
-    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
     /** Check is there category & adding to categories.
      *
@@ -293,7 +293,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      */
     ADOBProductCategoryImportJob::dispatch($product, $row, $this->tracker);
     
-    $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
+    // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
      /** Remove all images from the product.
     * If user added new pictures, that will be executed after this so this way user can replace all the images.
@@ -386,12 +386,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
-      // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
+      // // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
       // echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
 
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
-      // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
+      // // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
       // echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.\n\r");
       
       if ($row[$main_category_column]) {

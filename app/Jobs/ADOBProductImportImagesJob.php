@@ -5,9 +5,9 @@ namespace App\Jobs;
 // /**
 //  * Whhoooo!!! Be careful!!!
 //  **/
-ini_set('max_execution_time', 1200);
+// ini_set('max_execution_time', 1200);
 // ini_set('memory_limit', '4000M');
-set_time_limit(1200);
+// set_time_limit(1200);
 
 use App\Models\Brand;
 use App\Models\Category;
@@ -33,7 +33,7 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
-class ADOBProductImportImagesJob implements ShouldQueue, ShouldBeUnique
+class ADOBProductImportImagesJob implements ShouldQueue //, ShouldBeUnique
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -43,7 +43,7 @@ class ADOBProductImportImagesJob implements ShouldQueue, ShouldBeUnique
 
   private $logger;
 
-  public $timeout = 1200;
+  // public $timeout = 1200;
 
   /**
    * Create a new job instance.
@@ -56,16 +56,15 @@ class ADOBProductImportImagesJob implements ShouldQueue, ShouldBeUnique
     $this->logger->pushHandler(new LogtailHandler('1sKmnmxToqZ5NPAJy6EfvyAZ'));
   }
 
-  
-  /**
-   * Get the middleware the job should pass through.
-   *
-   * @return array<int, object>
-   */
-  public function middleware(): array
-  {
-    return [new WithoutOverlapping('category')];
-  }
+  // /**
+  //  * Get the middleware the job should pass through.
+  //  *
+  //  * @return array<int, object>
+  //  */
+  // public function middleware(): array
+  // {
+  //   return [new WithoutOverlapping('category')];
+  // }
 
   /**
    * Execute the job.
@@ -73,9 +72,6 @@ class ADOBProductImportImagesJob implements ShouldQueue, ShouldBeUnique
   public function handle(): void
   {
     if (array_key_exists(self::$columns::IMAGES->value, $this->row) && isset($this->row[self::$columns::IMAGES->value])) {
-      // if (strpos($this->row[self::$columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
-      //   \File::put(storage_path().'/'.Str::random(6).'.jpg', base64_decode(str_replace('data:image/jpeg;base64,', '', $this->row[self::$columns::IMAGES->value])));
-      // }
 
       $image_sources = explode(';', $this->row[self::$columns::IMAGES->value]);
       
