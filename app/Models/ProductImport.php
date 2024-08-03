@@ -83,7 +83,18 @@ class ProductImport extends Model
     parent::boot();
 
     static::saving(function ($model) {
-      dd($model);
+      $fails = json_decode(Cache::pull('fails'));
+
+      $model->brands_inserted = Cache::pull('brands_inserted');
+      $model->brands_modified = Cache::pull('brands_modified');
+      $model->categories_inserted = Cache::pull('categories_inserted');
+      $model->categories_modified = Cache::pull('categories_modified');
+      $model->products_inserted = Cache::pull('products_inserted');
+      $model->products_modified = Cache::pull('products_modified');
+      $model->data = json_encode([
+        'fails'         => $fails,
+        'fails_counter' => count($fails)
+      ]);
     });
   }
 
