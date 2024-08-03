@@ -33,7 +33,7 @@ use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 use Neon\Models\Statuses\BasicStatus;
 
-class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
+class ADOBProductCategoryImportJob implements ShouldQueue, ShouldBeUnique
 {
   use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Jobs\ADOBCategoryImportJob;
+use App\Jobs\ADOBProductCategoryImportJob;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\CategoryProduct;
@@ -47,15 +47,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   /** @var User */
   public $imported_by;
-
-  public $headerRow;
-
-  /** @var int */
-  private $rows = 0;
-
-  /** @var int */
-  private $rows_insserted = 0;
-
 
   public function __construct(
     public ProductImport $tracker,
@@ -147,8 +138,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function model(array $row): Product|null
   {
-    $this->rows = $this->getRowNumber();
-
     $result = null;
 
     // dd($row);
@@ -173,7 +162,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     return $result;
   }
 
-  /**
+  /** Rules to check the record.
+   * 
    * @return array
    */
   public function rules(): array
@@ -201,7 +191,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   {
     return [
       self::$columns::PRODUCT_ID->value . '.required'     => 'A termékazonosító megadása kötelező!',
-      // self::$columns::PRODUCT_ID->value . '.unique'       => 'A termék azonosító egyedi kell legyen!',
       self::$columns::EAN->value . 'numeric'              => 'Az EAN szám csak szám lehet.',
       self::$columns::MAIN_CATEGORY->value . '.required'  => 'A fő kategória megadása kötelező!',
     ];
@@ -228,8 +217,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function save_product($row, $is_active = null): Product
   {
-    // $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
-echo ("{$this->tracker->id} import row\n\r");
+    $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
     $product = Product::firstOrNew([
       'product_id' => $row[self::$columns::PRODUCT_ID->value]
     ]);
@@ -257,9 +245,9 @@ echo ("{$this->tracker->id} import row\n\r");
 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
-    echo ("{$this->tracker->id} product kesz: {$product->name}");
-    // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
-    echo ("{$this->tracker->id} marka\n\r");
+    
+    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+    
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
        * @var Brand $brand The product's brand.
@@ -272,42 +260,39 @@ echo ("{$this->tracker->id} import row\n\r");
         ]);
 
       if (!$brand->exists) {
-        $this->tracker->increaseBrandInserted();
         $brand->save();
+
+        $this->tracker->increaseBrandInserted();
       }
 
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
-    echo ("{$this->tracker->id} brand kesz: {$brand->name}\n\r");
-    // $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
+    $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();
-      // $this->logger->info("{$this->tracker->id} import product {$product->id} modified.", ['row' => $row, 'product' => $product]);
-
+     
       /** Detach from all categories, will re-attach new ones.s
        */
       $product->categories()->detach();
-      echo ("{$this->tracker->id} product kategoriak torlese\n\r");
-      // $this->logger->info("{$this->tracker->id} import product {$product->id} categories detached.", ['row' => $row, 'product' => $product]);
     } else {
-      // $this->tracker->increaseProductInserted();
-      $this->rows_insserted++;
+      $this->tracker->increaseProductInserted();
     }
-    $product->save();
-    echo ("{$this->tracker->id} product mentese: {$product->name}\n\r");
-    // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
-    echo ("{$this->tracker->id} kategoriak ellenorzese\n\r");
+    /** Save the product.
+     */
+    $product->save();
+    
+    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+
     /** Check is there category & adding to categories.
      *
      * This method will also insert or modify categories.
      */
-    // $this->attach_categories($product, $row);
-    ADOBCategoryImportJob::dispatch($product, $row);
-    echo ("{$this->tracker->id} kategoriak csatolva\n\r");
-    // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
+    ADOBProductCategoryImportJob::dispatch($product, $row);
+    
+    $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
      /** Remove all images from the product.
     * If user added new pictures, that will be executed after this so this way user can replace all the images.
@@ -315,14 +300,11 @@ echo ("{$this->tracker->id} import row\n\r");
     if (self::to_delete_images($row) || (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')) {
       $this->delete_images($product, $row);
     }
-    echo ("{$this->tracker->id} kepek ellenorzese\n\r");
-    // $this->logger->info("{$this->tracker->id} import product {$product->id} go for images...", ['row' => $row, 'product' => $product]);
+    
     /** Store images to the product.
      */
     $this->save_images($product, $row);
-    echo ("{$this->tracker->id} kepek kesz\n\r");
     
-    // $this->logger->info("{$this->tracker->id} import product {$product->id} images added.", ['row' => $row, 'product' => $product]);
     return $product;
   }
 
