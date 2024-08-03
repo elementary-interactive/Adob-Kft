@@ -39,6 +39,8 @@ class ADOBCategoryImportJob implements ShouldQueue, ShouldBeUnique
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
 
+  static $columns = \App\Models\Columns\ADOBProductsImportColumns::class;
+  
   private $logger;
 
   public $timeout = 1200;
