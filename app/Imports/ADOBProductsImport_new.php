@@ -142,7 +142,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   public function chunkSize(): int
   {
-    return 1000;
+    return 500;
   }
 
   public function model(array $row): Product|null
@@ -203,7 +203,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   public function customValidationMessages()
   {
     return [
-      self::$columns::PRODUCT_ID->value . '.required'     => 'A termék azonosító megadása kötelező!',
+      self::$columns::PRODUCT_ID->value . '.required'     => 'A termékazonosító megadása kötelező!',
       // self::$columns::PRODUCT_ID->value . '.unique'       => 'A termék azonosító egyedi kell legyen!',
       self::$columns::EAN->value . 'numeric'              => 'Az EAN szám csak szám lehet.',
       self::$columns::MAIN_CATEGORY->value . '.required'  => 'A fő kategória megadása kötelező!',
@@ -231,7 +231,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function save_product($row, $is_active = null): Product
   {
-    $is_new = null;
+    $this->tracker->logger->info("{$this->tracker->id} import row", ['row' => $row]);
 
     $product = Product::firstOrNew([
       'product_id' => $row[self::$columns::PRODUCT_ID->value]
@@ -261,6 +261,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
+    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
        * @var Brand $brand The product's brand.
@@ -280,6 +281,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
+    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();
@@ -298,8 +300,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      * This method will also insert or modify categories.
      */
     $this->attach_categories($product, $row);
+    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
-    
      /** Remove all images from the product.
     * If user added new pictures, that will be executed after this so this way user can replace all the images.
     */
@@ -307,12 +309,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       $this->delete_images($product, $row);
     }
 
-    dump($product);
-    dump('_--_--_');
+    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} go for images...", ['row' => $row, 'product' => $product]);
     /** Store images to the product.
      */
     $this->save_images($product, $row);
-    dump('_--_--_');
+    
+    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} images added.", ['row' => $row, 'product' => $product]);
     return $product;
   }
 
@@ -453,7 +455,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   {
     return (strtolower($row[self::$columns::COMMAND->value]) === 'd');
   }
-  
+
   public static function to_delete_images(array $row): bool
   {
     return (strtolower($row[self::$columns::COMMAND->value]) === 'p');

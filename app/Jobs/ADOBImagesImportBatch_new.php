@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Imports\ADOBProductCollectionImport;
 use App\Imports\ADOBProductsImport_new;
 use App\Models\Columns\ADOBProductsImportColumns;
 use App\Models\ImageImport;

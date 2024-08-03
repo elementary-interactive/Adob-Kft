@@ -5,7 +5,6 @@ namespace App\Admin\Resources\ProductResource\Pages;
 use App\Exports\ADOBProductsExport;
 use App\Admin\Resources\ProductImportResource\Widgets\ProductImportOverview;
 use App\Admin\Resources\ProductResource;
-use App\Imports\ADOBProductCollectionImport;
 use App\Jobs\ADOBProductImportBatch;
 use App\Jobs\ADOBProductImportBatch_new;
 use App\Models\ProductImport;

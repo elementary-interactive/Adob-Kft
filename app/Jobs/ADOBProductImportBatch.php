@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Imports\ADOBProductCollectionImport;
 use App\Models\Columns\ADOBProductsImportColumns;
 use App\Models\ProductImport;
 use Carbon\Carbon;
