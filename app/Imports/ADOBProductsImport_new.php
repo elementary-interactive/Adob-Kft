@@ -281,15 +281,18 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();
+      $this->logger->info("{$this->tracker->id} import product {$product->id} modified.", ['row' => $row, 'product' => $product]);
 
       /** Detach from all categories, will re-attach new ones.s
        */
       $product->categories()->detach();
+      $this->logger->info("{$this->tracker->id} import product {$product->id} categories detached.", ['row' => $row, 'product' => $product]);
     } else {
       // $this->tracker->increaseProductInserted();
       $this->rows_insserted++;
     }
     $product->save();
+    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
     /** Check is there category & adding to categories.
      *
