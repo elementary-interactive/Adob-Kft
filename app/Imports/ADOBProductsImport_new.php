@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Jobs\ADOBProductCategoryImportJob;
 use App\Jobs\ADOBProductImportImagesJob;
+use App\Jobs\CountBrandCategoryProducts;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\CategoryProduct;
@@ -98,6 +99,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           ->success()
           ->sendToDatabase($this->tracker->imported_by);
 
+        $this->batch->add(new CountBrandCategoryProducts($this->tracker));
         $this->batch->dispatch();
       }
     ];
@@ -291,7 +293,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      *
      * This method will also insert or modify categories.
      */
-    $this->batch->add(ADOBProductCategoryImportJob::dispatch($product, $row, $this->tracker));
+    $this->batch->add(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
@@ -304,7 +306,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     
     /** Store images to the product.
      */
-    $this->batch->add(ADOBProductImportImagesJob::dispatch($product, $row));
+    $this->batch->add(new ADOBProductImportImagesJob($product, $row));
     
     return $product;
   }
