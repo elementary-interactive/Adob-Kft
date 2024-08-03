@@ -74,7 +74,9 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       BeforeImport::class => function (BeforeImport $event)
       {
         $totalRows = $event->getReader()->getTotalRows();
-        $this->tracker->records_counter = $totalRows[array_key_first($totalRows)] - 1; // Because of the header...
+        $this->tracker->records_counter = $totalRows[array_key_first($totalRows)] - 1; // Because of the header..
+        $this->tracker->status = 'running';
+        $this->tracker->save();
 
         Notification::make()
           ->title('Importálás folyamata...')
@@ -146,9 +148,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   public function model(array $row): Product|null
   {
     $this->rows = $this->getRowNumber();
-
-    $this->tracker->status = 'running';
-    $this->tracker->save();
 
     $result = null;
 

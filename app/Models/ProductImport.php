@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Neon\Models\Traits\Statusable;
 use Neon\Models\Traits\Uuid;
 use Illuminate\Support\Str;
@@ -69,87 +70,86 @@ class ProductImport extends Model
     'products_modified'   => 0,
     'fails_counter'       => 0,
     'data'                => '',
-    'job'                 => '',
+    'job'                 => ''
   ];
+
+  /**
+   * The "booted" method of the model.
+   *
+   * @return void
+   */
+  protected static function boot()
+  {
+    parent::boot();
+
+    static::saving(function ($model) {
+      dd($model);
+    });
+  }
+
+  public function __construct()
+  {
+    $this->{$this->getKeyName()} = (string) \Str::uuid();
+
+    // Initialize the cache keys
+    Cache::add($this->id . '_brands_inserted', 0, now()->addHours(4));
+    Cache::add($this->id . '_brands_modified', 0, now()->addHours(4));
+    Cache::add($this->id . '_categories_inserted', 0, now()->addHours(4));
+    Cache::add($this->id . '_categories_modified', 0, now()->addHours(4));
+    Cache::add($this->id . '_products_inserted', 0, now()->addHours(4));
+    Cache::add($this->id . '_products_modified', 0, now()->addHours(4));
+    Cache::add($this->id . '_fails', json_encode([]), now()->addHours(4));
+  }
 
   public function addFail($message)
   {
-    $data = json_decode($this->attributes['data']);
-    if (!is_array($data))
-    {
-      $data = [];
-    }
-    if (!array_key_exists('fails', $data))
-    {
-      $data['fails'] = [];
-    }
-    $data['fails'][] = $message;
+    $data = json_decode(Cache::add($this->id . '_fails'));
+    $data[] = $message;
 
-    $this->attributes['data'] = json_encode($data);
-    
-    $this->attributes['fails_counter']++;
-    $this->save();
+    Cache::put($this->id . '_fail', json_encode($data));
+
+    // $this->attributes['data'] = json_encode($data);
+
+    // $this->attributes['fails_counter']++;
+    // $this->save();
   }
 
   public function increaseBrandInserted()
   {
-    $this->attributes['brands_inserted']++;
-    $this->save();
+    //   $this->attributes['brands_inserted']++;
+    //   $this->save();
+    Cache::increment($this->id . '_brands_inserted');
   }
 
   public function increaseBrandModified()
   {
-    $this->attributes['brands_modified']++;
-    $this->save();
+    // $this->attributes['brands_modified']++;
+    // $this->save();
+    Cache::increment($this->id . '_brands_modified');
   }
 
   public function increaseCategoryInserted()
   {
-    $this->attributes['categories_inserted']++;
-    $this->save();
+    Cache::increment($this->id . '_categories_inserted');
   }
 
   public function increaseCategoryModified()
   {
-    $this->attributes['categories_modified']++;
-    $this->save();
+    Cache::increment($this->id . '_categories_modified');
   }
 
   public function increaseProductInserted()
   {
-    $this->attributes['products_inserted']++;
-    $this->save();
+    Cache::increment($this->id . '_products_inserted');
   }
 
   public function increaseProductModified()
   {
-    $this->attributes['products_modified']++;
-    $this->save();
-  }
-
-  public function addCategoryIds($product_id, $categoryIndexes)
-  {
-    $data = json_decode($this->attributes['data']);
-
-    if (!isset($data->categories))
-    {
-      $data->categories = array();
-    }
-
-    $data->categories = array_merge((array) $data->categories, [$product_id => $categoryIndexes]);
-
-    $this->attributes['data'] = json_encode($data);
-    $this->save();
-  }
-
-  public function getCategoryIds()
-  {
-    return (array) json_decode($this->attributes['data'])->categories;
+    Cache::increment($this->id . '_products_modified');
   }
 
   public function imported_by(): BelongsTo
   {
     return $this->belongsTo(Admin::class);
   }
- 
 }
