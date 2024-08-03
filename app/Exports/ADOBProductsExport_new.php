@@ -28,11 +28,12 @@ use Maatwebsite\Excel\Events\ExportFailed;
 use Maatwebsite\Excel\Events\AfterExport;
 use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Throwable;
 
-class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, ShouldQueue, WithChunkReading
+class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, ShouldQueue, WithChunkReading, WithMapping
 {
   use Exportable;
 
@@ -106,14 +107,52 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
     return array_column(self::$columns::cases(), 'value');
   }
 
+  public function map($row): array
+  {
+    $sizes    = []; //- Collecting sizes...
+      $size_sum = 0; //- Summarized size of items...
+      $urls     = []; //- Collecting URLs...
+      $paths    = []; //- Categories...
+    $media      = $row->getMedia(Product::MEDIA_COLLECTION);
+
+    foreach ($media as $img) {
+        $urls[]     = $img->getUrl();
+        $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
+        $size_sum   += $img->size;
+      }
+
+      return [
+        $row->product_id, // PRODUCT_ID
+        $row->name, // PRODUCT_NAME
+        $row->brand?->name, // BRAND_NAME
+        $row->ean, // PRODUCT_EAN
+        $row->price, // PRODUCT_PRICE
+        // (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
+        // implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
+        route('product.show', ['slug' => $row->slug]), // PRODUCT_URL
+        $media->count(), // IMAGE_COUNT
+        implode(';', $sizes), // IMAGE_SIZES
+        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
+        ($row->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
+        implode(';', $urls), // IMAGE_LINKS
+        strip_tags($row->description), // PRODUCT_DESCRIPTION
+      ];
+  }
+
   /**
    * @return \Illuminate\Support\Collection
    */
   public function query()
   {
-    $x = Product::query();
+    $x = Product::query()
+      ->withoutGlobalScopes()
+      ->with('brand');
 
-    dd($x);
+    // dump($x);
+
+    return $x;
+
+    // dd($x);
 
     // $result = [];
     // // $result = [
