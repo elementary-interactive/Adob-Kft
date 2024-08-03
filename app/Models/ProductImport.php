@@ -73,6 +73,7 @@ class ProductImport extends Model
     'job'                 => ''
   ];
 
+  protected $key  = null;
   /**
    * The "booted" method of the model.
    *
@@ -83,14 +84,14 @@ class ProductImport extends Model
     parent::boot();
 
     static::saving(function ($model) {
-      $fails = json_decode(Cache::get($model->id . '_fails')) ?: [];
+      $fails = json_decode(Cache::get($model->key . '_fails')) ?: [];
 
-      $model->brands_inserted = Cache::get($model->id . '_brands_inserted', 0);
-      $model->brands_modified = Cache::get($model->id . '_brands_modified', 0);
-      $model->categories_inserted = Cache::get($model->id . '_categories_inserted', 0);
-      $model->categories_modified = Cache::get($model->id . '_categories_modified', 0);
-      $model->products_inserted = Cache::get($model->id . '_products_inserted', 0);
-      $model->products_modified = Cache::get($model->id . '_products_modified', 0);
+      $model->brands_inserted = Cache::get($model->key . '_brands_inserted', 0);
+      $model->brands_modified = Cache::get($model->key . '_brands_modified', 0);
+      $model->categories_inserted = Cache::get($model->key . '_categories_inserted', 0);
+      $model->categories_modified = Cache::get($model->key . '_categories_modified', 0);
+      $model->products_inserted = Cache::get($model->key . '_products_inserted', 0);
+      $model->products_modified = Cache::get($model->key . '_products_modified', 0);
       $model->fails_counter = count($fails);
       $model->data = json_encode([
         'fails'         => $fails,
@@ -100,24 +101,24 @@ class ProductImport extends Model
 
   public function __construct()
   {
-    $this->{$this->getKeyName()} = (string) \Str::uuid();
+    $this->key = (string) Str::uuid();
 
     // Initialize the cache keys
-    Cache::add($this->id . '_brands_inserted', 0, now()->addHours(4));
-    Cache::add($this->id . '_brands_modified', 0, now()->addHours(4));
-    Cache::add($this->id . '_categories_inserted', 0, now()->addHours(4));
-    Cache::add($this->id . '_categories_modified', 0, now()->addHours(4));
-    Cache::add($this->id . '_products_inserted', 0, now()->addHours(4));
-    Cache::add($this->id . '_products_modified', 0, now()->addHours(4));
-    Cache::add($this->id . '_fails', json_encode([]), now()->addHours(4));
+    Cache::add($this->key . '_brands_inserted', 0, now()->addHours(4));
+    Cache::add($this->key . '_brands_modified', 0, now()->addHours(4));
+    Cache::add($this->key . '_categories_inserted', 0, now()->addHours(4));
+    Cache::add($this->key . '_categories_modified', 0, now()->addHours(4));
+    Cache::add($this->key . '_products_inserted', 0, now()->addHours(4));
+    Cache::add($this->key . '_products_modified', 0, now()->addHours(4));
+    Cache::add($this->key . '_fails', json_encode([]), now()->addHours(4));
   }
 
   public function addFail($message)
   {
-    $data = json_decode(Cache::add($this->id . '_fails'));
+    $data = json_decode(Cache::add($this->key . '_fails'));
     $data[] = $message;
 
-    Cache::put($this->id . '_fail', json_encode($data));
+    Cache::put($this->key . '_fail', json_encode($data));
 
     // $this->attributes['data'] = json_encode($data);
 
@@ -129,34 +130,34 @@ class ProductImport extends Model
   {
     //   $this->attributes['brands_inserted']++;
     //   $this->save();
-    Cache::increment($this->id . '_brands_inserted');
+    Cache::increment($this->key . '_brands_inserted');
   }
 
   public function increaseBrandModified()
   {
     // $this->attributes['brands_modified']++;
     // $this->save();
-    Cache::increment($this->id . '_brands_modified');
+    Cache::increment($this->key . '_brands_modified');
   }
 
   public function increaseCategoryInserted()
   {
-    Cache::increment($this->id . '_categories_inserted');
+    Cache::increment($this->key . '_categories_inserted');
   }
 
   public function increaseCategoryModified()
   {
-    Cache::increment($this->id . '_categories_modified');
+    Cache::increment($this->key . '_categories_modified');
   }
 
   public function increaseProductInserted()
   {
-    Cache::increment($this->id . '_products_inserted');
+    Cache::increment($this->key . '_products_inserted');
   }
 
   public function increaseProductModified()
   {
-    Cache::increment($this->id . '_products_modified');
+    Cache::increment($this->key . '_products_modified');
   }
 
   public function imported_by(): BelongsTo
