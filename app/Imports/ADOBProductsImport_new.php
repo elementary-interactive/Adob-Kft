@@ -54,8 +54,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function __construct(
     public ProductImport $tracker,
-    public Logger $logger,
-    public PendingBatch $batch)
+    public Logger $logger)//,
+    // public PendingBatch $batch)
   {
     /** The importer user. who need to set up for notifications...
      * @var Admin

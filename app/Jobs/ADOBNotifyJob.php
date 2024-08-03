@@ -11,7 +11,7 @@ class ADOBNotifyJob implements ShouldQueue
 {
 
   public function __construct(
-    protected ProductImport $tracker
+    protected $imported_by
   )
   {
     
@@ -22,6 +22,6 @@ class ADOBNotifyJob implements ShouldQueue
     ->title('Importálás folyamata...')
     ->body('Kategóriák és képek ellenőrzése.')
     ->info()
-    ->sendToDatabase($this->tracker->imported_by);
+    ->sendToDatabase($this->imported_by);
   }
 }

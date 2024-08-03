@@ -42,8 +42,8 @@ class ADOBProductImportBatch_new implements ShouldQueue
 
 
     $this->batch = Bus::batch([
-      new ADOBNotifyJob($import)
-    ])->name('import');
+      new ADOBNotifyJob($import->imported_by)
+    ]);
   }
 
   /**
@@ -63,8 +63,8 @@ class ADOBProductImportBatch_new implements ShouldQueue
    */
   public function handle()
   {
-      // Excel::import(new ADOBProductsImport_new($this->import->imported_by, $this->import), $this->import->file, null, \Maatwebsite\Excel\Excel::XLSX);
-      (new ADOBProductsImport_new($this->import, $this->logger, $this->batch))->import($this->import->file); // we are using the trait importable in the xxxImport which allow us to handle it from the controller directly
+      (new ADOBProductsImport_new($this->import, $this->logger))->import($this->import->file); // we are using the trait importable in the xxxImport which allow us to handle it from the controller directly
+      // (new ADOBProductsImport_new($this->import, $this->logger, $this->batch))->import($this->import->file); // we are using the trait importable in the xxxImport which allow us to handle it from the controller directly
 
   }
 }
