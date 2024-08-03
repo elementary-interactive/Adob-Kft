@@ -64,6 +64,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      * @var Admin
      */
     $this->imported_by  = $this->tracker->imported_by;
+
+    ini_set('memory_limit', '1G'); // Go, go, memory, go, go!!!
   }
 
   public function registerEvents(): array
@@ -394,9 +396,14 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
+      $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
+
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
+      $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
+      
       if ($row[$main_category_column]) {
+        
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
           'parent_id'   => null,
