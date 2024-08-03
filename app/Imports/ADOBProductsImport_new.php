@@ -102,8 +102,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         $this->tracker->finished_at = now();
         $this->tracker->save();
 
-        dd($this->tracker);
-
         Notification::make()
           ->title('Importálás folyamata...')
           ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A termékek mostmár elérhetők a weben. A képek importálása még folyamatban.')
@@ -398,7 +396,7 @@ echo ("{$this->tracker->id} import row\n\r");
    *
    * @return array $categories
    */
-  private function attach_categories(Product $product, array $row): void
+  private function attach_categories(Product $product, array $row)
   {
     $columns  = array_keys($row);
 
@@ -441,6 +439,7 @@ echo ("{$this->tracker->id} import row\n\r");
 
             if (!$sub_category->exists) {
               $this->tracker->increaseCategoryInserted();
+              
               $sub_category->save();
               $sub_category->makeChildOf($category);
             }
@@ -455,6 +454,8 @@ echo ("{$this->tracker->id} import row\n\r");
         ]);
       }
     }
+
+    return true;
   }
 
   public static function to_save(array $row): bool
