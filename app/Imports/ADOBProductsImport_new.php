@@ -20,6 +20,8 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Neon\Admin\Models\Admin;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
+use Illuminate\Bus\Batch;
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +53,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function __construct(
     public ProductImport $tracker,
-    public Logger $logger)
+    public Logger $logger,
+    public PendingBatch $batch)
   {
     /** The importer user. who need to set up for notifications...
      * @var Admin
@@ -80,13 +83,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
       ImportFailed::class => function (ImportFailed $event)
       {
-        $this->logger->error('FAIL', ['event' => $event]);
-        // $failures = $event->getException()->failures();
-
-        // foreach ($failures as $fail)
-        // {
-        //   $this->error($fail->row().' "'.$fail->attribute().'": '.implode(', ', $fail->errors()));
-        // }
+        $this->error($event);
       },
 
       AfterImport::class => function(AfterImport $event)
@@ -100,6 +97,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
           ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A termékek mostmár elérhetők a weben. A képek importálása még folyamatban.')
           ->success()
           ->sendToDatabase($this->tracker->imported_by);
+
+        $this->batch->dispatch();
       }
     ];
   }
@@ -197,17 +196,18 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     ];
   }
 
-  private function error(string $message, string $icon = 'exclamation-circle')
+  // private function error(string $message, string $icon = 'exclamation-circle')
+  private function error($event, string $icon = 'exclamation-circle')
   {
-    $this->tracker->addFail($message);
-    $this->tracker->status = 'failed';
-    $this->tracker->save();
+    // $this->tracker->addFail($message);
+    // $this->tracker->status = 'failed';
+    // $this->tracker->save();
 
-    Notification::make()
-      ->title('Importálás folyamata...')
-      ->body($message)
-      ->danger()
-      ->sendToDatabase($this->imported_by);
+    // Notification::make()
+    //   ->title('Importálás folyamata...')
+    //   ->body($message)
+    //   ->danger()
+    //   ->sendToDatabase($this->imported_by);
   }
 
   /**
@@ -291,7 +291,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      *
      * This method will also insert or modify categories.
      */
-    ADOBProductCategoryImportJob::dispatch($product, $row, $this->tracker);
+    $this->batch->add(ADOBProductCategoryImportJob::dispatch($product, $row, $this->tracker));
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
@@ -304,7 +304,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     
     /** Store images to the product.
      */
-    ADOBProductImportImagesJob::dispatch($product, $row);
+    $this->batch->add(ADOBProductImportImagesJob::dispatch($product, $row));
     
     return $product;
   }
