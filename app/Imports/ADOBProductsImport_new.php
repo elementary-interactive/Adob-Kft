@@ -48,9 +48,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public $headerRow;
 
-  /** @var ProductImport */
-  public $tracker;
-
   /** @var int */
   private $rows = 0;
 
@@ -58,17 +55,14 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
   private $rows_insserted = 0;
 
 
-  public function __construct(ProductImport $tracker)
+  public function __construct(
+    public ProductImport $tracker,
+    public $this->logger)
   {
     /** The importer user. who need to set up for notifications...
      * @var Admin
      */
-    $this->imported_by  = $tracker->imported_by;
-
-    /** The tracker for counts.
-     *
-     */
-    $this->tracker      = $tracker;
+    $this->imported_by  = $this->tracker->imported_by;
   }
 
   public function registerEvents(): array
@@ -231,7 +225,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    */
   private function save_product($row, $is_active = null): Product
   {
-    $this->tracker->logger->info("{$this->tracker->id} import row", ['row' => $row]);
+    $this->logger->info("{$this->tracker->id} import row", ['row' => $row]);
 
     $product = Product::firstOrNew([
       'product_id' => $row[self::$columns::PRODUCT_ID->value]
@@ -261,7 +255,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
 
-    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
+    $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
        * @var Brand $brand The product's brand.
@@ -281,7 +275,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
-    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
+    $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
       $this->tracker->increaseProductModified();
@@ -300,7 +294,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
      * This method will also insert or modify categories.
      */
     $this->attach_categories($product, $row);
-    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
+    $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
      /** Remove all images from the product.
     * If user added new pictures, that will be executed after this so this way user can replace all the images.
@@ -309,12 +303,12 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       $this->delete_images($product, $row);
     }
 
-    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} go for images...", ['row' => $row, 'product' => $product]);
+    $this->logger->info("{$this->tracker->id} import product {$product->id} go for images...", ['row' => $row, 'product' => $product]);
     /** Store images to the product.
      */
     $this->save_images($product, $row);
     
-    $this->tracker->logger->info("{$this->tracker->id} import product {$product->id} images added.", ['row' => $row, 'product' => $product]);
+    $this->logger->info("{$this->tracker->id} import product {$product->id} images added.", ['row' => $row, 'product' => $product]);
     return $product;
   }
 
