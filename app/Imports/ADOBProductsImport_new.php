@@ -32,6 +32,7 @@ use Neon\Models\Statuses\BasicStatus;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
+use Monolog\Logger;
 
 class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, WithBatchInserts, ShouldQueue, WithEvents, WithHeadingRow, WithChunkReading, WithValidation
 {
@@ -57,7 +58,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function __construct(
     public ProductImport $tracker,
-    public $this->logger)
+    public Logger $logger)
   {
     /** The importer user. who need to set up for notifications...
      * @var Admin
@@ -82,12 +83,13 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
       ImportFailed::class => function (ImportFailed $event)
       {
-        $failures = $event->getException()->failures();
+        $this->logger->error('FAIL', ['event' => $event]);
+        // $failures = $event->getException()->failures();
 
-        foreach ($failures as $fail)
-        {
-          $this->error($fail->row().' "'.$fail->attribute().'": '.implode(', ', $fail->errors()));
-        }
+        // foreach ($failures as $fail)
+        // {
+        //   $this->error($fail->row().' "'.$fail->attribute().'": '.implode(', ', $fail->errors()));
+        // }
       },
 
       AfterImport::class => function(AfterImport $event)
