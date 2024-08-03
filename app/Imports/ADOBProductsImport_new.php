@@ -346,6 +346,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
       // }
 
       $__images = explode(';', $row[self::$columns::IMAGES->value]);
+      echo ("Images\n\r");
       dump($__images);
       $images   = array();
       $index    = 0;
@@ -397,15 +398,15 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
       // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
-      echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
+      // echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
 
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
       // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
-      echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.\n\r");
+      // echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.\n\r");
       
       if ($row[$main_category_column]) {
-        echo ("oszlop létezik.\n\r");
+        // echo ("oszlop létezik.\n\r");
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
           'parent_id'   => null,
@@ -415,7 +416,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         ]);
 
         $category = null;
-        dump($main_category);
+        // dump($main_category);
         for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
           if (is_null($category)) {
             $category = $main_category;
@@ -447,6 +448,8 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         ]);
       }
     }
+
+    return;
   }
 
   public static function to_save(array $row): bool
