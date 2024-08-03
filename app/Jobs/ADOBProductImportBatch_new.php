@@ -42,7 +42,7 @@ class ADOBProductImportBatch_new implements ShouldQueue
 
 
     $this->batch = Bus::batch([
-      new ADOBNotifyJob($this->import)
+      new ADOBNotifyJob($import)
     ])->name('import');
   }
 
