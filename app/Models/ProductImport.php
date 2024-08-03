@@ -84,19 +84,24 @@ class ProductImport extends Model
     parent::boot();
 
     static::created(function ($model) {
-      dd($model);
+      Cache::add($model->id . '_brands_inserted', 0, now()->addHours(4));
+      Cache::add($model->id . '_brands_modified', 0, now()->addHours(4));
+      Cache::add($model->id . '_categories_inserted', 0, now()->addHours(4));
+      Cache::add($model->id . '_categories_modified', 0, now()->addHours(4));
+      Cache::add($model->id . '_products_inserted', 0, now()->addHours(4));
+      Cache::add($model->id . '_products_modified', 0, now()->addHours(4));
     });
 
     static::saving(function ($model)
     {
-      $fails = json_decode(Cache::get($model->key . '_fails')) ?: [];
+      $fails = json_decode(Cache::get($model->id . '_fails')) ?: [];
 
-      $model->brands_inserted = Cache::get($model->key . '_brands_inserted', 0);
-      $model->brands_modified = Cache::get($model->key . '_brands_modified', 0);
-      $model->categories_inserted = Cache::get($model->key . '_categories_inserted', 0);
-      $model->categories_modified = Cache::get($model->key . '_categories_modified', 0);
-      $model->products_inserted = Cache::get($model->key . '_products_inserted', 0);
-      $model->products_modified = Cache::get($model->key . '_products_modified', 0);
+      $model->brands_inserted = Cache::get($model->id . '_brands_inserted', 0);
+      $model->brands_modified = Cache::get($model->id . '_brands_modified', 0);
+      $model->categories_inserted = Cache::get($model->id . '_categories_inserted', 0);
+      $model->categories_modified = Cache::get($model->id . '_categories_modified', 0);
+      $model->products_inserted = Cache::get($model->id . '_products_inserted', 0);
+      $model->products_modified = Cache::get($model->id . '_products_modified', 0);
       $model->fails_counter = count($fails);
       $model->data = json_encode([
         'fails'         => $fails,
@@ -108,24 +113,24 @@ class ProductImport extends Model
   // {
   //   // parent::__construct();
 
-  //   // $this->key = (string) Str::uuid();
+  //   // $this->id = (string) Str::uuid();
 
   //   // // Initialize the cache keys
-  //   // Cache::add($this->key . '_brands_inserted', 0, now()->addHours(4));
-  //   // Cache::add($this->key . '_brands_modified', 0, now()->addHours(4));
-  //   // Cache::add($this->key . '_categories_inserted', 0, now()->addHours(4));
-  //   // Cache::add($this->key . '_categories_modified', 0, now()->addHours(4));
-  //   // Cache::add($this->key . '_products_inserted', 0, now()->addHours(4));
-  //   // Cache::add($this->key . '_products_modified', 0, now()->addHours(4));
-  //   // Cache::add($this->key . '_fails', json_encode([]), now()->addHours(4));
+  //   // Cache::add($this->id . '_brands_inserted', 0, now()->addHours(4));
+  //   // Cache::add($this->id . '_brands_modified', 0, now()->addHours(4));
+  //   // Cache::add($this->id . '_categories_inserted', 0, now()->addHours(4));
+  //   // Cache::add($this->id . '_categories_modified', 0, now()->addHours(4));
+  //   // Cache::add($this->id . '_products_inserted', 0, now()->addHours(4));
+  //   // Cache::add($this->id . '_products_modified', 0, now()->addHours(4));
+  //   // Cache::add($this->id . '_fails', json_encode([]), now()->addHours(4));
   // }
 
   public function addFail($message)
   {
-    $data = json_decode(Cache::add($this->key . '_fails'));
+    $data = json_decode(Cache::add($this->id . '_fails'));
     $data[] = $message;
 
-    Cache::put($this->key . '_fail', json_encode($data));
+    Cache::put($this->id . '_fail', json_encode($data));
 
     // $this->attributes['data'] = json_encode($data);
 
@@ -137,34 +142,34 @@ class ProductImport extends Model
   {
     //   $this->attributes['brands_inserted']++;
     //   $this->save();
-    Cache::increment($this->key . '_brands_inserted');
+    Cache::increment($this->id . '_brands_inserted');
   }
 
   public function increaseBrandModified()
   {
     // $this->attributes['brands_modified']++;
     // $this->save();
-    Cache::increment($this->key . '_brands_modified');
+    Cache::increment($this->id . '_brands_modified');
   }
 
   public function increaseCategoryInserted()
   {
-    Cache::increment($this->key . '_categories_inserted');
+    Cache::increment($this->id . '_categories_inserted');
   }
 
   public function increaseCategoryModified()
   {
-    Cache::increment($this->key . '_categories_modified');
+    Cache::increment($this->id . '_categories_modified');
   }
 
   public function increaseProductInserted()
   {
-    Cache::increment($this->key . '_products_inserted');
+    Cache::increment($this->id . '_products_inserted');
   }
 
   public function increaseProductModified()
   {
-    Cache::increment($this->key . '_products_modified');
+    Cache::increment($this->id . '_products_modified');
   }
 
   public function imported_by(): BelongsTo
