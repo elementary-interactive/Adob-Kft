@@ -303,7 +303,63 @@ echo ("{$this->tracker->id} import row\n\r");
      *
      * This method will also insert or modify categories.
      */
-    $this->attach_categories($product, $row);
+    // $this->attach_categories($product, $row);
+    $columns  = array_keys($row);
+
+    for ($categories_index = 1; $categories_index <= 3; $categories_index++)
+    {
+      // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
+      // echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
+
+      $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
+
+      // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
+      // echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.\n\r");
+      
+      if ($row[$main_category_column]) {
+        // echo ("oszlop létezik.\n\r");
+        $main_category = Category::firstOrCreate([
+          'slug'        => Str::slug($row[$main_category_column]),
+          'parent_id'   => null,
+        ], [
+          'name'        => $row[$main_category_column],
+          'description' => $row[$main_category_column]
+        ]);
+
+        $category = null;
+        // dump($main_category);
+        for ($sub_category_count = 1; $sub_category_count <= self::MAX_SUB_CATEGORY_COUNT; $sub_category_count++) {
+          if (is_null($category)) {
+            $category = $main_category;
+          }
+          $sub_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::SUB_CATEGORY->value . "{$sub_category_count}/", $columns));
+
+          if (isset($row[$sub_category_column]) && !is_null($row[$sub_category_column]))
+          {
+            $sub_category = Category::firstOrNew([
+              'slug'        => Str::slug($row[$sub_category_column]),
+              'parent_id'   => $category->id,
+            ], [
+              'name'        => $row[$sub_category_column]
+            ]);
+
+            if (!$sub_category->exists) {
+              $this->tracker->increaseCategoryInserted();
+              
+              $sub_category->save();
+              $sub_category->makeChildOf($category);
+            }
+
+            $category = $sub_category;
+          }
+        }
+
+        $product->categories()->attach($category, [
+          'is_main' => ($categories_index == 1),
+          'order'   => 0,
+        ]);
+      }
+    }
     echo ("{$this->tracker->id} kategoriak csatolva\n\r");
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
@@ -439,7 +495,7 @@ echo ("{$this->tracker->id} import row\n\r");
 
             if (!$sub_category->exists) {
               $this->tracker->increaseCategoryInserted();
-              
+
               $sub_category->save();
               $sub_category->makeChildOf($category);
             }
