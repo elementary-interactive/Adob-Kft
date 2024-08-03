@@ -83,7 +83,8 @@ class ProductImport extends Model
   {
     parent::boot();
 
-    static::saving(function ($model) {
+    static::saving(function ($model)
+    {
       $fails = json_decode(Cache::get($model->key . '_fails')) ?: [];
 
       $model->brands_inserted = Cache::get($model->key . '_brands_inserted', 0);
@@ -101,6 +102,8 @@ class ProductImport extends Model
 
   public function __construct()
   {
+    parent::__construct();
+    
     $this->key = (string) Str::uuid();
 
     // Initialize the cache keys
