@@ -145,7 +145,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
 
   public function model(array $row): Product|null
   {
-    $this->rows++;
+    $this->rows = $this->getRowNumber();
 
     $this->tracker->status = 'running';
     $this->tracker->save();
@@ -338,7 +338,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
     $product->clearMediaCollection(Product::MEDIA_MAIN);
   }
 
-  private function save_images($product, $row)
+  private function save_images($product, $row): void
   {
     if (array_key_exists(self::$columns::IMAGES->value, $row) && isset($row[self::$columns::IMAGES->value])) {
       // if (strpos($row[self::$columns::IMAGES->value], 'data:image/jpeg;base64,') == 0) { //- jpeg
@@ -391,7 +391,7 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
    *
    * @return array $categories
    */
-  private function attach_categories(Product $product, array $row)
+  private function attach_categories(Product $product, array $row): void
   {
     $columns  = array_keys($row);
 
@@ -448,8 +448,6 @@ class ADOBProductsImport_new implements ToModel, WithUpserts, PersistRelations, 
         ]);
       }
     }
-
-    return;
   }
 
   public static function to_save(array $row): bool
