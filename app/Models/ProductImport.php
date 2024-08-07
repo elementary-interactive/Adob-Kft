@@ -174,12 +174,6 @@ class ProductImport extends Model
     Cache::increment($this->id . '_products_inserted');
   }
 
-
-  public function getBatchAttribute()
-  {
-    return unserialize($this->attributes['batch']);
-  }
-
   public function imported_by(): BelongsTo
   {
     return $this->belongsTo(Admin::class);
