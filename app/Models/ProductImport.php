@@ -72,7 +72,7 @@ class ProductImport extends Model
     'fails_counter'       => 0,
     'data'                => '',
     'job'                 => '',
-    'batch'               => []
+    'batch'               => '',
   ];
 
   protected $key  = null;
