@@ -47,6 +47,7 @@ class ProductImport extends Model
     'data'          => 'json',
     'file'          => 'string',
     'job'           => 'string',
+    'batch'         => 'array',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -93,6 +94,10 @@ class ProductImport extends Model
       Cache::add($model->id . '_products_modified', 0, now()->addHours(4));
     });
 
+    static::retrieved(function ($model) {
+      $model->batch = json_decode($model->batch);
+    });
+
     static::saving(function ($model)
     {
       $fails = json_decode(Cache::get($model->id . '_fails')) ?: [];
@@ -107,6 +112,7 @@ class ProductImport extends Model
       $model->data = json_encode([
         'fails'         => $fails,
       ]);
+      $model->batch = json_encode($model->batch);
     });
   }
 
@@ -168,15 +174,6 @@ class ProductImport extends Model
     Cache::increment($this->id . '_products_inserted');
   }
 
-  public function increaseProductModified()
-  {
-    Cache::increment($this->id . '_products_modified');
-  }
-
-  public function setBatchAttribute($value)
-  {
-    $this->attributes['batch'] = serialize($value);
-  }
 
   public function getBatchAttribute()
   {
