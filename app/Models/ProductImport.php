@@ -47,6 +47,7 @@ class ProductImport extends Model
     'data'          => 'json',
     'file'          => 'string',
     'job'           => 'string',
+    'batch'         => 'array',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -70,7 +71,8 @@ class ProductImport extends Model
     'products_modified'   => 0,
     'fails_counter'       => 0,
     'data'                => '',
-    'job'                 => ''
+    'job'                 => '',
+    'batch'               => []
   ];
 
   protected $key  = null;
