@@ -47,7 +47,6 @@ class ProductImport extends Model
     'data'          => 'json',
     'file'          => 'string',
     'job'           => 'string',
-    'batch'         => 'array',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -172,6 +171,16 @@ class ProductImport extends Model
   public function increaseProductModified()
   {
     Cache::increment($this->id . '_products_modified');
+  }
+
+  public function setBatchAttribute($value)
+  {
+    $this->attributes['batch'] = serialize($value);
+  }
+
+  public function getBatchAttribute()
+  {
+    return unserialize($this->attributes['batch']);
   }
 
   public function imported_by(): BelongsTo
