@@ -112,7 +112,10 @@ class ProductImport extends Model
       $model->data = json_encode([
         'fails'         => $fails,
       ]);
-      $model->batch = json_encode($model->batch);
+
+      if (!is_string($model->batch)) {
+        $model->batch = json_encode($model->batch);
+      }
     });
   }
 
