@@ -72,7 +72,7 @@ class ProductImport extends Model
     'fails_counter'       => 0,
     'data'                => '',
     'job'                 => '',
-    'batch'               => '',
+    'batch'               => '[]',
   ];
 
   protected $key  = null;
@@ -175,6 +175,14 @@ class ProductImport extends Model
   public function increaseProductInserted()
   {
     Cache::increment($this->id . '_products_inserted');
+  }
+
+  public function addBatch($job)
+  {
+    $batch = json_decode($this->attributes['batch']);
+    $batch[] = $job;
+
+    $this->attributes['batch'] = json_encode($batch);
   }
 
   public function imported_by(): BelongsTo

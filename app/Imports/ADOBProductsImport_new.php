@@ -102,7 +102,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
           ->success()
           ->sendToDatabase($this->tracker->imported_by);
 
-        $this->tracker->batch[] = new CountBrandCategoryProducts($this->tracker);
+        $this->tracker->addBatch(new CountBrandCategoryProducts($this->tracker));
 
         $product_import = Bus::batch($this->tracker->batch)->dispatch();
       }
@@ -292,7 +292,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
      * This method will also insert or modify categories.
      */
     dump($this->tracker->batch);
-    $this->tracker->batch[] = new ADOBProductCategoryImportJob($product, $row, $this->tracker);
+    $this->tracker->addBatch(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
@@ -305,7 +305,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     
     /** Store images to the product.
      */
-    $this->tracker->batch[] = new ADOBProductImportImagesJob($product, $row);
+    $this->tracker->addBatch(new ADOBProductImportImagesJob($product, $row));
   }
 
   /**
