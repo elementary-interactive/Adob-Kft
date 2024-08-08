@@ -104,7 +104,9 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
 
         $this->tracker->addBatch(new CountBrandCategoryProducts($this->tracker));
 
-        $product_import = Bus::batch($this->tracker->batch)->dispatch();
+        dd($this->tracker->getBatch());
+
+        $product_import = Bus::batch($this->tracker->getBatch())->dispatch();
       }
     ];
   }
@@ -291,7 +293,6 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
      *
      * This method will also insert or modify categories.
      */
-    dump($this->tracker->batch);
     $this->tracker->addBatch(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);

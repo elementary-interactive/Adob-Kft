@@ -47,7 +47,6 @@ class ProductImport extends Model
     'data'          => 'json',
     'file'          => 'string',
     'job'           => 'string',
-    'batch'         => 'array',
     'finished_at'   => 'datetime',
     'created_at'    => 'datetime',
     'updated_at'    => 'datetime',
@@ -71,8 +70,7 @@ class ProductImport extends Model
     'products_modified'   => 0,
     'fails_counter'       => 0,
     'data'                => '',
-    'job'                 => '',
-    'batch'               => '[]',
+    'job'                 => ''
   ];
 
   protected $key  = null;
@@ -94,10 +92,6 @@ class ProductImport extends Model
       Cache::add($model->id . '_products_modified', 0, now()->addHours(4));
     });
 
-    static::retrieved(function ($model) {
-      $model->batch = json_decode($model->batch);
-    });
-
     static::saving(function ($model)
     {
       $fails = json_decode(Cache::get($model->id . '_fails')) ?: [];
@@ -112,10 +106,6 @@ class ProductImport extends Model
       $model->data = json_encode([
         'fails'         => $fails,
       ]);
-
-      if (!is_string($model->batch)) {
-        $model->batch = json_encode($model->batch);
-      }
     });
   }
 
@@ -179,10 +169,19 @@ class ProductImport extends Model
 
   public function addBatch($job)
   {
-    $batch = json_decode($this->attributes['batch']);
+    $batch = unserialize($this->attributes['batch']);
+    if (!is_array($batch))
+    {
+      $batch = [];
+    }
     $batch[] = $job;
 
-    $this->attributes['batch'] = json_encode($batch);
+    $this->attributes['batch'] = serialize($batch);
+  }
+
+  public function getBatch()
+  {
+    return unserialize($this->attributes['batch']);
   }
 
   public function imported_by(): BelongsTo
