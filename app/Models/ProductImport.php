@@ -90,6 +90,7 @@ class ProductImport extends Model
       Cache::add($model->id . '_categories_modified', 0, now()->addHours(4));
       Cache::add($model->id . '_products_inserted', 0, now()->addHours(4));
       Cache::add($model->id . '_products_modified', 0, now()->addHours(4));
+      Cache::add($model->id . '_batch', serialize([]), now()->addHours(4));
     });
 
     static::saving(function ($model)
@@ -102,6 +103,7 @@ class ProductImport extends Model
       $model->categories_modified = Cache::get($model->id . '_categories_modified', 0);
       $model->products_inserted = Cache::get($model->id . '_products_inserted', 0);
       $model->products_modified = Cache::get($model->id . '_products_modified', 0);
+      $model->batch = Cache::get($model->id . '_batch', serialize([]));
       $model->fails_counter = count($fails);
       $model->data = json_encode([
         'fails'         => $fails,
@@ -127,7 +129,7 @@ class ProductImport extends Model
 
   public function addFail($message)
   {
-    $data = json_decode(Cache::add($this->id . '_fails'));
+    $data = json_decode(Cache::get($this->id . '_fails'));
     $data[] = $message;
 
     Cache::put($this->id . '_fail', json_encode($data));
@@ -169,19 +171,15 @@ class ProductImport extends Model
 
   public function addBatch($job)
   {
-    $batch = unserialize($this->attributes['batch']);
-    if (!is_array($batch))
-    {
-      $batch = [];
-    }
+    $batch = unserialize(Cache::get($this->id .'_batch', serialize([])));
     $batch[] = $job;
 
-    $this->attributes['batch'] = serialize($batch);
+    Cache::put($this->id . '_batch', serialize($batch));
   }
 
   public function getBatch()
   {
-    return unserialize($this->attributes['batch']);
+    return unserialize(Cache::get($this->id .'_batch', serialize([])));
   }
 
   public function imported_by(): BelongsTo
