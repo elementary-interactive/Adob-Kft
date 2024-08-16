@@ -65,7 +65,7 @@ RUN apt-get install -y build-essential \
     npm 
 RUN npm i -g yarn
 
-COPY --chown=root:root supervisor/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+COPY --chown=root:root docker/supervisor/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Copy existing application directory contents
 COPY . /var/www
