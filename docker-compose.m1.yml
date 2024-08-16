@@ -16,7 +16,10 @@ services:
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
+      APP_DEBUG: 1
     working_dir: /var/www
+    expose:
+        - "9000"
     volumes:
       - ./:/var/www
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
@@ -26,7 +29,7 @@ services:
 
   #Nginx Service
   webserver:
-    image: nginx:alpine
+    image: arm64v8/nginx
     container_name: adobkft_webserver
     restart: unless-stopped
     tty: true
@@ -50,12 +53,13 @@ services:
     environment:
       MYSQL_DATABASE: adobkft
       MYSQL_ROOT_PASSWORD: your_mysql_root_password
+      MYSQL_PASSWORD: your_mysql_root_password
+      MYSQL_USER: root
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     volumes:
       - ./:/var/www
-      - dbdata:/var/lib/mysql/
-      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+      - dbdata:/var/lib/mysql
     networks:
       - app-network
 
@@ -70,6 +74,23 @@ services:
       # - cache:/data
     networks:
       - app-network
+
+  phpmyadmin:
+      image: phpmyadmin:latest
+      container_name: phpmyadmin
+      ports:
+          # 8080 is the host port and 80 is the docker port
+          - 8080:80
+      environment:
+          PMA_HOST: adobkft_db
+          UPLOAD_LIMIT: 20M
+          MYSQL_USERNAME: root
+          MYSQL_ROOT_PASSWORD: your_mysql_root_password
+      restart: unless-stopped
+      networks:
+          # define your network where all containers are connected to each other
+          - app-network
+
 
   # memcached:
   #   image: memcached
