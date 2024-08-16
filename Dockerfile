@@ -1,6 +1,6 @@
 FROM php:8.1-fpm
 
-# Copy composer.lock and composer.json                                          
+# Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
 
 # Set working directory
@@ -10,7 +10,7 @@ WORKDIR /var/www
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get install -y \
     build-essential \
-    libz-dev \ 
+    libz-dev \
     libonig-dev \
     libpng-dev \
     libwebp-dev \
@@ -53,6 +53,9 @@ RUN docker-php-ext-enable redis
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Install default MySQL client
+RUN apt-get update && apt-get install -y default-mysql-client && rm -rf /var/lib/apt/lists/*
+
 # Add user for laravel application
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
@@ -62,7 +65,7 @@ RUN apt-get install gcc g++ make
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y build-essential \
     nodejs \
-    npm 
+    npm
 RUN npm i -g yarn
 
 COPY --chown=root:root supervisor/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
