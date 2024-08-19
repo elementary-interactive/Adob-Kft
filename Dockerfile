@@ -63,7 +63,6 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y build-essential \
     nodejs \
     npm
-RUN npm i -g yarn
 
 COPY --chown=root:root docker/supervisor/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
 
