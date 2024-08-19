@@ -2,7 +2,11 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "up": "docker compose up -d",
+        "down": "docker compose down",
+        "up:arm64": "docker compose -f docker-compose.arm64.yml up -d",
+        "down:arm64": "docker compose -f docker-compose.arm64.yml down"
     },
     "dependencies": {
         "@popperjs/core": "^2.11.8",
