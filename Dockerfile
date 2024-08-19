@@ -1,6 +1,6 @@
-FROM php:8.1-fpm
+FROM php:8.2-fpm
 
-# Copy composer.lock and composer.json                                          
+# Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
 
 # Set working directory
@@ -10,7 +10,7 @@ WORKDIR /var/www
 RUN apt-get --allow-releaseinfo-change update
 RUN apt-get install -y \
     build-essential \
-    libz-dev \ 
+    libz-dev \
     libonig-dev \
     libpng-dev \
     libwebp-dev \
@@ -62,7 +62,7 @@ RUN apt-get install gcc g++ make
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y build-essential \
     nodejs \
-    npm 
+    npm
 RUN npm i -g yarn
 
 COPY --chown=root:root docker/supervisor/supervisor.conf /etc/supervisor/conf.d/supervisord.conf
