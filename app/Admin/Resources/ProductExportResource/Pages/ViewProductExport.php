@@ -30,7 +30,7 @@ class ViewProductExport extends ViewRecord
             // 'data'  => $record['data'],
             'file'           => $record['file'],
             'exported_by_id' => auth()->user()->id,
-            'satus'          => 'waiting'
+            'status'          => 'waiting'
           ]);
           ADOBProductExportBatch_new::dispatch($new);
         }),
