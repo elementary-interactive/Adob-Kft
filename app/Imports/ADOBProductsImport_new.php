@@ -104,9 +104,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
 
         $this->tracker->addBatch(new CountBrandCategoryProducts($this->tracker));
 
-        dd($this->tracker->getBatch());
-
-        $product_import = Bus::batch($this->tracker->getBatch())->dispatch();
+        Bus::batch($this->tracker->getBatch())->dispatch();
       }
     ];
   }
@@ -251,8 +249,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
-    
-    echo 'product benn';
+
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
        * @var Brand $brand The product's brand.
@@ -273,35 +270,22 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
-    echo 'Márka OK';
+
     // $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
+      $this->tracker->increaseProductModified();
 
-	    echo "\n\rMOD\n\r";
-	    
-	    try {
-		    $this->tracker->increaseProductModified();
-	    } catch(\Exception $e) {
-		    dd($e);
-	    } catch(\Throwable $t) {
-		    dd($t);
-	    }
-     
       /** Detach from all categories, will re-attach new ones.s
        */
       $product->categories()->detach();
     } else {
-
-	    echo "\n\rNEW\r\n";
-      // $this->tracker->increaseProductInserted();
+      $this->tracker->increaseProductInserted();
     }
-
-    echo "\n\rProduct mentése...\n\r";
 
     /** Save the product.
      */
-//    $product->save();
+    $product->save();
     echo "\n\rTERMÉKOK\n\r";
     echo "____".microtime()."\n\r";
     
