@@ -169,6 +169,11 @@ class ProductImport extends Model
     Cache::increment($this->id . '_products_inserted');
   }
 
+  public function increaseProductModified()
+  {
+    Cache::increment($this->id . '_products_modified');
+  }
+
   public function addBatch($job)
   {
     $batch = unserialize(Cache::get($this->id .'_batch', serialize([])));
