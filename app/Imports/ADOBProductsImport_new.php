@@ -141,11 +141,12 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
    */
   public function chunkSize(): int
   {
-    return 500;
+    return 10;
   }
 
   public function onRow(Row $row)
   {
+	  echo "___".microtime()."\n\r";
     $row      = $row->toArray();
 
     try {
@@ -251,6 +252,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
     
+    echo 'product benn';
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
       /**
        * @var Brand $brand The product's brand.
@@ -271,21 +273,37 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
       // Connect brand to product.
       $product->brand()->associate($brand);
     }
+    echo 'Márka OK';
     // $this->logger->info("{$this->tracker->id} import product {$product->id} brand saved.", ['row' => $row, 'product' => $product, 'brand' => $brand]);
 
     if ($product->exists) {
-      $this->tracker->increaseProductModified();
+
+	    echo "\n\rMOD\n\r";
+	    
+	    try {
+		    $this->tracker->increaseProductModified();
+	    } catch(\Exception $e) {
+		    dd($e);
+	    } catch(\Throwable $t) {
+		    dd($t);
+	    }
      
       /** Detach from all categories, will re-attach new ones.s
        */
       $product->categories()->detach();
     } else {
-      $this->tracker->increaseProductInserted();
+
+	    echo "\n\rNEW\r\n";
+      // $this->tracker->increaseProductInserted();
     }
+
+    echo "\n\rProduct mentése...\n\r";
 
     /** Save the product.
      */
-    $product->save();
+//    $product->save();
+    echo "\n\rTERMÉKOK\n\r";
+    echo "____".microtime()."\n\r";
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
@@ -293,6 +311,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
      *
      * This method will also insert or modify categories.
      */
+    echo 'add category';
     $this->tracker->addBatch(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
     
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
@@ -306,6 +325,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     
     /** Store images to the product.
      */
+    echo 'image_job';
     $this->tracker->addBatch(new ADOBProductImportImagesJob($product, $row));
   }
 
