@@ -187,6 +187,11 @@ class ProductImport extends Model
     return unserialize(Cache::get($this->id .'_batch', serialize([])));
   }
 
+  public function pullBatch()
+  {
+    return unserialize(Cache::pull($this->id .'_batch', serialize([])));
+  }
+
   public function imported_by(): BelongsTo
   {
     return $this->belongsTo(Admin::class);
