@@ -139,7 +139,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
    */
   public function chunkSize(): int
   {
-    return 10;
+    return 5000;
   }
 
   public function onRow(Row $row)
