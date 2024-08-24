@@ -139,7 +139,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
    */
   public function chunkSize(): int
   {
-    return 5000;
+    return 1000;
   }
 
   public function onRow(Row $row)
@@ -265,6 +265,8 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
         $brand->save();
 
         $this->tracker->increaseBrandInserted();
+      } else {
+        $this->tracker->increaseBrandModified();
       }
 
       // Connect brand to product.
@@ -429,6 +431,8 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
               
               $sub_category->save();
               $sub_category->makeChildOf($category);
+            } else {
+              $this->tracker->increaseBrandInserted();
             }
 
             $category = $sub_category;
