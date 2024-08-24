@@ -177,9 +177,9 @@ class ProductImport extends Model
 
   public function getCategoriesInsertedAttribute()
   {
-    return Cache::get($this->id . '_categoriess_inserted', $this->attributes['categoriess_inserted']);
+    return Cache::get($this->id . '_categories_inserted', $this->attributes['categories_inserted']);
   }
-  
+
   public function increaseProductModified()
   {
     Cache::increment($this->id . '_products_modified');
