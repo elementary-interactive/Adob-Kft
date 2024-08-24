@@ -392,7 +392,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
       // // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
-      // echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
+      echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
 
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
@@ -443,6 +443,8 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
           'is_main' => ($categories_index == 1),
           'order'   => 0,
         ]);
+
+        echo ("Categories attached.\n\r");
       }
     }
 
