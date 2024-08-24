@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSitesPivot extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -17,13 +17,12 @@ class CreateSitesPivot extends Migration
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->uuid('site_id')
-                ->index();
-            $table->uuid('dependence_id')
-                ->index();
-            $table->string('dependence_type')
-                ->index();
+            $table->uuid('site_id');
+            $table->uuidMorphs('site_dependency', 'dependence_index');
+
             $table->timestamps();
+
+            $table->foreign('site_id')->references('id')->on('sites');
         });
     }
 
@@ -36,4 +35,4 @@ class CreateSitesPivot extends Migration
     {
         Schema::dropIfExists('site_dependencies');
     }
-}
+};

@@ -179,7 +179,12 @@ class ProductImport extends Model
   {
     return Cache::get($this->id . '_categoriess_inserted', $this->attributes['categoriess_inserted']);
   }
-
+  
+  public function increaseProductModified()
+  {
+    Cache::increment($this->id . '_products_modified');
+  }
+  
   public function increaseProductInserted()
   {
     Cache::increment($this->id . '_products_inserted');
@@ -206,6 +211,11 @@ class ProductImport extends Model
   public function getBatch()
   {
     return unserialize(Cache::get($this->id .'_batch', serialize([])));
+  }
+
+  public function pullBatch()
+  {
+    return unserialize(Cache::pull($this->id .'_batch', serialize([])));
   }
 
   public function imported_by(): BelongsTo
