@@ -432,7 +432,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
               $sub_category->save();
               $sub_category->makeChildOf($category);
             } else {
-              $this->tracker->increaseBrandInserted();
+              $this->tracker->increaseCategoryModified();
             }
 
             $category = $sub_category;
