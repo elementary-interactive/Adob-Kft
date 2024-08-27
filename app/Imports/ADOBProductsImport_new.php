@@ -157,9 +157,9 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
       }
 
     } catch (\Exception $e) {
-      // $this->error($this->rows.'. - '.$e->getMessage());
+      echo($e->getMessage());
     } catch (\Throwable $e) {
-      // $this->error($this->rows.'. - '.$e->getMessage());
+      echo($e->getMessage());
     }
   }
 
