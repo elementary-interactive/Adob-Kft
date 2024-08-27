@@ -392,14 +392,14 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     for ($categories_index = 1; $categories_index <= 3; $categories_index++)
     {
       // // $this->logger->info("{$this->tracker->id} import product {$product->id} category {$categories_index}.", ['row' => $row, 'product' => $product]);
-      // echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
+      echo ("{$this->tracker->id} import product {$product->id} category {$categories_index}.\n\r");
 
       $main_category_column = Arr::first(preg_grep(($categories_index > 1) ? "/" . self::$columns::MAIN_CATEGORY->value . "[^\d]*{$categories_index}[^\w]*/" : "/" . self::$columns::MAIN_CATEGORY->value . "/", $columns));
 
       // // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
       // echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.\n\r");
-      
-      if ($row[$main_category_column]) {
+      echo $main_category_column;
+      if (array_key_exists($main_category_column, $row) && $row[$main_category_column]) {
         // echo ("oszlop létezik.\n\r");
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
@@ -432,7 +432,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
               $sub_category->save();
               $sub_category->makeChildOf($category);
             } else {
-              $this->tracker->increaseBrandInserted();
+              $this->tracker->increaseCategoryModified();
             }
 
             $category = $sub_category;
@@ -443,6 +443,8 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
           'is_main' => ($categories_index == 1),
           'order'   => 0,
         ]);
+
+        echo ("Categories attached.\n\r");
       }
     }
 
