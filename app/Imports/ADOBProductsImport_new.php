@@ -396,8 +396,8 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
 
       // // $this->logger->info("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.", ['row' => $row, 'product' => $product]);
       // echo("{$this->tracker->id} import product {$product->id} category get {$main_category_column} and its sub items.\n\r");
-      
-      if ($row[$main_category_column]) {
+      echo $main_category_column;
+      if (array_key_exists($main_category_column, $row) && $row[$main_category_column]) {
         // echo ("oszlop létezik.\n\r");
         $main_category = Category::firstOrCreate([
           'slug'        => Str::slug($row[$main_category_column]),
