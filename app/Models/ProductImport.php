@@ -142,16 +142,22 @@ class ProductImport extends Model
 
   public function increaseBrandInserted()
   {
-    //   $this->attributes['brands_inserted']++;
-    //   $this->save();
     Cache::increment($this->id . '_brands_inserted');
   }
 
   public function increaseBrandModified()
   {
-    // $this->attributes['brands_modified']++;
-    // $this->save();
     Cache::increment($this->id . '_brands_modified');
+  }
+
+  public function getBrandsModifiedAttribute()
+  {
+    return Cache::get($this->id . '_brands_modified', $this->attributes['brands_modified']);
+  }
+
+  public function getBrandsInsertedAttribute()
+  {
+    return Cache::get($this->id . '_brands_inserted', $this->attributes['brands_inserted']);
   }
 
   public function increaseCategoryInserted()
@@ -164,14 +170,34 @@ class ProductImport extends Model
     Cache::increment($this->id . '_categories_modified');
   }
 
-  public function increaseProductInserted()
+  public function getCategoriesModifiedAttribute()
   {
-    Cache::increment($this->id . '_products_inserted');
+    return Cache::get($this->id . '_categories_modified', $this->attributes['categories_modified']);
+  }
+
+  public function getCategoriesInsertedAttribute()
+  {
+    return Cache::get($this->id . '_categories_inserted', $this->attributes['categories_inserted']);
   }
 
   public function increaseProductModified()
   {
     Cache::increment($this->id . '_products_modified');
+  }
+  
+  public function increaseProductInserted()
+  {
+    Cache::increment($this->id . '_products_inserted');
+  }
+
+  public function getProductsModifiedAttribute()
+  {
+    return Cache::get($this->id . '_products_modified', $this->attributes['products_modified']);
+  }
+
+  public function getProductsInsertedAttribute()
+  {
+    return Cache::get($this->id . '_products_inserted', $this->attributes['products_inserted']);
   }
 
   public function addBatch($job)
