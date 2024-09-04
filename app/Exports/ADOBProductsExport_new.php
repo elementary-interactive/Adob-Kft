@@ -3,27 +3,13 @@
 namespace App\Exports;
 
 use App\Models\Product;
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\CategoryProduct;
-use App\Models\Columns;
 use App\Models\ProductExport;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Neon\Admin\Models\Admin;
-use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Laravel\Nova\Notifications\NovaNotification;
-use Laravel\Nova\Notifications\NovaChannel;
-use Laravel\Nova\URL;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Neon\Models\Statuses\BasicStatus;
 use Maatwebsite\Excel\Events\ExportFailed;
 use Maatwebsite\Excel\Events\AfterExport;
 use Filament\Notifications\Notification;
@@ -31,238 +17,199 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
+use Neon\Models\Statuses\BasicStatus;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
 class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, ShouldQueue, WithChunkReading, WithMapping
 {
-  use Exportable;
+    use Exportable;
 
-  const HEADING_ROW = 1;
+    const UNCATEGORIZED_PRODUCT = '## KATEGORIZATLAN TERM. ##';
+    static $columns = \App\Models\Columns\ADOBProductsExportColumns::class;
+    public $exported_by;
+    public $tracker;
+    public $tries = 5;
+    public $timeout = 120;
 
-  const MAX_SUB_CATEGORY_COUNT    = 5;
+    public function __construct(ProductExport $tracker)
+    {
+        /** The exporter user. who need to set up for notifications... */
+        $this->exported_by = $tracker->exported_by;
+        /** The tracker for counts. */
+        $this->tracker = $tracker;
+        ini_set('memory_limit', '1024M');
+    }
 
-  // const COLUMN_COMMAND->value                = 'COMMAND->value';
-  // const COLUMN_PRODUCT_ID->value         = 'cikkszam';
-  // const COLUMN_PRODUCT_NAME->value       = 'megnevezes';
-  // const COLUMN_BRAND->value              = 'marka';
-  // const COLUMN_PRICE              = 'COMMAND->valuear';
-  // const COLUMN_DESCRIPTION->value        = 'leiras';
-  // const COLUMN_DESCRIPTION_UPDATE->value = 'COMMAND->valueleir';
-  // const COLUMN_PACKAGING->value          = 'csomagolas';
-  // const COLUMN_EAN                = 'ean';
-  // const COLUMN_PRODUCT_NUMBER->value     = 'termekszam';
-  // const COLUMN_ON_SALE->value            = 'akcios';
-  // const COLUMN_MAIN_CATEGORY->value      = 'main_kat';
-  // const COLUMN_COMMAND            = 'COMMAND->value';
-  // const COLUMN_SUB_CATEGORY->value       = 'alkat';
-  // const COLUMN_DESCRIPTION_TO_CATEGORY->value   = 'COMMAND->valuekatleir';
+    public function chunkSize(): int
+    {
+        return 500;
+    }
 
-  static $columns = \App\Models\Columns\ADOBProductsExportColumns::class;
+    public function headings(): array
+    {
+        return array_column(self::$columns::cases(), 'value');
+    }
 
-  public $exported_by;
+    public function map($row): array
+    {
+        $media = $row->getMedia(Product::MEDIA_COLLECTION);
+        $mediaInfos = $this->getMediaInfos($media);
 
-  public $headerRow;
+        return [
+            $row->product_id, // PRODUCT_ID
+            $row->name, // PRODUCT_NAME
+            $row->brand?->name, // BRAND_NAME
+            $row->ean, // PRODUCT_EAN
+            $row->price, // PRODUCT_PRICE
+            $this->generateCategories($row, true), // PRODUCT_MAIN_CATEGORY
+            $this->generateCategories($row, false), // PRODUCT_CATEGORIES
+            $this->getProductLink($row), // PRODUCT_URL
+            $media->count(), // IMAGE_COUNT
+            $mediaInfos->sizes, // IMAGE_SIZES
+            $mediaInfos->size_sum, // IMAGE_SIZE_SUM
+            $mediaInfos->urls, // IMAGE_LINKS
+            $row->status === BasicStatus::Active ? '1' : '0', // PRODUCT_STATUS
+            strip_tags($row->description), // PRODUCT_DESCRIPTION
+        ];
+    }
 
-  public $tracker;
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function query()
+    {
+       return Product::query()
+            ->withoutGlobalScopes()
+            ->with('brand');
 
-  public function __construct(ProductExport $tracker)
-  {
-    /** The exporter user. who need to set up for notifications... */
-    $this->exported_by  = $tracker->exported_by;
-    /** The tracker for counts. */
-    $this->tracker      = $tracker;
+    }
 
-    ini_set('memory_limit', '1G');
-  }
+    public function failed(Throwable $exception): void
+    {
+        $this->error($exception->getMessage());
+    }
 
-      
-  // public function middleware()
-  // {
-  //     return [new RateLimited];
-  // }
+    /**
+     * Generates a string representation of the categories associated with a given product.
+     *
+     * @param \App\Models\Product $product The product object for which the categories need to be generated.
+     * @param bool $isMain Indicates whether to fetch main categories or not.
+     * @return string A semicolon-separated string of category paths. Each path is a hierarchy of category names separated by slashes (/).
+     *                If the product has no categories, it returns the constant UNCATEGORIZED_PRODUCT.
+     */
+    private function generateCategories(Product $product, bool $isMain = false)
+    {
+        $categoriesCell = [];
+        $categories = $product->categories()->where('is_main', $isMain)->get();
 
-  // public function __destruct()
-  // {
-  //   $this->tracker->save();
-  // }
+        if (count($categories) > 0) {
 
-  /** Handle heading row.
-   * 
-   * @see https://docs.laravel-excel.com/3.1/exports/heading-row.html
-   * 
-   * @return int Row's index number.
-   */
-  public function headingRow(): int
-  {
-    return self::HEADING_ROW;
-  }
+            foreach ($categories as $category) {
+                $cat = $category->ancestorsAndSelf()->get()->toHierarchy();
+                array_push($categoriesCell, rtrim(self::printTree($cat), '/'));
+            }
 
-  public function chunkSize(): int
-  {
-      return 500;
-  }
+            return implode("; ", $categoriesCell);
 
-  public function headings(): array
-  {
-    return array_column(self::$columns::cases(), 'value');
-  }
+        } else {
+            return self::UNCATEGORIZED_PRODUCT;
+        }
 
-  public function map($row): array
-  {
-    $sizes    = []; //- Collecting sizes...
-      $size_sum = 0; //- Summarized size of items...
-      $urls     = []; //- Collecting URLs...
-      $paths    = []; //- Categories...
-    $media      = $row->getMedia(Product::MEDIA_COLLECTION);
+    }
 
-    foreach ($media as $img) {
-        $urls[]     = $img->getUrl();
-        $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
-        $size_sum   += $img->size;
-      }
+    static public function printTree($root)
+    {
+        $str = '';
 
-      return [
-        $row->product_id, // PRODUCT_ID
-        $row->name, // PRODUCT_NAME
-        $row->brand?->name, // BRAND_NAME
-        $row->ean, // PRODUCT_EAN
-        $row->price, // PRODUCT_PRICE
-        // (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
-        // implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
-        route('product.show', ['slug' => $row->slug]), // PRODUCT_URL
-        $media->count(), // IMAGE_COUNT
-        implode(';', $sizes), // IMAGE_SIZES
-        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
-        ($row->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
-        implode(';', $urls), // IMAGE_LINKS
-        strip_tags($row->description), // PRODUCT_DESCRIPTION
-      ];
-  }
+        foreach ($root as $r) {
+            $str .= $r->name . '/';
 
-  /**
-   * @return \Illuminate\Support\Collection
-   */
-  public function query()
-  {
-    $x = Product::query()
-      ->withoutGlobalScopes()
-      ->with('brand');
+            if (count($r->children) > 0) {
+                $str .= self::printTree($r->children);
+            }
+        }
 
-    // dump($x);
+        return $str;
+    }
 
-    return $x;
+    private function getProductLink($product)
+    {
+        return route('product.show', ['slug' => $product->slug]);
+    }
 
-    // dd($x);
 
-    // $result = [];
-    // // $result = [
-    // //   'header' => array_column(self::$columns::cases(), 'value'),
-    // // ];
-
-    // $products = Product::withoutGlobalScopes([
-    //     \Neon\Models\Scopes\ActiveScope::class
-    //   ])
-    //   ->orderBy('product_id')
-    //   ->get();
-
-    // foreach ($products as $product) {
-    //   /** @var Collection Getting media collection.
-    //    */
-    //   $media      = $product->getMedia(Product::MEDIA_COLLECTION);
-    //   $categories = $product->categories()->get();
-
-    //   $sizes    = []; //- Collecting sizes...
-    //   $size_sum = 0; //- Summarized size of items...
-    //   $urls     = []; //- Collecting URLs...
-    //   $paths    = []; //- Categories...
-
-    //   // foreach ($categories as $category) {
-    //   //   $path = [];
-    //   //   foreach ($category->getAncestorsAndSelf() as $path_item) {
-    //   //     array_unshift($path, $path_item->name);
-    //   //   }
-    //   //   $paths[] = implode('\\', $path);
-    //   // }
-
-    //   // foreach ($media as $img) {
-    //   //   $urls[]     = $img->getUrl();
-    //   //   $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
-    //   //   $size_sum   += $img->size;
-    //   // }
-
-    //   $result[] = [
-    //     $product->product_id, // PRODUCT_ID
-    //     $product->name, // PRODUCT_NAME
-    //     $product->brand()->first()?->name, // BRAND_NAME
-    //     $product->ean, // PRODUCT_EAN
-    //     $product->price, // PRODUCT_PRICE
-    //     (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
-    //     implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
-    //     route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
-    //     $media->count(), // IMAGE_COUNT
-    //     implode(';', $sizes), // IMAGE_SIZES
-    //     ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
-    //     ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
-    //     implode(';', $urls), // IMAGE_LINKS
-    //     strip_tags($product->description), // PRODUCT_DESCRIPTION
-    //   ];
-    // }
-
-    // return collect($result);
-  }
-
-  public function failed(Throwable $exception): void
-  {
-    $this->error($exception->getMessage());
-  }
-
-  private function error(string $message, string $icon = 'exclamation-circle')
-  {
-    $this->tracker->addFail($message);
-
-    Notification::make()
-      ->title('Exportálás folyamata...')
-      ->body($message)
-      ->danger()
-      ->sendToDatabase($this->exported_by);
-  }
-
-  
-  public function registerEvents(): array
-  {
-    return [
-      BeforeExport::class => function (BeforeExport $event)
-      {
-        $this->tracker->status = 'running';
-        $this->tracker->save();
+    private function error(string $message, string $icon = 'exclamation-circle')
+    {
+        $this->tracker->addFail($message);
 
         Notification::make()
-          ->title('Exportálás folyamata...')
-          ->body(' Termékek exportálása...')
-          ->info()
-          ->sendToDatabase($this->tracker->exported_by);
-      },
+            ->title('Exportálás folyamata...')
+            ->body($message)
+            ->danger()
+            ->sendToDatabase($this->exported_by);
+    }
 
-      // ExportFaile::class => function (ExportFailed $event)
-      // {
-      //   $this->tracker->addFail($event->getException()->getMessage());
-      //   $this->tracker->status = 'failed';
-      //   $this->tracker->save();
-      //   $this->error($event->getException()->getMessage());
-      // },
+    private function getMediaInfos($media)
+    {
+        if (count($media)) {
+            $sizes = []; //- Collecting sizes...
+            $size_sum = 0; //- Summarized size of items...
+            $urls = []; //- Collecting URLs...
 
-      AfterSheet::class => function(AfterSheet $event)
-      {
-        $this->tracker->status = 'finished';
-        $this->tracker->finished_at = now();
-        $this->tracker->save();
+            foreach ($media as $img) {
+                $urls[] = $img->getUrl();
+                $sizes[] = $img->file_name . ' (' . size_format($img->size) . ')';
+                $size_sum += $img->size;
+            }
 
-        Notification::make()
-          ->title('Exportálás folyamata...')
-          ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!').' A keresett állomány itt tölthető le: <a href="'.Storage::url($this->tracker->file).'">'.$this->tracker->file.'</a>')
-          ->success()
-          ->sendToDatabase($this->tracker->exported_by);
-      }
-    ];
-  }
+            return (object)[
+                'urls' => $urls,
+                'sizes' => implode(';', $sizes), // IMAGE_SIZES
+                'size_sum' => ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
+            ];
+        }
+        return (object)[
+            'urls' =>null,
+            'sizes' => null,
+            'size_sum' =>null,
+        ];
+    }
+
+
+    public function registerEvents(): array
+    {
+        return [
+            BeforeExport::class => function (BeforeExport $event) {
+                $this->tracker->status = 'running';
+                $this->tracker->save();
+
+                Notification::make()
+                    ->title('Exportálás folyamata...')
+                    ->body(' Termékek exportálása...')
+                    ->info()
+                    ->sendToDatabase($this->tracker->exported_by);
+            },
+
+            // ExportFailed::class => function (ExportFailed $event)
+            // {
+            //   $this->tracker->addFail($event->getException()->getMessage());
+            //   $this->tracker->status = 'failed';
+            //   $this->tracker->save();
+            //   $this->error($event->getException()->getMessage());
+            // },
+
+            AfterSheet::class => function (AfterSheet $event) {
+                $this->tracker->status = 'finished';
+                $this->tracker->finished_at = now();
+                $this->tracker->save();
+
+                Notification::make()
+                    ->title('Exportálás folyamata...')
+                    ->body((($this->tracker->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!') . ' A keresett állomány itt tölthető le: <a href="' . Storage::url($this->tracker->file) . '">' . $this->tracker->file . '</a>')
+                    ->success()
+                    ->sendToDatabase($this->tracker->exported_by);
+            }
+        ];
+    }
 }
