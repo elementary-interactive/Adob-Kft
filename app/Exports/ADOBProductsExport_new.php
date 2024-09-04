@@ -19,9 +19,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Laravel\Nova\Notifications\NovaNotification;
-use Laravel\Nova\Notifications\NovaChannel;
-use Laravel\Nova\URL;
+
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Neon\Models\Statuses\BasicStatus;
 use Maatwebsite\Excel\Events\ExportFailed;
@@ -36,60 +34,36 @@ use Throwable;
 class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, ShouldQueue, WithChunkReading, WithMapping
 {
   use Exportable;
+    const UNCATEGORIZED_PRODUCT = '## KATEGORIZATLAN TERM. ##';
 
   const HEADING_ROW = 1;
 
   const MAX_SUB_CATEGORY_COUNT    = 5;
 
-  // const COLUMN_COMMAND->value                = 'COMMAND->value';
-  // const COLUMN_PRODUCT_ID->value         = 'cikkszam';
-  // const COLUMN_PRODUCT_NAME->value       = 'megnevezes';
-  // const COLUMN_BRAND->value              = 'marka';
-  // const COLUMN_PRICE              = 'COMMAND->valuear';
-  // const COLUMN_DESCRIPTION->value        = 'leiras';
-  // const COLUMN_DESCRIPTION_UPDATE->value = 'COMMAND->valueleir';
-  // const COLUMN_PACKAGING->value          = 'csomagolas';
-  // const COLUMN_EAN                = 'ean';
-  // const COLUMN_PRODUCT_NUMBER->value     = 'termekszam';
-  // const COLUMN_ON_SALE->value            = 'akcios';
-  // const COLUMN_MAIN_CATEGORY->value      = 'main_kat';
-  // const COLUMN_COMMAND            = 'COMMAND->value';
-  // const COLUMN_SUB_CATEGORY->value       = 'alkat';
-  // const COLUMN_DESCRIPTION_TO_CATEGORY->value   = 'COMMAND->valuekatleir';
-
   static $columns = \App\Models\Columns\ADOBProductsExportColumns::class;
 
   public $exported_by;
 
-  public $headerRow;
 
   public $tracker;
+
+    public $tries = 5;
+    public $timeout = 120;
+
 
   public function __construct(ProductExport $tracker)
   {
     /** The exporter user. who need to set up for notifications... */
-    $this->exported_by  = $tracker->exported_by;
+    $this->exported_by = $tracker->exported_by;
     /** The tracker for counts. */
-    $this->tracker      = $tracker;
-
-    ini_set('memory_limit', '1G');
+    $this->tracker = $tracker;
+    ini_set('memory_limit', '1024M');
   }
 
-      
-  // public function middleware()
-  // {
-  //     return [new RateLimited];
-  // }
-
-  // public function __destruct()
-  // {
-  //   $this->tracker->save();
-  // }
-
   /** Handle heading row.
-   * 
+   *
    * @see https://docs.laravel-excel.com/3.1/exports/heading-row.html
-   * 
+   *
    * @return int Row's index number.
    */
   public function headingRow(): int
@@ -109,17 +83,18 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
 
   public function map($row): array
   {
-    $sizes    = []; //- Collecting sizes...
-      $size_sum = 0; //- Summarized size of items...
-      $urls     = []; //- Collecting URLs...
-      $paths    = []; //- Categories...
-    $media      = $row->getMedia(Product::MEDIA_COLLECTION);
+//    $sizes    = []; //- Collecting sizes...
+//      $size_sum = 0; //- Summarized size of items...
+//      $urls     = []; //- Collecting URLs...
+//      $paths    = []; //- Categories...
+//    $media      = $row->getMedia(Product::MEDIA_COLLECTION);
 
-    foreach ($media as $img) {
-        $urls[]     = $img->getUrl();
-        $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
-        $size_sum   += $img->size;
-      }
+//    foreach ($media as $img) {
+//        $urls[]     = $img->getUrl();
+//        $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
+//        $size_sum   += $img->size;
+//      }
+
 
       return [
         $row->product_id, // PRODUCT_ID
@@ -127,15 +102,15 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
         $row->brand?->name, // BRAND_NAME
         $row->ean, // PRODUCT_EAN
         $row->price, // PRODUCT_PRICE
-        // (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
-        // implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
-        route('product.show', ['slug' => $row->slug]), // PRODUCT_URL
-        $media->count(), // IMAGE_COUNT
-        implode(';', $sizes), // IMAGE_SIZES
-        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
-        ($row->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
-        implode(';', $urls), // IMAGE_LINKS
-        strip_tags($row->description), // PRODUCT_DESCRIPTION
+        $this->generateCategories($row, true), // PRODUCT_MAIN_CATEGORY
+        $this->generateCategories($row, false), // PRODUCT_CATEGORIES
+//        route('product.show', ['slug' => $row->slug]), // PRODUCT_URL
+//        $media->count(), // IMAGE_COUNT
+//        implode(';', $sizes), // IMAGE_SIZES
+//        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
+//        ($row->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
+//        implode(';', $urls), // IMAGE_LINKS
+//        strip_tags($row->description), // PRODUCT_DESCRIPTION
       ];
   }
 
@@ -148,16 +123,8 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
       ->withoutGlobalScopes()
       ->with('brand');
 
-    // dump($x);
-
     return $x;
 
-    // dd($x);
-
-    // $result = [];
-    // // $result = [
-    // //   'header' => array_column(self::$columns::cases(), 'value'),
-    // // ];
 
     // $products = Product::withoutGlobalScopes([
     //     \Neon\Models\Scopes\ActiveScope::class
@@ -216,7 +183,52 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
     $this->error($exception->getMessage());
   }
 
-  private function error(string $message, string $icon = 'exclamation-circle')
+    /**
+     * Generates a string representation of the categories associated with a given product.
+     *
+     * @param \App\Models\Product $product The product object for which the categories need to be generated.
+     * @param bool $isMain Indicates whether to fetch main categories or not.
+     * @return string A semicolon-separated string of category paths. Each path is a hierarchy of category names separated by slashes (/).
+     *                If the product has no categories, it returns the constant UNCATEGORIZED_PRODUCT.
+     */
+    private function generateCategories($product, bool $isMain = false)
+    {
+        $categoriesCell = [];
+        $categories = $product->categories()->where('is_main', $isMain)->get();
+
+        if (count($categories) > 0) {
+
+            foreach ($categories as $category) {
+                $cat = $category->ancestorsAndSelf()->get()->toHierarchy();
+                array_push($categoriesCell, rtrim(self::printTree($cat), '/'));
+            }
+
+            return implode("; ", $categoriesCell);
+
+        } else {
+            return self::UNCATEGORIZED_PRODUCT;
+        }
+
+    }
+
+    static public function printTree($root)
+    {
+        $str = '';
+
+        foreach ($root as $r) {
+            $str .= $r->name . '/';
+
+            if (count($r->children) > 0) {
+                $str .= self::printTree($r->children);
+            }
+        }
+
+        return $str;
+    }
+
+
+
+    private function error(string $message, string $icon = 'exclamation-circle')
   {
     $this->tracker->addFail($message);
 
@@ -227,7 +239,7 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
       ->sendToDatabase($this->exported_by);
   }
 
-  
+
   public function registerEvents(): array
   {
     return [
