@@ -3,25 +3,13 @@
 namespace App\Exports;
 
 use App\Models\Product;
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\CategoryProduct;
-use App\Models\Columns;
 use App\Models\ProductExport;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Neon\Admin\Models\Admin;
-use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Neon\Models\Statuses\BasicStatus;
 use Maatwebsite\Excel\Events\ExportFailed;
 use Maatwebsite\Excel\Events\AfterExport;
 use Filament\Notifications\Notification;
@@ -29,27 +17,19 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
+use Neon\Models\Statuses\BasicStatus;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
 class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, ShouldQueue, WithChunkReading, WithMapping
 {
   use Exportable;
-    const UNCATEGORIZED_PRODUCT = '## KATEGORIZATLAN TERM. ##';
-
-  const HEADING_ROW = 1;
-
-  const MAX_SUB_CATEGORY_COUNT    = 5;
-
+  const UNCATEGORIZED_PRODUCT = '## KATEGORIZATLAN TERM. ##';
   static $columns = \App\Models\Columns\ADOBProductsExportColumns::class;
-
   public $exported_by;
-
-
   public $tracker;
-
-    public $tries = 5;
-    public $timeout = 120;
-
+  public $tries = 5;
+  public $timeout = 120;
 
   public function __construct(ProductExport $tracker)
   {
@@ -58,17 +38,6 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
     /** The tracker for counts. */
     $this->tracker = $tracker;
     ini_set('memory_limit', '1024M');
-  }
-
-  /** Handle heading row.
-   *
-   * @see https://docs.laravel-excel.com/3.1/exports/heading-row.html
-   *
-   * @return int Row's index number.
-   */
-  public function headingRow(): int
-  {
-    return self::HEADING_ROW;
   }
 
   public function chunkSize(): int
@@ -83,18 +52,8 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
 
   public function map($row): array
   {
-//    $sizes    = []; //- Collecting sizes...
-//      $size_sum = 0; //- Summarized size of items...
-//      $urls     = []; //- Collecting URLs...
-//      $paths    = []; //- Categories...
-//    $media      = $row->getMedia(Product::MEDIA_COLLECTION);
-
-//    foreach ($media as $img) {
-//        $urls[]     = $img->getUrl();
-//        $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
-//        $size_sum   += $img->size;
-//      }
-
+      $media = $row->getMedia(Product::MEDIA_COLLECTION);
+      $mediaInfos = $this->getMediaInfos($media);
 
       return [
         $row->product_id, // PRODUCT_ID
@@ -104,13 +63,13 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
         $row->price, // PRODUCT_PRICE
         $this->generateCategories($row, true), // PRODUCT_MAIN_CATEGORY
         $this->generateCategories($row, false), // PRODUCT_CATEGORIES
-//        route('product.show', ['slug' => $row->slug]), // PRODUCT_URL
-//        $media->count(), // IMAGE_COUNT
-//        implode(';', $sizes), // IMAGE_SIZES
-//        ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
-//        ($row->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
-//        implode(';', $urls), // IMAGE_LINKS
-//        strip_tags($row->description), // PRODUCT_DESCRIPTION
+        $this->getProductLink($row), // PRODUCT_URL
+        $media->count(), // IMAGE_COUNT
+        $mediaInfos->sizes, // IMAGE_SIZES
+        $mediaInfos->size_sum, // IMAGE_SIZE_SUM
+        $mediaInfos->urls, // IMAGE_LINKS
+        $row->status === BasicStatus::Active ? '1' : '0', // PRODUCT_STATUS
+        strip_tags($row->description), // PRODUCT_DESCRIPTION
       ];
   }
 
@@ -123,59 +82,7 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
       ->withoutGlobalScopes()
       ->with('brand');
 
-    return $x;
-
-
-    // $products = Product::withoutGlobalScopes([
-    //     \Neon\Models\Scopes\ActiveScope::class
-    //   ])
-    //   ->orderBy('product_id')
-    //   ->get();
-
-    // foreach ($products as $product) {
-    //   /** @var Collection Getting media collection.
-    //    */
-    //   $media      = $product->getMedia(Product::MEDIA_COLLECTION);
-    //   $categories = $product->categories()->get();
-
-    //   $sizes    = []; //- Collecting sizes...
-    //   $size_sum = 0; //- Summarized size of items...
-    //   $urls     = []; //- Collecting URLs...
-    //   $paths    = []; //- Categories...
-
-    //   // foreach ($categories as $category) {
-    //   //   $path = [];
-    //   //   foreach ($category->getAncestorsAndSelf() as $path_item) {
-    //   //     array_unshift($path, $path_item->name);
-    //   //   }
-    //   //   $paths[] = implode('\\', $path);
-    //   // }
-
-    //   // foreach ($media as $img) {
-    //   //   $urls[]     = $img->getUrl();
-    //   //   $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
-    //   //   $size_sum   += $img->size;
-    //   // }
-
-    //   $result[] = [
-    //     $product->product_id, // PRODUCT_ID
-    //     $product->name, // PRODUCT_NAME
-    //     $product->brand()->first()?->name, // BRAND_NAME
-    //     $product->ean, // PRODUCT_EAN
-    //     $product->price, // PRODUCT_PRICE
-    //     (count($paths) > 0) ? $paths[0] : '', // PRODUCT_MAIN_CATEGORY
-    //     implode(', ', array_slice($paths, 1)), // PRODUCT_CATEGORIES
-    //     route('product.show', ['slug' => $product->slug]), // PRODUCT_URL
-    //     $media->count(), // IMAGE_COUNT
-    //     implode(';', $sizes), // IMAGE_SIZES
-    //     ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
-    //     ($product->status == BasicStatus::Active) ? '1' : '0', // PRODUCT_STATUS
-    //     implode(';', $urls), // IMAGE_LINKS
-    //     strip_tags($product->description), // PRODUCT_DESCRIPTION
-    //   ];
-    // }
-
-    // return collect($result);
+    return collect($x);
   }
 
   public function failed(Throwable $exception): void
@@ -191,7 +98,7 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
      * @return string A semicolon-separated string of category paths. Each path is a hierarchy of category names separated by slashes (/).
      *                If the product has no categories, it returns the constant UNCATEGORIZED_PRODUCT.
      */
-    private function generateCategories($product, bool $isMain = false)
+    private function generateCategories(Product $product, bool $isMain = false)
     {
         $categoriesCell = [];
         $categories = $product->categories()->where('is_main', $isMain)->get();
@@ -226,6 +133,10 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
         return $str;
     }
 
+    private function getProductLink($product) {
+        return route('product.show', ['slug' => $product->slug]);
+    }
+
 
 
     private function error(string $message, string $icon = 'exclamation-circle')
@@ -237,6 +148,27 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
       ->body($message)
       ->danger()
       ->sendToDatabase($this->exported_by);
+  }
+
+  private function getMediaInfos(Media $media) {
+        if(count($media)) {
+            $sizes    = []; //- Collecting sizes...
+            $size_sum = 0; //- Summarized size of items...
+            $urls     = []; //- Collecting URLs...
+
+            foreach ($media as $img) {
+              $urls[]     = $img->getUrl();
+              $sizes[]    = $img->file_name . ' (' . size_format($img->size) . ')';
+              $size_sum   += $img->size;
+            }
+
+            return (object) [
+                'urls' => $urls,
+                'sizes' => implode(';', $sizes), // IMAGE_SIZES
+                'size_sum' => ($size_sum > 0) ? size_format($size_sum) : '', // IMAGE_SIZE_SUM
+            ];
+        }
+      return null;
   }
 
 
@@ -255,7 +187,7 @@ class ADOBProductsExport_new implements FromQuery, WithHeadings, WithEvents, Sho
           ->sendToDatabase($this->tracker->exported_by);
       },
 
-      // ExportFaile::class => function (ExportFailed $event)
+      // ExportFailed::class => function (ExportFailed $event)
       // {
       //   $this->tracker->addFail($event->getException()->getMessage());
       //   $this->tracker->status = 'failed';
