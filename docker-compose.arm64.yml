@@ -65,14 +65,12 @@ services:
       - app-network
 
   cache:
-    image: redis:6.2
+    image: arm64v8/redis:7-alpine
     container_name: adobkft_cache
     restart: always
     ports:
       - '6379:6379'
     command: redis-server --loglevel warning
-    # volumes:
-      # - cache:/data
     networks:
       - app-network
 
