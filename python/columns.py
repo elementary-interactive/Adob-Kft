@@ -1,7 +1,7 @@
 column_mapping = {
     "product_id": "cikkszam",
     "name": "terméknév",
-    #"brand_name": "márka",
+    "brand_name": "márka",
     "ean": "ean",
     "price": "webár",
     #"main_category": "fő kategória",

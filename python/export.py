@@ -1,4 +1,3 @@
-import mysql.connector
 import pandas as pd
 from db_connection import connect_to_db
 from columns import column_mapping  # Correct import statement
@@ -26,8 +25,13 @@ def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
             # Iterate over chunks
             offset = 0
             while offset < total_products:
-                # Fetch chunk of data
-                cursor.execute(f"SELECT * FROM products LIMIT {chunk_size} OFFSET {offset}")
+                # Fetch chunk of data with JOIN to include brand name
+                cursor.execute(f"""
+                    SELECT p.*, b.name as brand_name
+                    FROM products p
+                    LEFT JOIN brands b ON p.brand_id = b.id
+                    LIMIT {chunk_size} OFFSET {offset}
+                """)
                 products = cursor.fetchall()
 
                 # Convert to DataFrame and filter columns
