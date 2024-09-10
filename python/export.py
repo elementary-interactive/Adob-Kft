@@ -1,15 +1,7 @@
 import mysql.connector
 import pandas as pd
+from db_connection import connect_to_db
 
-db_config = {
-    'host': 'adobkft_db',        # Replace with your MySQL host (could be 'db' or 'mysql' in Docker)
-    'user': 'root',             # Replace with your MySQL username
-    'password': 'your_mysql_root_password', # Replace with your MySQL password
-    'database': 'adobkft'  # Replace with your database name
-}
-# Database connection
-def connect_to_db():
-    return mysql.connector.connect(**db_config)
 
 # Function to export products in chunks
 def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
