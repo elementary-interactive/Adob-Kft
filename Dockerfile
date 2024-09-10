@@ -32,7 +32,8 @@ RUN apk update && apk add --no-cache \
     make \
     python3 \
     py3-pip \
-    mysql-dev \  # Replaced mariadb-dev with mysql-dev
+    py3-virtualenv \
+    mysql-dev \
     libffi-dev
 
 # Install PHP extensions
@@ -47,8 +48,9 @@ RUN pecl install redis
 RUN pecl install excimer
 RUN docker-php-ext-enable redis
 
-# Install Python libraries
-RUN pip3 install --no-cache-dir \
+# Create and activate virtual environment, then install Python libraries
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip install --no-cache-dir \
     pandas \
     openpyxl \
     mysql-connector-python
