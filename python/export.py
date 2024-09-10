@@ -1,6 +1,7 @@
 import mysql.connector
 import pandas as pd
 from db_connection import connect_to_db
+from columns import column_mapping  # Correct import statement
 
 # Function to export products in chunks
 def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
@@ -19,6 +20,9 @@ def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
             total_products = cursor.fetchone()["total"]
             print(f"Total products to export: {total_products}")
 
+            # Get the list of columns to keep
+            columns_to_keep = list(column_mapping.keys())
+
             # Iterate over chunks
             offset = 0
             while offset < total_products:
@@ -26,8 +30,12 @@ def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
                 cursor.execute(f"SELECT * FROM products LIMIT {chunk_size} OFFSET {offset}")
                 products = cursor.fetchall()
 
-                # Convert to DataFrame and append to the main DataFrame
+                # Convert to DataFrame and filter columns
                 chunk_df = pd.DataFrame(products)
+                chunk_df = chunk_df[columns_to_keep]
+
+                # Rename columns
+                chunk_df.rename(columns=column_mapping, inplace=True)
                 all_products_df = pd.concat([all_products_df, chunk_df], ignore_index=True)
 
                 # Move offset
