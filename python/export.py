@@ -2,7 +2,6 @@ import mysql.connector
 import pandas as pd
 from db_connection import connect_to_db
 
-
 # Function to export products in chunks
 def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
     # Connect to the database
@@ -12,8 +11,8 @@ def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
             print("Successfully connected to the database")
             cursor = db_conn.cursor(dictionary=True)
 
-            # Initialize Excel writer
-            writer = pd.ExcelWriter(output_file, engine='openpyxl')
+            # Initialize an empty DataFrame
+            all_products_df = pd.DataFrame()
 
             # Query total products count
             cursor.execute("SELECT COUNT(*) AS total FROM products")
@@ -27,18 +26,16 @@ def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
                 cursor.execute(f"SELECT * FROM products LIMIT {chunk_size} OFFSET {offset}")
                 products = cursor.fetchall()
 
-                # Convert to DataFrame
-                df = pd.DataFrame(products)
-
-                # Append the chunk to Excel file
-                df.to_excel(writer, sheet_name=f"Chunk_{offset // chunk_size + 1}", index=False)
+                # Convert to DataFrame and append to the main DataFrame
+                chunk_df = pd.DataFrame(products)
+                all_products_df = pd.concat([all_products_df, chunk_df], ignore_index=True)
 
                 # Move offset
                 offset += chunk_size
                 print(f"Exported {offset}/{total_products} products...")
 
-            # Save and close the Excel file
-            writer.close()
+            # Write the entire DataFrame to a single sheet in the Excel file
+            all_products_df.to_excel(output_file, sheet_name="Products", index=False)
 
             # Close the database connection
             cursor.close()
