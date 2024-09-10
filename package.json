@@ -6,7 +6,8 @@
         "up": "docker compose up -d",
         "down": "docker compose down",
         "up:arm64": "docker compose -f docker-compose.arm64.yml up -d",
-        "down:arm64": "docker compose -f docker-compose.arm64.yml down"
+        "down:arm64": "docker compose -f docker-compose.arm64.yml down",
+        "build:arm64": "docker compose -f docker-compose.arm64.yml build"
     },
     "dependencies": {
         "@popperjs/core": "^2.11.8",
