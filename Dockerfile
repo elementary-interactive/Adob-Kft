@@ -29,7 +29,11 @@ RUN apk update && apk add --no-cache \
     oniguruma-dev \
     autoconf \
     g++ \
-    make
+    make \
+    python3 \
+    py3-pip \
+    mysql-dev \  # Replaced mariadb-dev with mysql-dev
+    libffi-dev
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
@@ -42,6 +46,12 @@ RUN docker-php-ext-enable intl
 RUN pecl install redis
 RUN pecl install excimer
 RUN docker-php-ext-enable redis
+
+# Install Python libraries
+RUN pip3 install --no-cache-dir \
+    pandas \
+    openpyxl \
+    mysql-connector-python
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
