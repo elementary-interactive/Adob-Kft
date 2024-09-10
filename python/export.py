@@ -45,6 +45,9 @@ def export_products_to_excel(chunk_size=1000, output_file="products.xlsx"):
                 chunk_df = chunk_df[columns_to_keep]
                 #print("Columns in chunk_df after filtering:", chunk_df.columns.tolist())
 
+                # Convert status column to 0 or 1
+                chunk_df['status'] = chunk_df['status'].apply(lambda x: '1' if x == 'A' else '0')
+
                 # Rename columns
                 chunk_df.rename(columns=column_mapping, inplace=True)
 
