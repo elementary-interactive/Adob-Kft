@@ -83,7 +83,6 @@ services:
       environment:
           PMA_HOST: adobkft_db
           UPLOAD_LIMIT: 20M
-          MYSQL_USERNAME: root
           MYSQL_ROOT_PASSWORD: your_mysql_root_password
       restart: unless-stopped
       networks:
