@@ -63,9 +63,6 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
             chunk_df = pd.DataFrame(products)
             #print("Columns in chunk_df before filtering:", chunk_df.columns.tolist())
 
-            #hunk_df = chunk_df[columns_to_keep] # + ['image_count', 'file_names', 'sizes', 'mime_types']]
-            #print("Columns in chunk_df after filtering:", chunk_df.columns.tolist())
-
             # Generate columns for image file names, sizes, and mime types
             #chunk_df['image_sizes'] = chunk_df['file_names'].apply(lambda x: x.split(",") if x else [])
             chunk_df['image_sizes'] = chunk_df.apply(
