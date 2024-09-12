@@ -8,5 +8,7 @@ column_mapping = {
     #"categories": "kategóriák",
     "url": "termék link",
     "status": "státusz (1: aktív 0:inaktív)",
-    "description": "Termék leírás"
+    "description": "Termék leírás",
+    "image_count": 'Kép darabszám',
+    'image_sizes': 'Kép méretek',
 }
