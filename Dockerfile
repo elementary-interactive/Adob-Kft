@@ -48,13 +48,6 @@ RUN pecl install redis
 RUN pecl install excimer
 RUN docker-php-ext-enable redis
 
-# Create and activate virtual environment, then install Python libraries
-RUN python3 -m venv /opt/venv
-RUN /opt/venv/bin/pip install --no-cache-dir \
-    pandas \
-    openpyxl \
-    mysql-connector-python
-
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -66,6 +59,10 @@ COPY --chown=root:root docker/supervisor/supervisor.conf /etc/supervisor/conf.d/
 
 # Copy existing application directory contents
 COPY . /var/www
+
+# Create and activate virtual environment, then install Python libraries
+RUN ["chmod", "+x", "./python/install.sh"]
+RUN python/install.sh
 
 # Copy existing application directory permissions
 RUN ["chmod", "+x", "./start.sh"]
