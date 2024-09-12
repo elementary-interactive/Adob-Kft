@@ -1,27 +1,7 @@
 import pandas as pd
-from contextlib import contextmanager
-from db_connection import connect_to_db
 from columns import column_mapping  # Correct import statement
 import humanize
-
-
-@contextmanager
-def db_connection():
-    try:
-        db_conn = connect_to_db()
-        if not db_conn.is_connected():
-            raise AssertionError("Could not connect to the database")
-        print("Successfully connected to the database")
-        cursor = db_conn.cursor(dictionary=True)
-        yield cursor
-    # except mysql.connector.Error as err:
-    #     raise AssertionError(f"Error: {err}")
-    finally:
-        try:
-            cursor.close()
-        except NameError:
-            pass
-        db_conn.close()
+from db_connection import db_connection
 
 
 def size_format(bytes):
