@@ -2,6 +2,7 @@ import pandas as pd
 from columns import column_mapping  # Correct import statement
 import humanize
 from db_connection import db_connection
+from categories import get_categories, build_category_tree
 
 
 def size_format(bytes):
@@ -13,6 +14,10 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
     with db_connection() as cursor:
         # Initialize an empty DataFrame
         all_products_df = pd.DataFrame()
+
+        # Get categories and build category tree
+        categories = get_categories()
+        category_tree = build_category_tree(categories)
 
         # Query total products count
         cursor.execute("SELECT COUNT(*) AS total FROM products")
@@ -26,17 +31,18 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
         for offset in range(0, total_products, chunk_size):
             # Fetch chunk of data with JOIN to include brand name and image details
             cursor.execute(f"""
-                SELECT p.*, b.name as brand_name, p.slug,
-                       (SELECT COUNT(*) FROM media WHERE media.model_id = p.id) as image_count,
-                       GROUP_CONCAT(media.file_name) as file_names,
-                       GROUP_CONCAT(media.size) as sizes,
-                       GROUP_CONCAT(media.mime_type) as mime_types
-                FROM products p
-                LEFT JOIN brands b ON p.brand_id = b.id
-                LEFT JOIN media ON media.model_id = p.id
-                GROUP BY p.id
-                LIMIT {chunk_size} OFFSET {offset}
-            """)
+            SELECT p.*, b.name as brand_name, p.slug,
+                   (SELECT COUNT(*) FROM media WHERE media.model_id = p.id) as image_count,
+                   GROUP_CONCAT(media.file_name) as file_names,
+                   GROUP_CONCAT(media.size) as sizes,
+                   GROUP_CONCAT(media.mime_type) as mime_types,
+                   (SELECT category_id FROM category_product WHERE product_id = p.id AND is_main = 1 LIMIT 1) as main_category_id
+            FROM products p
+            LEFT JOIN brands b ON p.brand_id = b.id
+            LEFT JOIN media ON media.model_id = p.id
+            GROUP BY p.id
+            LIMIT {chunk_size} OFFSET {offset}
+        """)
             products = cursor.fetchall()
 
             # Convert to DataFrame and filter columns
@@ -57,6 +63,8 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
                 axis=1
             )
 
+            # Generate main_category column
+            chunk_df['main_category'] = chunk_df['main_category_id'].apply(lambda x: category_tree.get(x, '') if x else '')
 
             # Generate URL column
             chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"http://localhost/termek/{x}")

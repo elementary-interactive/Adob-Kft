@@ -29,6 +29,8 @@ def build_category_tree(categories):
     for category in categories:
         category_tree[category['id']] = get_full_path(category['id'])
 
+    print(f"Category tree built with {len(category_tree)} categories")
+
     return category_tree
 
 # if __name__ == "__main__":
