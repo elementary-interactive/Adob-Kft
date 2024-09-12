@@ -75,6 +75,11 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
                 axis=1
             )
 
+            chunk_df['image_size_sum'] = chunk_df.apply(
+                lambda row: size_format(sum(int(size.strip()) for size in row['sizes'].split(","))) if row['sizes'] else '',
+                axis=1
+            )
+
 
             # Generate URL column
             chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"http://localhost/termek/{x}")
