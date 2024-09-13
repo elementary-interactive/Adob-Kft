@@ -3,7 +3,7 @@ from columns import column_mapping  # Correct import statement
 import humanize
 from db_connection import db_connection
 from categories import get_categories, build_category_tree
-
+import sys
 
 def size_format(bytes):
     return humanize.naturalsize(bytes, binary=True)
@@ -95,4 +95,6 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
 
 
 if __name__ == "__main__":
-    export_products_to_excel()
+    # Save the file to the path provided as an argument
+    output_file = sys.argv[1]
+    export_products_to_excel(output_file=output_file)
