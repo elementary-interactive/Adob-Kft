@@ -36,7 +36,8 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
                    GROUP_CONCAT(media.file_name) as file_names,
                    GROUP_CONCAT(media.size) as sizes,
                    GROUP_CONCAT(media.mime_type) as mime_types,
-                   (SELECT category_id FROM category_product WHERE product_id = p.id AND is_main = 1 LIMIT 1) as main_category_id
+                   (SELECT category_id FROM category_product WHERE product_id = p.id AND is_main = 1 LIMIT 1) as main_category_id,
+                   (SELECT GROUP_CONCAT(category_id) FROM category_product WHERE product_id = p.id AND is_main = 0) as other_category_ids
             FROM products p
             LEFT JOIN brands b ON p.brand_id = b.id
             LEFT JOIN media ON media.model_id = p.id
@@ -65,6 +66,11 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
 
             # Generate main_category column
             chunk_df['main_category'] = chunk_df['main_category_id'].apply(lambda x: category_tree.get(x, '') if x else '')
+
+            # Generate other_categories column
+            chunk_df['other_categories'] = chunk_df['other_category_ids'].apply(
+                lambda x: "; ".join([category_tree.get(cat_id, '') for cat_id in x.split(",")]) if x else ''
+            )
 
             # Generate URL column
             chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"http://localhost/termek/{x}")

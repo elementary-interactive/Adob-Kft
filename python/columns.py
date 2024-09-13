@@ -5,7 +5,7 @@ column_mapping = {
     "ean": "ean",
     "price": "webár",
     "main_category": "fő kategória",
-    #"categories": "kategóriák",
+    "other_categories": "további kategóriák",
     "url": "termék link",
     "status": "státusz (1: aktív 0:inaktív)",
     "description": "Termék leírás",
