@@ -59,16 +59,6 @@ class ProductExport extends Model
     'job'                 => '',
   ];
 
-  // /**
-  //  * The "booted" method of the model.
-  //  */
-  // protected static function booted(): void
-  // {
-  //   static::created(queueable(function (Model $self) {
-  //     $self->file = 'ADOBProductsExport_' . $self->created_at->format('Ymd_His');
-  //   }));
-  // }
-
   public function getFileAttribute(): string
   {
     if (!array_key_exists('file', $this->attributes) || is_null($this->attributes['file']))
