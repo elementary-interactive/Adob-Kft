@@ -21,3 +21,4 @@ package-lock.json
 /.fleet
 /.idea
 /.vscode
+/python/venv
