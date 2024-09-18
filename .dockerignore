@@ -21,7 +21,6 @@ python/venv
 
 # Ignore Docker-related files
 docker-compose.yml
-docker-compose.override.yml
 docker-compose.arm64.yml
 
 # Ignore build artifacts
