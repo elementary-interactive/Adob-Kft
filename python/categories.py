@@ -33,6 +33,8 @@ def build_category_tree(categories):
 
     return category_tree
 
+
+# This code is for testing purposes, run it with `python categories.py`
 # if __name__ == "__main__":
 #     categories = get_categories()
 #     category_tree = build_category_tree(categories)

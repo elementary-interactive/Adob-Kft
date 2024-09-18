@@ -21,8 +21,8 @@ def db_connection():
         print("Successfully connected to the database")
         cursor = db_conn.cursor(dictionary=True)
         yield cursor
-    # except mysql.connector.Error as err:
-    #     raise AssertionError(f"Error: {err}")
+    except mysql.connector.Error as err:
+        raise AssertionError(f"Error: {err}")
     finally:
         try:
             cursor.close()

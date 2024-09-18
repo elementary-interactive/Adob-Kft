@@ -51,7 +51,6 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
             #print("Columns in chunk_df before filtering:", chunk_df.columns.tolist())
 
             # Generate columns for image file names, sizes, and mime types
-            #chunk_df['image_sizes'] = chunk_df['file_names'].apply(lambda x: x.split(",") if x else [])
             chunk_df['image_sizes'] = chunk_df.apply(
                 lambda row: "; ".join(
                     [f"{name} ({size_format(int(size.strip()))})" for name, size in zip(row['file_names'].split(","), row['sizes'].split(","))]
@@ -76,7 +75,6 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
             chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"http://localhost/termek/{x}")
 
             chunk_df = chunk_df[columns_to_keep]
-            #print("Columns in chunk_df after filtering:", chunk_df.columns.tolist())
 
             # Convert status column to 0 or 1
             chunk_df['status'] = chunk_df['status'].apply(lambda x: '1' if x == 'A' else '0')
