@@ -91,6 +91,6 @@ class ADOBProductExportBatch_new implements ShouldQueue
             ->title('Exportálás folyamata...')
             ->body((($this->export->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!') . ' A keresett állomány itt tölthető le: <a href="' . Storage::url($this->export->file) . '">' . $this->export->file . '</a>')
             ->success()
-            ->sendToDatabase($this->tracker->exported_by);
+            ->sendToDatabase($this->export->exported_by);
     }
 }
