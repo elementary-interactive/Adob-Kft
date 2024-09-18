@@ -1,11 +1,16 @@
 import mysql.connector
 from contextlib import contextmanager
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 db_config = {
-    'host': 'adobkft_db',        # Replace with your MySQL host (could be 'db' or 'mysql' in Docker)
-    'user': 'root',             # Replace with your MySQL username
-    'password': 'your_mysql_root_password', # Replace with your MySQL password
-    'database': 'adobkft'  # Replace with your database name
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME')
 }
 
 def connect_to_db():
