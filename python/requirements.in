@@ -1,0 +1,10 @@
+# when adding requirements, run
+# pip-compile requirements.in
+# to upgrade the requirements, run
+# pip-compile --upgrade requirements.in
+pandas
+openpyxl
+mysql-connector-python
+humanize
+python-dotenv
+pip-tools

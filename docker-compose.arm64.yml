@@ -55,7 +55,6 @@ services:
       MYSQL_DATABASE: adobkft
       MYSQL_ROOT_PASSWORD: your_mysql_root_password
       MYSQL_PASSWORD: your_mysql_root_password
-      MYSQL_USER: root
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     volumes:

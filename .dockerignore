@@ -1,0 +1,28 @@
+# Ignore node_modules and vendor directories
+node_modules
+vendor
+
+# Ignore Python virtual environment
+python/venv
+
+# Ignore local environment files
+.env
+.env.local
+.env.*.local
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+
+# Ignore IDE and editor configuration files
+.idea
+.vscode
+*.swp
+
+# Ignore Docker-related files
+docker-compose.yml
+docker-compose.arm64.yml
+
+# Ignore build artifacts
+dist
+build
