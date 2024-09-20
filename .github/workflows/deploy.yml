@@ -29,6 +29,15 @@ jobs:
             # Install PHP dependencies
             docker-compose -f docker-compose.prod.yml exec app composer install --no-interaction --prefer-dist
 
+            # Install Node.js dependencies using npm ci
+            docker-compose -f docker-compose.prod.yml exec app npm ci
+
+            # Run PHP Artisan commands
+            docker-compose -f docker-compose.prod.yml exec app php artisan migrate --force
+            docker-compose -f docker-compose.prod.yml exec app php artisan config:cache
+            docker-compose -f docker-compose.prod.yml exec app php artisan route:cache
+            docker-compose -f docker-compose.prod.yml exec app php artisan view:cache
+
             # Start Laravel Horizon
             docker-compose -f docker-compose.prod.yml exec app php artisan horizon
           EOF
