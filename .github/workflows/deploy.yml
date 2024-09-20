@@ -21,8 +21,14 @@ jobs:
       - name: Deploy to DigitalOcean
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DO_SSH_USER }}@${{ secrets.DO_SSH_IP }} << EOF
-            cd /path/to/your/app
+            cd Adob-Kft
             git pull origin main
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d --build
+
+            # Install PHP dependencies
+            docker-compose -f docker-compose.prod.yml exec app composer install --no-interaction --prefer-dist
+
+            # Start Laravel Horizon
+            docker-compose -f docker-compose.prod.yml exec app php artisan horizon
           EOF
