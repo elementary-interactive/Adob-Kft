@@ -50,9 +50,9 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: adobkft
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
       SERVICE_TAGS: prod
       SERVICE_NAME: mysql
     volumes:
@@ -80,8 +80,8 @@ services:
     environment:
       PMA_HOST: adobkft_db
       UPLOAD_LIMIT: 20M
-      MYSQL_USERNAME: root
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USERNAME: ${DB_USERNAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     restart: unless-stopped
     networks:
       - app-network
