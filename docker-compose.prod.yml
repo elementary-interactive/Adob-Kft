@@ -71,19 +71,19 @@ services:
       - app-network
 
   # phpMyAdmin Service
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: phpmyadmin
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: adobkft_db
-      UPLOAD_LIMIT: 20M
-      MYSQL_USERNAME: ${DB_USERNAME}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    restart: unless-stopped
-    networks:
-      - app-network
+#  phpmyadmin:
+#    image: phpmyadmin:latest
+#    container_name: phpmyadmin
+#    ports:
+#      - "8080:80"
+#    environment:
+#      PMA_HOST: adobkft_db
+#      UPLOAD_LIMIT: 20M
+#      MYSQL_USERNAME: ${DB_USERNAME}
+#      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+#    restart: unless-stopped
+#    networks:
+#      - app-network
 
 
 # Docker Networks
