@@ -30,7 +30,7 @@ services:
 
   #Nginx Service
   webserver:
-    image: arm64v8/nginx
+    image: arm64v8/nginx:stable-alpine-slim
     container_name: adobkft_webserver
     restart: unless-stopped
     tty: true
@@ -45,7 +45,7 @@ services:
 
   #MySQL Service
   db:
-    image: arm64v8/mysql:8.0
+    image: arm64v8/mysql:8.4
     container_name: adobkft_db
     restart: unless-stopped
     tty: true
@@ -64,7 +64,7 @@ services:
       - app-network
 
   cache:
-    image: arm64v8/redis:7-alpine
+    image: arm64v8/redis:7.4-alpine
     container_name: adobkft_cache
     restart: always
     ports:
