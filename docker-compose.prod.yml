@@ -23,6 +23,10 @@ services:
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - app-network
+    depends_on:
+      - db
+      - webserver
+      - cache
 
   # Nginx Service
   webserver:
