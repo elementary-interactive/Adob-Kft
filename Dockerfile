@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm-nginx-alpine
 
 # Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
