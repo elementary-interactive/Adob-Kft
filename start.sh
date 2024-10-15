@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# Start the first process
+# Start PHP-FPM
 php-fpm &
 
-# Start the second process
+# Start nginx
+systemctl enable nginx
+service nginx start
+
+# Start Supervisord
 supervisord &
 
 # Wait for any process to exit
