@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-nginx-alpine
+FROM php:8.2-fpm-alpine
 
 # Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
@@ -24,6 +24,7 @@ RUN apk update && apk add --no-cache \
     icu-dev \
     supervisor \
     imagemagick-dev \
+    nginx \
     nodejs \
     npm \
     oniguruma-dev \
