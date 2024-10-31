@@ -164,7 +164,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
   }
 
   /** Rules to check the record.
-   * 
+   *
    * @return array
    */
   public function rules(): array
@@ -247,7 +247,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
 
     $product->on_sale         = (array_key_exists(self::$columns::ON_SALE->value, $row) && strtolower($row[self::$columns::ON_SALE->value]) === 'y');
     $product->status          = ($is_active) ? BasicStatus::Active->value : BasicStatus::Inactive->value;
-    
+
     // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
     if (array_key_exists(self::$columns::BRAND->value, $row) && isset($row[self::$columns::BRAND->value])) {
@@ -288,9 +288,9 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     /** Save the product.
      */
     $product->save();
-    echo "\n\rTERMÉKOK\n\r";
+    echo "\n\rTERMÉKEK\n\r";
     echo "____".microtime()."\n\r";
-    
+
     // $this->logger->info("{$this->tracker->id} import product {$product->id} saved.", ['row' => $row, 'product' => $product]);
 
     /** Check is there category & adding to categories.
@@ -300,7 +300,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     echo 'add category';
     // $this->tracker->addBatch(new ADOBProductCategoryImportJob($product, $row, $this->tracker));
     $this->attach_categories($product, $row);
-    
+
     // $this->logger->info("{$this->tracker->id} import product {$product->id} categories attached.", ['row' => $row, 'product' => $product]);
 
      /** Remove all images from the product.
@@ -309,7 +309,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
     if (self::to_delete_images($row) || (array_key_exists(self::$columns::IMAGES_DELETE->value, $row) && $row[self::$columns::IMAGES_DELETE->value] == 'y')) {
       $this->delete_images($product, $row);
     }
-    
+
     /** Store images to the product.
      */
     echo 'image_job';
@@ -341,7 +341,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
   //     // }
 
   //     $image_sources = explode(';', $row[self::$columns::IMAGES->value]);
-      
+
   //     $images   = [];
   //     $index    = 0;
 
@@ -428,7 +428,7 @@ class ADOBProductsImport_new implements OnEachRow, WithUpserts, PersistRelations
 
             if (!$sub_category->exists) {
               $this->tracker->increaseCategoryInserted();
-              
+
               $sub_category->save();
               $sub_category->makeChildOf($category);
             } else {
