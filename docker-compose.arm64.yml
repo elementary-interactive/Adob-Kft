@@ -45,7 +45,7 @@ services:
 
   #MySQL Service
   db:
-    image: arm64v8/mysql:8.0
+    image: arm64v8/mysql:8.4
     container_name: adobkft_db
     restart: unless-stopped
     tty: true
