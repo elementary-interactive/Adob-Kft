@@ -4,17 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Kalnoy\Nestedset\NodeTrait;
+use Neon\Models\Traits\Uuid;
+use Baum\Node;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Neon\Models\Statuses\BasicStatus;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 use App\Jobs\CountBrandCategoryProducts;
+use Illuminate\Database\Eloquent\Collection;
 
-class Category extends Model
+class Category extends Node
 {
   use SoftDeletes;
-  use NodeTrait;
+  use Uuid;
 
   /**
    * The attributes that are mass assignable.
@@ -22,7 +26,7 @@ class Category extends Model
    * @var array
    */
   protected $fillable = [
-    'name', 'slug', 'description', 'description_manual', 'products', 'active_products'
+    'name', 'slug'
   ];
 
   protected $brand = null;
@@ -43,7 +47,7 @@ class Category extends Model
     });
 
     static::saved(function ($model) {
-        CountBrandCategoryProducts::dispatch();
+      // CountBrandCategoryProducts::dispatch();
     });
   }
 
