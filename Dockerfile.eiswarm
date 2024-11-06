@@ -1,0 +1,18 @@
+ARG CI_REGISTRY
+FROM ${CI_REGISTRY}/devops/images/laravel:11
+
+RUN set -x && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends \
+    python3-venv \
+  && \
+  apt-get clean autoclean && \
+  rm -rf /var/lib/{apt,cache,log} /var/cache/apt/* /tmp/* /var/tmp/*
+
+COPY . /var/www/html/
+
+RUN set -x && \
+  # Create and activate virtual environment, then install Python libraries
+  chmod +x ./python/install.sh; \
+  python/install.sh; \
+  chown -R www-data:www-data storage
