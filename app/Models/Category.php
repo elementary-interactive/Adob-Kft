@@ -4,21 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Neon\Models\Traits\Uuid;
-use Baum\Node;
+use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Neon\Models\Statuses\BasicStatus;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Artisan;
 use App\Jobs\CountBrandCategoryProducts;
-use Illuminate\Database\Eloquent\Collection;
 
-class Category extends Node
+class Category extends Model
 {
   use SoftDeletes;
-  use Uuid;
+  use NodeTrait;
 
   /**
    * The attributes that are mass assignable.
@@ -26,7 +22,7 @@ class Category extends Node
    * @var array
    */
   protected $fillable = [
-    'name', 'slug'
+    'name', 'slug', 'description', 'description_manual', 'products', 'active_products'
   ];
 
   protected $brand = null;
@@ -47,7 +43,7 @@ class Category extends Node
     });
 
     static::saved(function ($model) {
-      // CountBrandCategoryProducts::dispatch();
+        CountBrandCategoryProducts::dispatch();
     });
   }
 
@@ -169,13 +165,13 @@ class Category extends Node
     foreach ($x as $id => $name)
     {
       $y = Category::find($id)->getAncestorsAndSelf();
-      foreach($y as $item) 
+      foreach($y as $item)
       {
         if (!array_key_exists($id, $result))
         {
           $result[$id] = '';
         }
-        if (strlen($result[$id])) 
+        if (strlen($result[$id]))
         {
           $result[$id] .= ' / ';
         }
