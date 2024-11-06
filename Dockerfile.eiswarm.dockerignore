@@ -1,0 +1,38 @@
+.github
+.docker
+
+# Ignore Laravel-related files
+.editorconfig
+.env
+.env.*
+README.md
+composer.lock
+/package*
+/tests
+coverage.cobertura.xml
+pest-junit.xml
+phpunit.xml
+pint.json
+/*.js
+/*.sh
+
+# Ignore Git-related files
+.gitattributes
+.git*
+
+# Ignore Docker-related files
+docker-compose.*
+Dockerfile
+Dockerfile.*
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+
+# Ignore IDE and editor configuration files
+.idea
+.vscode
+*.swp
+
+# Ignore Python virtual environment
+python/venv

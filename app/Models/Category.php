@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Neon\Models\Traits\Uuid;
-use Baum\Node;
+use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Artisan;
 use App\Jobs\CountBrandCategoryProducts;
 use Illuminate\Database\Eloquent\Collection;
 
-class Category extends Node
+class Category extends Model
 {
+  use NodeTrait;
   use SoftDeletes;
   use Uuid;
 
@@ -26,7 +27,8 @@ class Category extends Node
    * @var array
    */
   protected $fillable = [
-    'name', 'slug'
+    'name',
+    'slug'
   ];
 
   protected $brand = null;
@@ -97,13 +99,13 @@ class Category extends Node
   public function getUrlAttribute(): string
   {
     return route('product.browse', [
-      'slug'  => $this->getAncestorsAndSelf()->implode('slug', '/')
+      'slug'  => $this->ancestors->implode('slug', '/').'/'.$this->slug
     ]);
   }
 
   public function getFullSlugAttribute(): string
   {
-    return $this->getAncestorsAndSelf()->implode('slug', '/');
+    return $this->ancestors->implode('slug', '/').'/'.$this->slug;
   }
 
   /** Getting "counts" attriute. This way we try to count products of the
@@ -115,46 +117,28 @@ class Category extends Node
   {
     $counts   = 0;
 
-    if (request()->session()->has('brand'))
-    {
-      foreach ($this->brandCounts as $counter)
-      {
-        if ($counter->brand_id == request()->session()->get('brand'))
-        {
+
+    foreach ($this->brandCounts as $counter) {
+      if (request()->session()->has('brand')) {
+        if ($counter->brand_id == request()->session()->get('brand')) {
           $counts += $counter->counts;
         }
-      }
-    } else {
-      // $counts = $this->descendantsAndSelf()->withCount('products')->get();
-      // dd($counts);
-      $cats = $this->getDescendantsAndSelf();
-      foreach ($cats as $cat)
-      {
-        // dump($cat, $cat->products()->get()->count());
-        $counts += $cat->products()->count();
+      } else {
+        $counts += $counter->counts;
       }
     }
 
-    // if (!$counts)
-    // {
-      // $children = $this->getDescendantsAndSelf();
-
-      // foreach ($children as $child)
-      // {
-      //   $query = $child->brandCounts();
-      //   if (request()->session()->has('brand'))
-      //   {
-      //     $query->where('brand_id', '=', request()->session()->get('brand'));
-      //   }
-      //   $result = $query->get();
-
-      //   foreach ($result as $record)
-      //   {
-      //     $counts += $record->counts;
-      //   }
-      //   $counts =
-      // }
-    // }
+    foreach ($this->descendants as $cat) {
+      foreach ($cat->brandCounts as $counter) {
+        if (request()->session()->has('brand')) {
+          if ($counter->brand_id == request()->session()->get('brand')) {
+            $counts += $counter->counts;
+          }
+        } else {
+          $counts += $counter->counts;
+        }
+      }
+    }
 
     return $counts;
   }
@@ -166,17 +150,13 @@ class Category extends Node
   {
     $result = [];
     $x = self::getNestedList('name', 'id');
-    foreach ($x as $id => $name)
-    {
-      $y = Category::find($id)->getAncestorsAndSelf();
-      foreach($y as $item)
-      {
-        if (!array_key_exists($id, $result))
-        {
+    foreach ($x as $id => $name) {
+      $y = Category::ancestorsAndSelf($id);
+      foreach ($y as $item) {
+        if (!array_key_exists($id, $result)) {
           $result[$id] = '';
         }
-        if (strlen($result[$id]))
-        {
+        if (strlen($result[$id])) {
           $result[$id] .= ' / ';
         }
         $result[$id] .= $item->name;

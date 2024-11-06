@@ -21,19 +21,19 @@
         "laravel/tinker": "^2.8",
         "logtail/monolog-logtail": "^3.0",
         "maatwebsite/excel": "^3.1.57",
-        "neon/admin-ui": "3.0.0-alpha-36",
+        "neon/admin-ui": "3.0.0-alpha-38",
         "neon/attributable": "3.0.0-alpha-7",
         "neon/menu": "3.0.0-alpha-17",
         "neon/model-base": "1.0.1",
         "neon/model-publishable": "1.0.0",
         "neon/model-uuid": "^1.0",
-        "neon/site": "3.0.0-alpha-9",
+        "neon/site": "3.0.0-alpha-10",
         "neon/ui": "0.1.0-alpha-1",
         "sentry/sentry-laravel": "^3.8",
         "solution-forest/filament-tree": "^2.0",
         "spatie/laravel-medialibrary": "^10.15.0",
         "symfony/intl": "^6.3",
-        "toponepercent/baum": "3.2.2"
+        "kalnoy/nestedset": "6.0.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

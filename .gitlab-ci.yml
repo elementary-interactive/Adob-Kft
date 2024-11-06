@@ -1,0 +1,57 @@
+stages:
+  - build
+  - release
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_COMMIT_REF_NAME == "develop"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+
+build_composer:
+  stage: build
+  image: ${CI_REGISTRY}/devops/images/build-php:8.3
+  cache:
+    key: composer
+    paths:
+      - vendor/
+  script:
+    - if [ -f .env.example ]; then cp -f .env.example .env; fi
+    - sed -i "s/^APP_ENV=.*/APP_ENV=production/" .env
+    - if [ -n "${GITHUB_TOKEN-}" ]; then composer config --global bearer.github.com ${GITHUB_TOKEN}; fi
+    - composer install --optimize-autoloader --no-dev --no-progress --no-interaction
+    - php artisan key:generate
+  artifacts:
+    paths:
+      - vendor/
+
+build_npm:
+  stage: build
+  image: ${CI_REGISTRY}/devops/images/build-php:8.3
+  cache:
+    key: npm
+    paths:
+      - node_modules/
+  script:
+      - npm install
+      - npm run build
+  artifacts:
+    paths:
+      - public/build/
+  needs:
+    - build_composer
+  rules:
+    - exists:
+        - package.json
+
+release:
+  stage: release
+  script:
+    - echo "${CI_JOB_TOKEN}" | docker login -u ${CI_REGISTRY_USER} --password-stdin ${CI_REGISTRY}
+    - docker build -f Dockerfile.eiswarm --build-arg CI_REGISTRY=${CI_REGISTRY} -t ${CI_REGISTRY_IMAGE}/$CI_COMMIT_REF_SLUG .
+    - docker push ${CI_REGISTRY_IMAGE}/$CI_COMMIT_REF_SLUG
+  rules:
+    - exists:
+        - Dockerfile.eiswarm

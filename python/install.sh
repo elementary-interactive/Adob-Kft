@@ -1,3 +1,4 @@
+#!/bin/bash
 # cd to the directory of this script
 cd "${0%/*}"
 rm venv
