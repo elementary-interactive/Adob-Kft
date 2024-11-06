@@ -13,17 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('brands', function (Blueprint $table) {
-        
+
             $table->uuid('id');
-            
+
             $table->string('name');                         /** Márkanév neve */
             $table->string('slug');                         /** Márkanév URL-je */
-            $table->boolean('is_featured')
-                ->default(false);                           /** Márka kiemelése */
-            
+            $table->boolean('is_featured')->default(false);                           /** Márka kiemelése */
+            $table->char('status', 1)->default(BasicStatus::default()->value);
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->primary('id');
             $table->fullText('name');
             $table->unique('slug');
