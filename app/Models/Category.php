@@ -99,13 +99,13 @@ class Category extends Model
   public function getUrlAttribute(): string
   {
     return route('product.browse', [
-      'slug'  => collect(array_merge($this->ancestors->toArray(), [$this]))->implode('slug', '/')
+      'slug'  => $this->ancestors->implode('slug', '/').'/'.$this->slug
     ]);
   }
 
   public function getFullSlugAttribute(): string
   {
-    return collect(array_merge($this->ancestors->toArray(), [$this]))->implode('slug', '/');
+    return $this->ancestors->implode('slug', '/').'/'.$this->slug;
   }
 
   /** Getting "counts" attriute. This way we try to count products of the
