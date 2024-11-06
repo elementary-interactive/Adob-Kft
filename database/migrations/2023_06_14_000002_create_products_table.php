@@ -51,7 +51,6 @@ return new class extends Migration
             $table->softDeletes();
             
             $table->primary('id');
-            $table->foreign('parent_id')->references('id')->on('products');
             $table->foreign('brand_id')->references('id')->on('brands');
             $table->foreign('media_id')->references('id')->on('media');
             $table->fullText([
