@@ -33,7 +33,7 @@
         "solution-forest/filament-tree": "^2.0",
         "spatie/laravel-medialibrary": "^10.15.0",
         "symfony/intl": "^6.3",
-        "toponepercent/baum": "3.2.2"
+        "kalnoy/nestedset": "6.0.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

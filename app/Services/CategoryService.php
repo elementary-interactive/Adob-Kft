@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
-use Baum\Extensions\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -37,7 +36,7 @@ class CategoryService
     /** Getting roots...
      * 
      */
-    $roots = Category::roots()
+    $roots = Category::whereIsRoot()
       ->get();
 
     if ($brand) { //- if brand set, we filter to select only categories which have products related to this brand.
@@ -66,7 +65,7 @@ class CategoryService
   {
     $slugs = Str::of($slug)->explode('/');
 
-    $category = Category::roots()
+    $category = Category::whereIsRoot()
       ->where('slug', Arr::pull($slugs, 0))
       ->orderBy('name', 'asc')
       ->first();
@@ -102,13 +101,13 @@ class CategoryService
 
   public function getChildren(Brand $brand = null)
   {
-    $children = $this->category->immediateDescendants()->get();
+    $children = $this->category->children()->get();
 
     if ($brand) {
       $children = [];
       $categories = Category::onlyBrand($brand)->get();
       foreach ($categories as $category) {
-        $ancestors = $category->getAncestorsAndSelf()->sortBy('name');
+        $ancestors = Category::ancestorsAndSelf($category->id)->sortBy('name');
 
         foreach ($ancestors as $ancestor) {
           if ($ancestor->parent_id == $this->category->id && !in_array($ancestor, $children)) {
@@ -145,7 +144,7 @@ class CategoryService
 
       $slugs  = Str::of($slug)->explode('/');
 
-      $category = Category::roots()
+      $category = Category::whereIsRoot()
         ->where('slug', Arr::pull($slugs, 0))
         ->first();
 

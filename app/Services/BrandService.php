@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Brand;
-use Baum\Extensions\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -16,6 +15,9 @@ class BrandService
    */
   public $brand     = null;
 
+  /** Default page per item value.
+   * @var int
+   */
   public $paginate  = 25;
 
   public function __construct()
@@ -25,6 +27,7 @@ class BrandService
 
   public function init($slug = null, $paginate = null)
   {
+    //...
   }
 
   public function getFeaturedBrands()

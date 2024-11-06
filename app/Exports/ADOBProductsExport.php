@@ -111,7 +111,7 @@ class ADOBProductsExport implements FromCollection, WithHeadingRow, WithEvents /
 
       foreach ($categories as $category) {
         $path = [];
-        foreach ($category->getAncestorsAndSelf() as $path_item) {
+        foreach (Category::ancestorsAndSelf($category->id) as $path_item) {
           array_unshift($path, $path_item->name);
         }
         $paths[] = implode('\\', $path);
