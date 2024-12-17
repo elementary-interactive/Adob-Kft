@@ -107,7 +107,7 @@ class ProductExportResource extends Resource
           ->icon('heroicon-o-arrow-down-on-square')
           ->iconPosition(IconPosition::Before)
           ->getStateUsing(function (ProductExport $record) {
-            return '<a href="' . Storage::url($record->file) . '" target="_blank">' . $record->file . '</a>';
+            return '<a href="' . Storage::url('app/exports/'. $record->file) . '" target="_blank">' . $record->file . '</a>';
           })
           ->html()
       ]);
@@ -243,7 +243,7 @@ class ProductExportResource extends Resource
           ->label('Állomány')
           ->icon('heroicon-o-arrow-up-on-square')
           ->iconPosition(IconPosition::Before)
-          ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . Storage::url($state) . '" target="_blank">' . $state . '</a>'))
+          ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . Storage::url('app/exports/'.$state) . '" target="_blank">' . $state . '</a>'))
           ->html()
           // ->size(Tables\Columns\TextColumn\TextColumnSize::Small)
           ->searchable(),
