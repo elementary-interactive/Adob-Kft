@@ -71,7 +71,7 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
                 lambda x: "; ".join([category_tree.get(cat_id, '') for cat_id in x.split(",")]) if x else ''
             )
 
-            # Generate URL column
+            # Generate URL column // todo: get env variable for base url
             chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"http://localhost/termek/{x}")
 
             chunk_df = chunk_df[columns_to_keep]
