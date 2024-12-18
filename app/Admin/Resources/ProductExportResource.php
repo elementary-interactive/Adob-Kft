@@ -106,10 +106,8 @@ class ProductExportResource extends Resource
           ->label('Állomány')
           ->icon('heroicon-o-arrow-down-on-square')
           ->iconPosition(IconPosition::Before)
-          ->getStateUsing(function (ProductExport $record) {
-            return '<a href="' . Storage::url($record->file) . '" target="_blank">' . $record->file . '</a>';
-          })
-          ->html()
+            ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . route('exports.download', $state) . '" target="_blank">' . $state . '</a>'))
+            ->html()
       ]);
   }
 
@@ -239,14 +237,13 @@ class ProductExportResource extends Resource
         Tables\Columns\TextColumn::make('exported_by.name')
           ->label('Indította')
           ->searchable(),
-        Tables\Columns\TextColumn::make('file')
-          ->label('Állomány')
-          ->icon('heroicon-o-arrow-up-on-square')
-          ->iconPosition(IconPosition::Before)
-          ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . Storage::url($state) . '" target="_blank">' . $state . '</a>'))
-          ->html()
-          // ->size(Tables\Columns\TextColumn\TextColumnSize::Small)
-          ->searchable(),
+          Tables\Columns\TextColumn::make('file')
+              ->label('Állomány')
+              ->icon('heroicon-o-arrow-up-on-square')
+              ->iconPosition(IconPosition::Before)
+              ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('<a href="' . route('exports.download', $state) . '" target="_blank">' . $state . '</a>'))
+              ->html()
+              ->searchable(),
         Tables\Columns\TextColumn::make('updated_at')
           ->dateTime()
           ->sortable()

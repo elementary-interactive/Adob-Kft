@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Exports\ADOBProductsExport_new;
 use App\Models\ProductExport;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
@@ -50,10 +49,10 @@ class ADOBProductExportBatch_new implements ShouldQueue
         try {
             $this->exportStarted();
 
-            $outputFile = storage_path('app/' . $this->export->file);
+            $outputFile = storage_path('app/exports/' . $this->export->file);
             $scriptPath = base_path('python/run.sh');
 
-            $process = Process::run('sh ' . $scriptPath . ' ' . $outputFile);        //$process = Process::run('pwd');
+            $process = Process::run('sh ' . $scriptPath . ' ' . $outputFile);
 
             $this->logger->info('Export process', (array)$process->output());
 
@@ -89,7 +88,7 @@ class ADOBProductExportBatch_new implements ShouldQueue
 
         Notification::make()
             ->title('Exportálás folyamata...')
-            ->body((($this->export->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!') . ' A keresett állomány itt tölthető le: <a href="' . Storage::url($this->export->file) . '">' . $this->export->file . '</a>')
+            ->body((($this->export->fails_counter > 0) ? 'Végeztünk.' : 'Sikeresen végeztünk!') . '<br/> Letöltése: <a href="' . route('exports.download', $this->export->file) . '" target="_blank">' . $this->export->file . '</a>')
             ->success()
             ->sendToDatabase($this->export->exported_by);
     }

@@ -41,9 +41,15 @@ Route::get('/', [\App\Http\Controllers\CategoryController::class, 'browse'])
 Route::get('/kereses', [\App\Http\Controllers\SearchController::class, 'search'])
     ->name('search');
 
-Route::get('download', [\App\Http\Controllers\DownloadController::class, 'download'])
-    ->name('export.download') //-;
-    ->middleware('signed');
+Route::get('/exports/{file}', function ($file) {
+    $filePath = storage_path('app/exports/' . $file);
+
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+
+    return response()->download($filePath);
+})->name('exports.download');
 
 Route::post('/kepek', [\App\Http\Controllers\ProductController::class, 'addImage'])
     ->name('product.images.upload') //-;
