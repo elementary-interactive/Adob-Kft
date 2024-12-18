@@ -4,13 +4,14 @@ import humanize
 from db_connection import db_connection
 from categories import get_categories, build_category_tree
 import sys
+import argparse
 
 def size_format(bytes):
     return humanize.naturalsize(bytes, binary=True)
 
 # Function to export products in chunks
-def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
-    # Connect to the database
+def export_products_to_excel(chunk_size=20000, output_file="products.xlsx", app_url="http://"):
+# Connect to the database
     with db_connection() as cursor:
         # Initialize an empty DataFrame
         all_products_df = pd.DataFrame()
@@ -72,7 +73,7 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
             )
 
             # Generate URL column // todo: get env variable for base url
-            chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"http://localhost/termek/{x}")
+            chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"{app_url}/termek/{x}")
 
             chunk_df = chunk_df[columns_to_keep]
 
@@ -94,5 +95,11 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx"):
 
 if __name__ == "__main__":
     # Save the file to the path provided as an argument
-    output_file = sys.argv[1]
-    export_products_to_excel(output_file=output_file)
+
+    parser = argparse.ArgumentParser(description='Export products to Excel.')
+    parser.add_argument('--output_file', type=str, required=True, help='The output file path')
+    parser.add_argument('--app_url', type=str, required=True, help='The application URL')
+
+    args = parser.parse_args()
+
+    export_products_to_excel(output_file=args.output_file, app_url=args.app_url)

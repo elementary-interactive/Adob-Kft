@@ -52,7 +52,10 @@ class ADOBProductExportBatch_new implements ShouldQueue
             $outputFile = storage_path('app/exports/' . $this->export->file);
             $scriptPath = base_path('python/run.sh');
 
-            $process = Process::run('sh ' . $scriptPath . ' ' . $outputFile);
+            $process = Process::env([
+                'APP_URL' => config('app.url'),
+                'OUTPUT_FILE' => $outputFile,
+            ])->run('sh ' . $scriptPath);
 
             $this->logger->info('Export process', (array)$process->output());
 

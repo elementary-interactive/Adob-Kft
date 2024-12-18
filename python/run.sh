@@ -7,7 +7,7 @@ cd "${0%/*}"
 source venv/bin/activate
 
 # Run the Python script with the output file argument
-python export.py "$1"
+python export.py --output_file "$OUTPUT_FILE" --app_url "$APP_URL"
 
 # Deactivate the virtual environment
 deactivate
