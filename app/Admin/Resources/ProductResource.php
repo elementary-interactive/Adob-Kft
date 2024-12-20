@@ -111,7 +111,7 @@ class ProductResource extends Resource
                             ->appendFiles(true)
                             ->afterStateUpdated(function (string $operation, Get $get, ?array $state, ?array $old, ?string $model) {
 
-                                /** Getting the product object and attach media files. 
+                                /** Getting the product object and attach media files.
                                  */
                                 $obj = $model::find($get('id'));
 
@@ -373,7 +373,7 @@ class ProductResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->paginated([25, 50, 100, 'all'])
+            ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->defaultSort('created_at', 'desc');
     }
