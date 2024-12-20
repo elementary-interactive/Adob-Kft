@@ -3,7 +3,6 @@ from columns import column_mapping  # Correct import statement
 import humanize
 from db_connection import db_connection
 from categories import get_categories, build_category_tree
-import sys
 import argparse
 
 def size_format(bytes):
