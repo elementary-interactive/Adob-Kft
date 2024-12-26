@@ -11,5 +11,6 @@ column_mapping = {
     "description": "Termék leírás",
     "image_count": 'Kép darabszám',
     'image_sizes': 'Kép méretek',
-    'image_size_sum': 'Kép méret összesen'
+    'image_size_sum': 'Kép méret összesen',
+    'image_urls': 'Kép URL-ek'
 }

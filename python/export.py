@@ -3,7 +3,6 @@ from columns import column_mapping  # Correct import statement
 import humanize
 from db_connection import db_connection
 from categories import get_categories, build_category_tree
-import sys
 import argparse
 
 def size_format(bytes):
@@ -34,6 +33,7 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx", app_
             cursor.execute(f"""
             SELECT p.*, b.name as brand_name, p.slug,
                    (SELECT COUNT(*) FROM media WHERE media.model_id = p.id) as image_count,
+                   GROUP_CONCAT(media.id) as media_ids,
                    GROUP_CONCAT(media.file_name) as file_names,
                    GROUP_CONCAT(media.size) as sizes,
                    GROUP_CONCAT(media.mime_type) as mime_types,
@@ -51,6 +51,15 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx", app_
             chunk_df = pd.DataFrame(products)
             #print("Columns in chunk_df before filtering:", chunk_df.columns.tolist())
 
+
+            # Generate column for image URLs
+            chunk_df['image_urls'] = chunk_df.apply(
+                lambda row: "; ".join(
+                    [f"{app_url}/storage/{media_id}/{filename}" for media_id, filename in zip(row['media_ids'].split(","), row['file_names'].split(","))]
+                ) if row['file_names'] else '',
+                axis=1
+            )
+
             # Generate columns for image file names, sizes, and mime types
             chunk_df['image_sizes'] = chunk_df.apply(
                 lambda row: "; ".join(
@@ -59,6 +68,8 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx", app_
                 axis=1
             )
 
+
+            # Generate column for summarized image sizes
             chunk_df['image_size_sum'] = chunk_df.apply(
                 lambda row: size_format(sum(int(size.strip()) for size in row['sizes'].split(","))) if row['sizes'] else '',
                 axis=1
@@ -72,7 +83,7 @@ def export_products_to_excel(chunk_size=20000, output_file="products.xlsx", app_
                 lambda x: "; ".join([category_tree.get(cat_id, '') for cat_id in x.split(",")]) if x else ''
             )
 
-            # Generate URL column // todo: get env variable for base url
+            # Generate URL column
             chunk_df['url'] = chunk_df['slug'].apply(lambda x: f"{app_url}/termek/{x}")
 
             chunk_df = chunk_df[columns_to_keep]
