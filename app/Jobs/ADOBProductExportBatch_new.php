@@ -11,7 +11,7 @@ use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Process;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Logtail\Monolog\LogtailHandler;
 use Monolog\Logger;
 
@@ -52,10 +52,16 @@ class ADOBProductExportBatch_new implements ShouldQueue
             $outputFile = storage_path('app/exports/' . $this->export->file);
             $scriptPath = base_path('python/run.sh');
 
+            // Ensure the directory exists
+            $directory = dirname($outputFile);
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
             $process = Process::env([
                 'APP_URL' => config('app.url'),
                 'OUTPUT_FILE' => $outputFile,
-            ])->run('sh ' . $scriptPath);
+            ])->run('bash ' . $scriptPath);
 
             $this->logger->info('Export process', (array)$process->output());
 
